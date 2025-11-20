@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Target, TrendingUp, Brain, Clock, MonitorPlay, Zap } from 'lucide-react';
+import { Target, TrendingUp, Brain, Clock, MonitorPlay, Zap, Youtube } from 'lucide-react';
 
 interface DashboardProps {
   onNavigate: (tab: string) => void;
@@ -54,26 +54,29 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 flex items-center justify-between">
+            <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 flex items-center justify-between group hover:border-red-100 transition-colors">
               <div>
-                <h3 className="font-bold text-slate-800">Weak Area Practice</h3>
-                <p className="text-sm text-slate-500">Focus on Puzzles & DI.</p>
+                <div className="flex items-center gap-2 mb-1">
+                   <Youtube size={18} className="text-red-600" />
+                   <h3 className="font-bold text-slate-800">Video Classes</h3>
+                </div>
+                <p className="text-sm text-slate-500">Shantanu Sir & Ashish Sir.</p>
               </div>
               <button 
-                onClick={() => onNavigate('practice')}
-                className="text-indigo-600 font-semibold hover:text-indigo-700"
+                onClick={() => onNavigate('youtube')}
+                className="text-red-600 font-semibold hover:text-red-700"
               >
-                Start &rarr;
+                Watch &rarr;
               </button>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 flex items-center justify-between">
+            <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 flex items-center justify-between group hover:border-amber-100 transition-colors">
               <div>
-                <div className="flex items-center gap-2">
-                   <Zap size={16} className="text-amber-500" />
+                <div className="flex items-center gap-2 mb-1">
+                   <Zap size={18} className="text-amber-500" />
                    <h3 className="font-bold text-slate-800">Speed Math</h3>
                 </div>
-                <p className="text-sm text-slate-500">Tables, Squares, Cubes Blitz.</p>
+                <p className="text-sm text-slate-500">Tables & Exam Multiplications.</p>
               </div>
               <button 
                 onClick={() => onNavigate('speed')}

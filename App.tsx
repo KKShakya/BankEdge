@@ -8,6 +8,7 @@ import PracticeZone from './components/PracticeZone';
 import PatternAnalyzer from './components/PatternAnalyzer';
 import MockExam from './components/MockExam';
 import SpeedMath from './components/SpeedMath';
+import YouTubeZone from './components/YouTubeZone';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -21,6 +22,8 @@ const App: React.FC = () => {
         return <MockExam />;
       case 'speed':
         return <SpeedMath />;
+      case 'youtube':
+        return <YouTubeZone />;
       case 'chat':
         return <ChatInterface />;
       case 'practice':
