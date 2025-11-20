@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Zap, Book, Timer, Trophy, ChevronLeft, RefreshCcw, Brain, Eye } from 'lucide-react';
+import { Zap, Book, Timer, Trophy, ChevronLeft, RefreshCcw, Brain, Eye, X } from 'lucide-react';
 
-type Category = 'tables' | 'squares' | 'cubes' | 'alpha' | 'percent';
+type Category = 'tables' | 'squares' | 'cubes' | 'alpha' | 'percent' | 'multiplication';
 
 const SpeedMath: React.FC = () => {
   const [mode, setMode] = useState<'menu' | 'practice' | 'reference'>('menu');
@@ -14,6 +14,63 @@ const SpeedMath: React.FC = () => {
   const [input, setInput] = useState('');
   const [feedback, setFeedback] = useState<'none' | 'correct' | 'wrong'>('none');
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // --- Data Sets ---
+
+  const fractionMap = [
+    { f: '1/2', p: '50' }, { f: '1/3', p: '33.33' }, { f: '2/3', p: '66.66' },
+    { f: '1/4', p: '25' }, { f: '3/4', p: '75' },
+    { f: '1/5', p: '20' }, { f: '2/5', p: '40' }, { f: '3/5', p: '60' }, { f: '4/5', p: '80' },
+    { f: '1/6', p: '16.66' }, { f: '5/6', p: '83.33' },
+    { f: '1/7', p: '14.28' }, { f: '2/7', p: '28.57' },
+    { f: '1/8', p: '12.5' }, { f: '3/8', p: '37.5' }, { f: '5/8', p: '62.5' }, { f: '7/8', p: '87.5' },
+    { f: '1/9', p: '11.11' }, { f: '2/9', p: '22.22' },
+    { f: '1/10', p: '10' },
+    { f: '1/11', p: '9.09' }, { f: '2/11', p: '18.18' },
+    { f: '1/12', p: '8.33' },
+    { f: '1/13', p: '7.69' },
+    { f: '1/14', p: '7.14' },
+    { f: '1/15', p: '6.66' },
+    { f: '1/16', p: '6.25' },
+    { f: '1/20', p: '5' },
+    { f: '1/24', p: '4.16' },
+    { f: '1/25', p: '4' },
+    { f: '1/30', p: '3.33' },
+    { f: '1/40', p: '2.5' },
+    { f: '1/50', p: '2' }
+  ];
+
+  const examMultiplications = [
+    // Consecutive numbers (n * n+1) - Very common in Series
+    { q: '11 × 12', a: '132' }, { q: '12 × 13', a: '156' }, { q: '13 × 14', a: '182' },
+    { q: '14 × 15', a: '210' }, { q: '15 × 16', a: '240' }, { q: '16 × 17', a: '272' },
+    { q: '17 × 18', a: '306' }, { q: '18 × 19', a: '342' }, { q: '19 × 20', a: '380' },
+    { q: '20 × 21', a: '420' }, { q: '24 × 25', a: '600' },
+    // Common Exam Pairs (Simplification frequent fliers)
+    { q: '56 × 18', a: '1008' }, { q: '18 × 56', a: '1008' },
+    { q: '15 × 18', a: '270' }, { q: '18 × 15', a: '270' },
+    { q: '12 × 15', a: '180' }, { q: '15 × 12', a: '180' },
+    { q: '12 × 18', a: '216' }, { q: '18 × 12', a: '216' },
+    { q: '25 × 18', a: '450' }, { q: '18 × 25', a: '450' },
+    { q: '14 × 18', a: '252' }, { q: '18 × 14', a: '252' },
+    { q: '16 × 18', a: '288' }, { q: '18 × 16', a: '288' },
+    { q: '25 × 14', a: '350' }, { q: '14 × 25', a: '350' },
+    { q: '25 × 16', a: '400' }, { q: '16 × 25', a: '400' },
+    { q: '35 × 12', a: '420' }, { q: '12 × 35', a: '420' },
+    { q: '45 × 12', a: '540' }, { q: '12 × 45', a: '540' },
+    { q: '75 × 12', a: '900' }, { q: '12 × 75', a: '900' },
+    { q: '36 × 15', a: '540' }, { q: '15 × 36', a: '540' },
+    { q: '24 × 15', a: '360' }, { q: '15 × 24', a: '360' },
+    // Special patterns
+    { q: '37 × 3', a: '111' }, { q: '37 × 6', a: '222' }, { q: '37 × 9', a: '333' },
+    { q: '37 × 27', a: '999' },
+    { q: '11 × 11', a: '121' }, { q: '111 × 11', a: '1221' },
+    { q: '101 × 25', a: '2525' }, { q: '101 × 44', a: '4444' },
+    // Squaring numbers ending in 5
+    { q: '35 × 35', a: '1225' }, { q: '45 × 45', a: '2025' }, 
+    { q: '55 × 55', a: '3025' }, { q: '65 × 65', a: '4225' },
+    { q: '75 × 75', a: '5625' }
+  ];
 
   // --- Game Logic ---
 
@@ -47,16 +104,15 @@ const SpeedMath: React.FC = () => {
         break;
       }
       case 'percent': {
-        const fractions = [
-          { f: '1/2', v: '50' }, { f: '1/3', v: '33.33' }, { f: '1/4', v: '25' },
-          { f: '1/5', v: '20' }, { f: '1/6', v: '16.66' }, { f: '1/7', v: '14.28' },
-          { f: '1/8', v: '12.5' }, { f: '1/9', v: '11.11' }, { f: '1/10', v: '10' },
-          { f: '1/11', v: '9.09' }, { f: '1/12', v: '8.33' }, { f: '3/8', v: '37.5' },
-          { f: '5/8', v: '62.5' }, { f: '7/8', v: '87.5' }, { f: '2/3', v: '66.66' }
-        ];
-        const item = fractions[Math.floor(Math.random() * fractions.length)];
-        q = `${item.f} = ? %`;
-        a = item.v;
+        const item = fractionMap[Math.floor(Math.random() * fractionMap.length)];
+        q = `${item.p}% = ?`;
+        a = item.f;
+        break;
+      }
+      case 'multiplication': {
+        const item = examMultiplications[Math.floor(Math.random() * examMultiplications.length)];
+        q = item.q;
+        a = item.a;
         break;
       }
     }
@@ -71,7 +127,6 @@ const SpeedMath: React.FC = () => {
     setIsActive(true);
     setInput('');
     generateQuestion(cat);
-    // Focus input on next render
     setTimeout(() => inputRef.current?.focus(), 100);
   };
 
@@ -92,7 +147,7 @@ const SpeedMath: React.FC = () => {
     setInput(val);
 
     // Check answer immediately
-    if (val === question.answer) {
+    if (val.trim().toLowerCase() === question.answer.toLowerCase()) {
       setScore((s) => s + 1);
       setFeedback('correct');
       setInput('');
@@ -105,11 +160,11 @@ const SpeedMath: React.FC = () => {
 
   const renderReference = () => {
     return (
-      <div className="animate-in fade-in slide-in-from-right-4">
+      <div className="animate-in fade-in slide-in-from-right-4 pb-10">
          <button onClick={() => setMode('menu')} className="mb-4 flex items-center text-slate-500 hover:text-indigo-600">
            <ChevronLeft size={20} /> Back to Menu
          </button>
-         <h2 className="text-2xl font-bold mb-6 capitalize text-slate-800">Study {category}</h2>
+         <h2 className="text-2xl font-bold mb-6 capitalize text-slate-800">Study {category === 'multiplication' ? 'High-Yield Multiplications' : category}</h2>
          
          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
            {category === 'tables' && Array.from({length: 24}, (_, i) => i + 2).map(num => (
@@ -148,19 +203,18 @@ const SpeedMath: React.FC = () => {
               </div>
            ))}
 
-            {category === 'percent' && [
-                {f:'1/2', v:'50%'}, {f:'1/3', v:'33.33%'}, {f:'2/3', v:'66.66%'},
-                {f:'1/4', v:'25%'}, {f:'3/4', v:'75%'},
-                {f:'1/5', v:'20%'}, {f:'1/6', v:'16.66%'},
-                {f:'1/7', v:'14.28%'}, {f:'1/8', v:'12.5%'}, {f:'3/8', v:'37.5%'},
-                {f:'1/9', v:'11.11%'}, {f:'1/10', v:'10%'}, {f:'1/11', v:'9.09%'},
-                {f:'1/12', v:'8.33%'}, {f:'1/15', v:'6.66%'}, {f:'1/16', v:'6.25%'},
-                {f:'1/20', v:'5%'}, {f:'5/8', v:'62.5%'}, {f:'7/8', v:'87.5%'}
-            ].map((item, i) => (
+            {category === 'percent' && fractionMap.map((item, i) => (
                <div key={i} className="bg-white p-4 rounded-lg shadow-sm border border-slate-100 flex justify-between items-center">
+                 <span className="font-bold text-indigo-600">{item.p}%</span>
                  <span className="text-lg font-serif text-slate-700">{item.f}</span>
-                 <span className="font-bold text-indigo-600">{item.v}</span>
                </div>
+            ))}
+
+            {category === 'multiplication' && examMultiplications.map((item, i) => (
+              <div key={i} className="bg-white p-4 rounded-lg shadow-sm border border-slate-100 flex justify-between items-center">
+                <span className="text-slate-500 font-medium text-sm">{item.q}</span>
+                <span className="text-lg font-bold text-indigo-700">{item.a}</span>
+              </div>
             ))}
          </div>
       </div>
@@ -179,7 +233,8 @@ const SpeedMath: React.FC = () => {
         { id: 'squares', label: 'Squares (1-50)', icon: Brain, color: 'bg-blue-500' },
         { id: 'cubes', label: 'Cubes (1-25)', icon: Brain, color: 'bg-indigo-500' },
         { id: 'alpha', label: 'Alphabet Ranks', icon: Eye, color: 'bg-emerald-500' },
-        { id: 'percent', label: 'Fraction to %', icon: RefreshCcw, color: 'bg-rose-500' },
+        { id: 'percent', label: '% to Fractions', icon: RefreshCcw, color: 'bg-rose-500' },
+        { id: 'multiplication', label: 'Exam Multiplications', icon: X, color: 'bg-violet-500' },
       ].map((item) => (
         <div key={item.id} className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border border-slate-100 overflow-hidden">
           <div className={`h-2 ${item.color}`} />
@@ -227,7 +282,7 @@ const SpeedMath: React.FC = () => {
 
           <div className="mb-12 relative">
             <div className="text-sm uppercase tracking-wider text-slate-400 font-bold mb-4">
-               Solve this
+               {category === 'percent' ? 'Find the fraction for' : 'Solve this'}
             </div>
             <div className={`text-6xl md:text-8xl font-bold text-slate-800 transition-transform duration-100 ${feedback === 'correct' ? 'scale-110 text-green-600' : ''}`}>
               {question.text}
@@ -250,7 +305,9 @@ const SpeedMath: React.FC = () => {
               autoFocus
             />
             <p className="mt-4 text-slate-400 text-sm">
-              {category === 'alpha' ? 'Type number position' : 'Type result'}
+              {category === 'alpha' && 'Type number position'}
+              {category === 'percent' && 'Type fraction (e.g., 1/2)'}
+              {(category !== 'alpha' && category !== 'percent') && 'Type result'}
             </p>
           </div>
         </>
