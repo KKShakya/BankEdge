@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Clock, AlertCircle, ChevronRight, ChevronLeft, Info, Save, Flag, X, CheckCircle2, RotateCcw } from 'lucide-react';
-import { MockQuestion } from '../types';
+import { Clock, ChevronRight, Flag, X, CheckCircle2, RotateCcw, Tag, Save } from 'lucide-react';
+import { MockQuestion, AnalysisTag, ExamResult } from '../types';
 import { generateMockExam, parseMockFromText } from '../services/geminiService';
 
 const MockExam: React.FC = () => {
@@ -11,7 +11,8 @@ const MockExam: React.FC = () => {
   const [currentQIndex, setCurrentQIndex] = useState(0); // Relative to section
   const [timeLeft, setTimeLeft] = useState(45 * 60); // 45 minutes in seconds
   const [pasteText, setPasteText] = useState('');
-  
+  const [examId, setExamId] = useState<string>('');
+
   // Derived state for current section questions to handle navigation
   const sectionQuestions = useMemo(() => {
     return questions.filter(q => q.section === currentSection);
@@ -49,6 +50,7 @@ const MockExam: React.FC = () => {
       setQuestions(qs);
       setMode('exam');
       setTimeLeft(20 * 60); // Mini mock, 20 mins
+      setExamId(Date.now().toString());
     } else {
       setMode('landing');
       alert("Failed to generate mock. Please try again.");
@@ -63,6 +65,7 @@ const MockExam: React.FC = () => {
       setQuestions(qs);
       setMode('exam');
       setTimeLeft(45 * 60);
+      setExamId(Date.now().toString());
     } else {
       setMode('landing');
       alert("Could not parse questions from text. Ensure the text is clear.");
@@ -126,7 +129,48 @@ const MockExam: React.FC = () => {
   };
 
   const handleSubmit = () => {
+    // Calculate Score
+    let correct = 0;
+    let wrong = 0;
+    questions.forEach(q => {
+      if (q.userAnswer !== undefined) {
+        if (q.userAnswer === q.correctAnswerIndex) correct++;
+        else wrong++;
+      }
+    });
+    const score = correct * 1 - wrong * 0.25;
+
+    // Save to Local Storage
+    const result: ExamResult = {
+      id: examId,
+      timestamp: Date.now(),
+      score: score,
+      totalQuestions: questions.length,
+      questions: questions
+    };
+
+    const existingHistory = localStorage.getItem('bankedge_exam_history');
+    const history = existingHistory ? JSON.parse(existingHistory) : [];
+    localStorage.setItem('bankedge_exam_history', JSON.stringify([result, ...history]));
+
     setMode('result');
+  };
+
+  const handleTagUpdate = (qIndex: number, tag: AnalysisTag) => {
+    const updatedQuestions = [...questions];
+    updatedQuestions[qIndex].analysisTag = tag;
+    setQuestions(updatedQuestions);
+
+    // Update in local storage as well
+    const existingHistory = localStorage.getItem('bankedge_exam_history');
+    if (existingHistory) {
+      const history: ExamResult[] = JSON.parse(existingHistory);
+      const examIndex = history.findIndex(h => h.id === examId);
+      if (examIndex > -1) {
+        history[examIndex].questions = updatedQuestions;
+        localStorage.setItem('bankedge_exam_history', JSON.stringify(history));
+      }
+    }
   };
 
   const formatTime = (seconds: number) => {
@@ -211,7 +255,7 @@ const MockExam: React.FC = () => {
   }
 
   if (mode === 'result') {
-    // Calculate Score
+    // Calculate Score Display
     let correct = 0;
     let wrong = 0;
     let unattempted = 0;
@@ -223,11 +267,11 @@ const MockExam: React.FC = () => {
     const score = correct * 1 - wrong * 0.25;
 
     return (
-      <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+      <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
         <div className="bg-slate-900 text-white p-8 text-center">
-          <h2 className="text-3xl font-bold mb-2">Exam Summary</h2>
+          <h2 className="text-3xl font-bold mb-2">Exam Analysis</h2>
           <div className="text-5xl font-bold text-emerald-400 my-6">{score} <span className="text-lg text-slate-400">/ {questions.length}</span></div>
-          <div className="flex justify-center gap-8 text-sm">
+          <div className="flex justify-center gap-8 text-sm mb-6">
              <div className="text-center">
                <div className="text-emerald-400 font-bold text-xl">{correct}</div>
                <div className="text-slate-400">Correct</div>
@@ -241,40 +285,88 @@ const MockExam: React.FC = () => {
                <div className="text-slate-400">Skipped</div>
              </div>
           </div>
+          <p className="text-slate-400 text-sm bg-slate-800/50 inline-block px-4 py-2 rounded-full border border-slate-700">
+            <Tag size={14} className="inline mr-2" />
+            Tag your mistakes below to help AI identify your weak areas.
+          </p>
         </div>
-        <div className="p-8">
-           <h3 className="font-bold text-slate-800 mb-4 text-lg">Detailed Solution</h3>
-           <div className="space-y-6 max-h-[500px] overflow-y-auto pr-2">
-             {questions.map((q, i) => (
-               <div key={i} className="border-b border-slate-100 pb-4 last:border-0">
-                 <div className="flex gap-2 mb-2">
-                   <span className="font-bold text-slate-700">Q{i+1}.</span>
-                   <span className="text-slate-800">{q.questionText}</span>
-                 </div>
-                 <div className="ml-6 space-y-1 text-sm mb-2">
-                   {q.options.map((opt, idx) => (
-                     <div key={idx} className={`
-                        flex items-center gap-2
-                        ${idx === q.correctAnswerIndex ? 'text-green-600 font-medium' : ''}
-                        ${idx === q.userAnswer && idx !== q.correctAnswerIndex ? 'text-red-600 line-through' : 'text-slate-500'}
-                     `}>
-                       {idx === q.correctAnswerIndex && <CheckCircle2 size={14} />}
-                       {idx === q.userAnswer && idx !== q.correctAnswerIndex && <X size={14} />}
-                       {opt}
+        <div className="p-8 bg-slate-50">
+           <h3 className="font-bold text-slate-800 mb-6 text-xl flex items-center gap-2">
+             Detailed Solutions & Analysis
+           </h3>
+           <div className="space-y-6">
+             {questions.map((q, i) => {
+               const isCorrect = q.userAnswer === q.correctAnswerIndex;
+               const isSkipped = q.userAnswer === undefined;
+               
+               return (
+                 <div key={i} className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+                   <div className="flex justify-between items-start mb-4">
+                     <div className="flex gap-3">
+                        <span className={`
+                          flex items-center justify-center w-8 h-8 rounded-full font-bold text-sm
+                          ${isCorrect ? 'bg-emerald-100 text-emerald-700' : isSkipped ? 'bg-slate-100 text-slate-600' : 'bg-red-100 text-red-700'}
+                        `}>
+                          {i+1}
+                        </span>
+                        <div>
+                           <p className="font-medium text-slate-800 text-lg">{q.questionText}</p>
+                           <div className="flex gap-2 mt-1">
+                             <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">{q.section}</span>
+                             <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded">{q.topic}</span>
+                           </div>
+                        </div>
                      </div>
-                   ))}
+                   </div>
+
+                   <div className="ml-11 space-y-2 text-sm mb-4">
+                     {q.options.map((opt, idx) => (
+                       <div key={idx} className={`
+                          flex items-center gap-2 p-2 rounded border
+                          ${idx === q.correctAnswerIndex ? 'border-green-200 bg-green-50 text-green-800 font-medium' : ''}
+                          ${idx === q.userAnswer && idx !== q.correctAnswerIndex ? 'border-red-200 bg-red-50 text-red-800 line-through' : 'border-transparent text-slate-600'}
+                       `}>
+                         {idx === q.correctAnswerIndex && <CheckCircle2 size={16} />}
+                         {idx === q.userAnswer && idx !== q.correctAnswerIndex && <X size={16} />}
+                         {opt}
+                       </div>
+                     ))}
+                   </div>
+
+                   <div className="ml-11 bg-slate-50 p-4 rounded-lg text-sm text-slate-700 border border-slate-100 mb-4">
+                     <span className="font-bold block mb-1 text-indigo-900">Explanation:</span> 
+                     {q.explanation}
+                   </div>
+
+                   {/* Tagging Section */}
+                   <div className="ml-11 pt-4 border-t border-slate-100">
+                      <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Analysis Tag</p>
+                      <div className="flex flex-wrap gap-2">
+                        {['Silly Mistake', 'Conceptual Error', 'Time Management', 'Guessed', 'Skipped Strategically'].map((tag) => (
+                          <button
+                            key={tag}
+                            onClick={() => handleTagUpdate(i, tag as AnalysisTag)}
+                            className={`
+                              px-3 py-1.5 rounded-full text-xs font-medium transition-all border
+                              ${q.analysisTag === tag 
+                                ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' 
+                                : 'bg-white text-slate-500 border-slate-200 hover:border-indigo-300 hover:text-indigo-600'}
+                            `}
+                          >
+                            {tag}
+                          </button>
+                        ))}
+                      </div>
+                   </div>
                  </div>
-                 <div className="ml-6 bg-slate-50 p-3 rounded text-sm text-slate-600">
-                   <span className="font-semibold text-slate-700">Explanation:</span> {q.explanation}
-                 </div>
-               </div>
-             ))}
+               );
+             })}
            </div>
            <button 
              onClick={() => setMode('landing')}
-             className="w-full mt-6 bg-indigo-600 text-white py-3 rounded-lg font-bold hover:bg-indigo-700"
+             className="w-full mt-8 bg-slate-900 text-white py-4 rounded-xl font-bold hover:bg-slate-800 shadow-lg transition-all"
            >
-             Back to Dashboard
+             Save Analysis & Return to Dashboard
            </button>
         </div>
       </div>
@@ -282,22 +374,20 @@ const MockExam: React.FC = () => {
   }
 
   // --- EXAM UI ---
-  // Replicating the classic TCS/IBPS Interface
   
   const paletteStatusColor = (status: MockQuestion['status'], current: boolean) => {
-    if (current) return 'ring-2 ring-black ring-offset-1'; // Highlight current
+    if (current) return 'ring-2 ring-black ring-offset-1'; 
     switch(status) {
       case 'answered': return 'bg-green-500 text-white clip-polygon-flat';
       case 'not_answered': return 'bg-red-500 text-white clip-polygon-flat-top';
       case 'marked': return 'bg-purple-600 text-white rounded-full';
       case 'marked_answered': return 'bg-purple-600 text-white relative after:content-["✔"] after:absolute after:bottom-0 after:right-0 after:text-[8px] after:bg-green-500 after:rounded-full after:px-0.5';
-      default: return 'bg-slate-100 text-slate-700 border border-slate-300'; // not_visited
+      default: return 'bg-slate-100 text-slate-700 border border-slate-300'; 
     }
   };
 
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col font-sans">
-      {/* Header */}
       <header className="bg-[#2c3e50] text-white h-14 px-4 flex justify-between items-center shadow-md">
          <div className="font-bold text-lg tracking-wide">IBPS RRB Online Exam</div>
          <div className="flex items-center space-x-4">
@@ -309,12 +399,8 @@ const MockExam: React.FC = () => {
          </div>
       </header>
 
-      {/* Main Body */}
       <div className="flex-1 flex overflow-hidden">
-        
-        {/* Left: Question Area */}
         <div className="flex-1 flex flex-col min-w-0">
-          {/* Section Tabs */}
           <div className="bg-white border-b border-slate-300 flex px-4 pt-2 gap-1">
              <button 
               onClick={() => changeSection('Reasoning')}
@@ -330,16 +416,13 @@ const MockExam: React.FC = () => {
              </button>
           </div>
 
-          {/* Question Header */}
           <div className="bg-[#3498db] text-white px-4 py-1 flex justify-between items-center text-sm shadow-sm z-10">
             <span className="font-semibold">Question Type: Multiple Choice Question</span>
             <div className="flex gap-4">
-              <span className="bg-white/20 px-2 py-0.5 rounded text-xs">View in: English</span>
               <span className="bg-white/20 px-2 py-0.5 rounded text-xs font-bold text-green-300">+1 | -0.25</span>
             </div>
           </div>
 
-          {/* Question Content */}
           <div className="flex-1 overflow-y-auto p-6 bg-white">
              {currentQuestion ? (
                <div className="max-w-4xl">
@@ -361,8 +444,6 @@ const MockExam: React.FC = () => {
                            setQuestions(prev => {
                              const n = [...prev];
                              n[globalIndex].userAnswer = idx;
-                             // Status isn't "Answered" until Save&Next is clicked in real exams, 
-                             // but visually we show selection.
                              return n;
                            });
                          }}
@@ -380,7 +461,6 @@ const MockExam: React.FC = () => {
              )}
           </div>
 
-          {/* Footer Actions */}
           <div className="h-16 border-t border-slate-300 bg-slate-50 px-4 flex items-center justify-between">
              <div className="flex gap-2">
                <button 
@@ -406,11 +486,9 @@ const MockExam: React.FC = () => {
           </div>
         </div>
 
-        {/* Right: Palette */}
         <div className="w-80 bg-[#eef2f5] border-l border-slate-300 flex flex-col shadow-inner hidden lg:flex">
            <div className="p-4 bg-slate-100 border-b border-slate-200 flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden border-2 border-white shadow-sm">
-                 {/* Placeholder Img */}
                  <span className="text-xs text-slate-500">Photo</span>
               </div>
               <span className="font-bold text-slate-700">Krishna</span>
@@ -431,7 +509,6 @@ const MockExam: React.FC = () => {
               <h4 className="font-bold text-slate-700 text-sm mb-4">Choose a Question:</h4>
               <div className="grid grid-cols-4 gap-3">
                 {sectionQuestions.map((q, idx) => {
-                   const realIdx = questions.indexOf(q);
                    const isCurrent = currentQuestion === q;
                    return (
                      <button

@@ -29,10 +29,21 @@ export interface Question {
   chartData?: ChartData; // Optional field for DI
 }
 
+export type AnalysisTag = 'Silly Mistake' | 'Conceptual Error' | 'Time Management' | 'Guessed' | 'Skipped Strategically';
+
 export interface MockQuestion extends Question {
   section: 'Reasoning' | 'Quantitative Aptitude';
   status: 'not_visited' | 'not_answered' | 'answered' | 'marked' | 'marked_answered';
   userAnswer?: number;
+  analysisTag?: AnalysisTag;
+}
+
+export interface ExamResult {
+  id: string;
+  timestamp: number;
+  score: number;
+  totalQuestions: number;
+  questions: MockQuestion[];
 }
 
 export interface ChatMessage {

@@ -4,20 +4,39 @@ import { Note } from '../types';
 import { analyzeUserNote } from '../services/geminiService';
 
 const SmartNotes: React.FC = () => {
-  const [notes, setNotes] = useState<Note[]>([
-    { 
-      id: '1', 
-      title: 'Percentage to Fraction Tricks', 
-      content: '33.33% = 1/3\n16.66% = 1/6\n14.28% = 1/7\n\nRemember: To find 14.28% of 49, just divide by 7 = 7.', 
-      date: Date.now(), 
-      tags: ['Quant', 'Tricks'] 
-    }
-  ]);
-  
-  const [activeNoteId, setActiveNoteId] = useState<string>(notes[0].id);
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [activeNoteId, setActiveNoteId] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
+
+  // Load from Local Storage on Mount
+  useEffect(() => {
+    const savedNotes = localStorage.getItem('bankedge_notes');
+    if (savedNotes) {
+      const parsed = JSON.parse(savedNotes);
+      setNotes(parsed);
+      if (parsed.length > 0) setActiveNoteId(parsed[0].id);
+    } else {
+      // Default note if empty
+      const defaultNote: Note = { 
+        id: '1', 
+        title: 'Percentage to Fraction Tricks', 
+        content: '33.33% = 1/3\n16.66% = 1/6\n14.28% = 1/7\n\nRemember: To find 14.28% of 49, just divide by 7 = 7.', 
+        date: Date.now(), 
+        tags: ['Quant', 'Tricks'] 
+      };
+      setNotes([defaultNote]);
+      setActiveNoteId(defaultNote.id);
+    }
+  }, []);
+
+  // Save to Local Storage on Change
+  useEffect(() => {
+    if (notes.length > 0) {
+      localStorage.setItem('bankedge_notes', JSON.stringify(notes));
+    }
+  }, [notes]);
 
   const activeNote = notes.find(n => n.id === activeNoteId);
 
@@ -43,6 +62,8 @@ const SmartNotes: React.FC = () => {
     setNotes(newNotes);
     if (activeNoteId === id && newNotes.length > 0) {
       setActiveNoteId(newNotes[0].id);
+    } else if (newNotes.length === 0) {
+      setActiveNoteId(null);
     }
   };
 
@@ -137,7 +158,7 @@ const SmartNotes: React.FC = () => {
               <div className="flex justify-between items-center pt-4 border-t border-slate-100 text-sm text-slate-400">
                  <span>{activeNote.content.length} characters</span>
                  <div className="flex gap-2">
-                    <button className="flex items-center gap-1 hover:text-indigo-600"><Save size={14} /> Auto-saved</button>
+                    <button className="flex items-center gap-1 hover:text-indigo-600"><Save size={14} /> Auto-saved to Local</button>
                  </div>
               </div>
             </div>
