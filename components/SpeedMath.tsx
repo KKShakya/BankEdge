@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Zap, Book, Timer, Trophy, ChevronLeft, RefreshCcw, Brain, Eye, X, Flame, Star, Hash, Settings } from 'lucide-react';
+import { Zap, Book, Timer, Trophy, ChevronLeft, RefreshCcw, Brain, Eye, X, Flame, Star, Hash, Settings, Clock } from 'lucide-react';
 
 type Category = 'tables' | 'squares' | 'cubes' | 'alpha' | 'percent' | 'multiplication' | 'specific_table';
 type ViralCategory = 'viral_products' | 'viral_addition' | 'viral_subtraction' | 'viral_multiplication' | 'viral_squares' | 'viral_division';
@@ -257,11 +257,12 @@ const STANDARD_CONCEPTS = {
 };
 
 const SpeedMath: React.FC = () => {
-  const [mode, setMode] = useState<'menu' | 'viral-menu' | 'practice' | 'reference'>('menu');
+  const [mode, setMode] = useState<'menu' | 'viral-menu' | 'practice' | 'reference' | 'timer-selection'>('menu');
   const [category, setCategory] = useState<string>('tables'); // General or Viral key
   const [customTable, setCustomTable] = useState<{table: string, limit: string}>({ table: '19', limit: '10' });
   
   const [score, setScore] = useState(0);
+  const [totalTime, setTotalTime] = useState(60);
   const [timeLeft, setTimeLeft] = useState(60);
   const [isActive, setIsActive] = useState(false);
   const [question, setQuestion] = useState({ text: '', answer: '' });
@@ -332,14 +333,20 @@ const SpeedMath: React.FC = () => {
     return { text: q, answer: a };
   };
 
-  const startGame = (cat: string) => {
+  const initGameSetup = (cat: string) => {
     setCategory(cat);
+    setMode('timer-selection');
+  };
+
+  const startWithDuration = (mins: number) => {
+    const seconds = mins * 60;
+    setTotalTime(seconds);
+    setTimeLeft(seconds);
     setMode('practice');
     setScore(0);
-    setTimeLeft(60);
     setIsActive(true);
     setInput('');
-    nextQuestion(cat);
+    nextQuestion(category);
     setTimeout(() => inputRef.current?.focus(), 100);
   };
 
@@ -453,7 +460,7 @@ const SpeedMath: React.FC = () => {
               </div>
             </div>
             <button 
-                onClick={() => startGame('specific_table')}
+                onClick={() => initGameSetup('specific_table')}
                 disabled={!customTable.table || !customTable.limit}
                 className="w-full mt-4 py-2.5 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2 text-sm"
               >
@@ -490,7 +497,7 @@ const SpeedMath: React.FC = () => {
                   <Book size={16} className="mr-2" /> View
                 </button>
                 <button 
-                  onClick={() => startGame(item.id)}
+                  onClick={() => initGameSetup(item.id)}
                   className="flex items-center justify-center py-2 px-4 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors"
                 >
                   <Zap size={16} className="mr-2" /> Play
@@ -544,7 +551,7 @@ const SpeedMath: React.FC = () => {
                   <Book size={16} /> Study Concepts
                 </button>
                 <button 
-                  onClick={() => startGame(key)}
+                  onClick={() => initGameSetup(key)}
                   className="flex-1 py-2.5 bg-indigo-600 text-white rounded-lg font-semibold text-sm hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2"
                 >
                   <Zap size={16} /> Blitz Practice
@@ -600,7 +607,7 @@ const SpeedMath: React.FC = () => {
                   <p className="text-slate-400 text-sm">Memorize these for higher speed.</p>
                 </div>
                 <button 
-                  onClick={() => startGame(category)}
+                  onClick={() => initGameSetup(category)}
                   className="bg-white text-slate-900 px-6 py-2 rounded-lg font-bold hover:bg-slate-100"
                 >
                   Play Now
@@ -702,77 +709,121 @@ const SpeedMath: React.FC = () => {
     );
   };
 
-  const renderGame = () => (
-    <div className="max-w-2xl mx-auto text-center animate-in zoom-in-95 duration-200">
-      {timeLeft > 0 ? (
-        <>
-          <div className="flex justify-between items-center mb-12">
-            <button onClick={() => setMode(Object.keys(VIRAL_CONCEPTS).includes(category) ? 'viral-menu' : 'menu')} className="text-slate-400 hover:text-slate-600">
-              <X size={24} />
-            </button>
-            <div className="flex items-center space-x-2 text-slate-500">
-              <Timer size={20} />
-              <span className="font-mono text-xl font-bold">{timeLeft}s</span>
-            </div>
-            <div className="flex items-center space-x-2 text-indigo-600">
-              <Trophy size={20} />
-              <span className="font-mono text-xl font-bold">{score}</span>
-            </div>
-          </div>
+  const renderTimerSelection = () => (
+    <div className="max-w-xl mx-auto text-center animate-in zoom-in-95 duration-200">
+      <button 
+        onClick={() => setMode(Object.keys(VIRAL_CONCEPTS).includes(category) ? 'viral-menu' : 'menu')} 
+        className="mb-8 flex items-center justify-center mx-auto text-slate-400 hover:text-indigo-600"
+      >
+        <ChevronLeft size={20} /> Back to Options
+      </button>
 
-          <div className="mb-12 relative">
-            <div className="text-sm uppercase tracking-wider text-slate-400 font-bold mb-4">
-               {category === 'specific_table' ? `Table of ${customTable.table}` : 'Solve Fast'}
-            </div>
-            <div className={`text-6xl md:text-8xl font-bold text-slate-800 transition-transform duration-100 ${feedback === 'correct' ? 'scale-110 text-green-600' : ''}`}>
-              {question.text}
-            </div>
-          </div>
-
-          <div className="max-w-xs mx-auto">
-            <input
-              ref={inputRef}
-              type="text"
-              value={input}
-              onChange={handleInput}
-              placeholder="?"
-              className="w-full bg-white border-2 border-slate-200 rounded-xl py-4 text-center text-2xl font-bold focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-300"
-              autoFocus
-            />
-          </div>
-        </>
-      ) : (
-        <div className="bg-white p-8 rounded-2xl shadow-xl border border-slate-100">
-          <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Trophy size={40} className="text-yellow-600" />
-          </div>
-          <h2 className="text-3xl font-bold text-slate-800 mb-2">Time's Up!</h2>
-          <p className="text-slate-500 mb-8">Score: <span className="text-indigo-600 font-bold text-2xl">{score}</span></p>
-          
-          <div className="flex justify-center gap-4">
-            <button 
-              onClick={() => setMode(Object.keys(VIRAL_CONCEPTS).includes(category) ? 'viral-menu' : 'menu')}
-              className="px-6 py-3 border border-slate-200 rounded-lg font-semibold text-slate-600 hover:bg-slate-50"
-            >
-              Exit
-            </button>
-            <button 
-              onClick={() => startGame(category)}
-              className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 shadow-lg"
-            >
-              Retry
-            </button>
-          </div>
+      <div className="bg-white p-8 rounded-2xl shadow-xl border border-slate-200">
+        <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6 text-indigo-600">
+          <Clock size={32} />
         </div>
-      )}
+        <h2 className="text-2xl font-bold text-slate-800 mb-2">Select Duration</h2>
+        <p className="text-slate-500 mb-8">How long do you want to practice?</p>
+
+        <div className="grid grid-cols-2 gap-4">
+          {[1, 2, 3, 5, 10].map(mins => (
+             <button
+               key={mins}
+               onClick={() => startWithDuration(mins)}
+               className="py-4 px-6 border-2 border-slate-100 hover:border-indigo-500 hover:bg-indigo-50 rounded-xl font-bold text-lg text-slate-700 hover:text-indigo-700 transition-all"
+             >
+               {mins} Min
+             </button>
+          ))}
+        </div>
+      </div>
     </div>
   );
+
+  const renderGame = () => {
+    // Calculate potential max score based on 2 seconds per question
+    const potential = Math.floor(totalTime / 2);
+
+    return (
+      <div className="max-w-2xl mx-auto text-center animate-in zoom-in-95 duration-200">
+        {timeLeft > 0 ? (
+          <>
+            <div className="flex justify-between items-center mb-12">
+              <button onClick={() => setMode(Object.keys(VIRAL_CONCEPTS).includes(category) ? 'viral-menu' : 'menu')} className="text-slate-400 hover:text-slate-600">
+                <X size={24} />
+              </button>
+              <div className="flex items-center space-x-2 text-slate-500">
+                <Timer size={20} />
+                <span className="font-mono text-xl font-bold">{timeLeft}s</span>
+              </div>
+              <div className="flex items-center space-x-2 text-indigo-600">
+                <Trophy size={20} />
+                <span className="font-mono text-xl font-bold">{score}</span>
+              </div>
+            </div>
+
+            <div className="mb-12 relative">
+              <div className="text-sm uppercase tracking-wider text-slate-400 font-bold mb-4">
+                {category === 'specific_table' ? `Table of ${customTable.table}` : 'Solve Fast'}
+              </div>
+              <div className={`text-6xl md:text-8xl font-bold text-slate-800 transition-transform duration-100 ${feedback === 'correct' ? 'scale-110 text-green-600' : ''}`}>
+                {question.text}
+              </div>
+            </div>
+
+            <div className="max-w-xs mx-auto">
+              <input
+                ref={inputRef}
+                type="text"
+                value={input}
+                onChange={handleInput}
+                placeholder="?"
+                className="w-full bg-white border-2 border-slate-200 rounded-xl py-4 text-center text-2xl font-bold focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-300"
+                autoFocus
+              />
+            </div>
+          </>
+        ) : (
+          <div className="bg-white p-8 rounded-2xl shadow-xl border border-slate-100">
+            <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Trophy size={40} className="text-yellow-600" />
+            </div>
+            <h2 className="text-3xl font-bold text-slate-800 mb-2">Time's Up!</h2>
+            
+            <p className="text-slate-500 mb-2">Score</p>
+            <div className="text-4xl font-bold text-indigo-900 mb-1">
+              {score} <span className="text-2xl text-slate-400">/ {potential}</span>
+            </div>
+            <p className="text-xs text-slate-400 mb-8">
+              (Target: {potential} based on 2s/question)
+            </p>
+            
+            <div className="flex justify-center gap-4">
+              <button 
+                onClick={() => setMode(Object.keys(VIRAL_CONCEPTS).includes(category) ? 'viral-menu' : 'menu')}
+                className="px-6 py-3 border border-slate-200 rounded-lg font-semibold text-slate-600 hover:bg-slate-50"
+              >
+                Exit
+              </button>
+              <button 
+                onClick={() => initGameSetup(category)}
+                className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 shadow-lg"
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="container mx-auto">
       {mode === 'menu' && renderMainMenu()}
       {mode === 'viral-menu' && renderViralMenu()}
       {mode === 'reference' && renderReference()}
+      {mode === 'timer-selection' && renderTimerSelection()}
       {mode === 'practice' && renderGame()}
     </div>
   );
