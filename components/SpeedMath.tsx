@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Zap, Book, Timer, Trophy, ChevronLeft, RefreshCcw, Brain, Eye, X, Flame, Star, Hash, Settings, Clock } from 'lucide-react';
+import { Zap, Book, Timer, Trophy, ChevronLeft, RefreshCcw, Brain, Eye, X, Flame, Star, Hash, Settings, Clock, Plus, Minus, Check } from 'lucide-react';
 
-type Category = 'tables' | 'squares' | 'cubes' | 'alpha' | 'percent' | 'multiplication' | 'specific_table';
+type Category = 'tables' | 'squares' | 'cubes' | 'alpha' | 'percent' | 'multiplication' | 'specific_table' | 'speed_addition' | 'speed_subtraction';
 type ViralCategory = 'viral_products' | 'viral_addition' | 'viral_subtraction' | 'viral_multiplication' | 'viral_squares' | 'viral_division';
 
 // --- Restored Datasets ---
@@ -260,6 +260,7 @@ const SpeedMath: React.FC = () => {
   const [mode, setMode] = useState<'menu' | 'viral-menu' | 'practice' | 'reference' | 'timer-selection'>('menu');
   const [category, setCategory] = useState<string>('tables'); // General or Viral key
   const [customTable, setCustomTable] = useState<{table: string, limit: string}>({ table: '19', limit: '10' });
+  const [subtractionMode, setSubtractionMode] = useState<'2num' | '3num'>('2num');
   
   const [score, setScore] = useState(0);
   const [totalTime, setTotalTime] = useState(60);
@@ -269,6 +270,22 @@ const SpeedMath: React.FC = () => {
   const [input, setInput] = useState('');
   const [feedback, setFeedback] = useState<'none' | 'correct' | 'wrong'>('none');
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Helper: Generate number with distinct digits if possible and no repeats from excluded list
+  const generateNonRepeatingNumber = (min: number, max: number, exclude: number[] = []): number => {
+    let attempts = 0;
+    while (attempts < 20) {
+      const num = Math.floor(Math.random() * (max - min + 1)) + min;
+      const digits = num.toString().split('');
+      const hasUniqueDigits = new Set(digits).size === digits.length;
+      if (hasUniqueDigits && !exclude.includes(num)) {
+        return num;
+      }
+      attempts++;
+    }
+    // Fallback if strict generation fails
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  };
 
   // --- Standard Game Logic (Same as before for Tables, etc) ---
   const generateStandardQuestion = (cat: Category) => {
@@ -288,6 +305,43 @@ const SpeedMath: React.FC = () => {
          q = `${t} × ${mult}`;
          a = (t * mult).toString();
          break;
+      }
+      case 'speed_addition': {
+        // Random number 10-99 as base + random 2 digit number
+        // Try to ensure non repeating digits within the operands for clean practice
+        const n1 = generateNonRepeatingNumber(10, 99);
+        const n2 = generateNonRepeatingNumber(10, 99, [n1]); // Avoid same numbers
+        q = `${n1} + ${n2}`;
+        a = (n1 + n2).toString();
+        break;
+      }
+      case 'speed_subtraction': {
+        if (subtractionMode === '2num') {
+          // Range 10 to 10000
+          // Simple A - B
+          const n1 = generateNonRepeatingNumber(100, 9999);
+          const n2 = generateNonRepeatingNumber(10, n1 - 1, [n1]); // Ensure result is positive
+          q = `${n1} - ${n2}`;
+          a = (n1 - n2).toString();
+        } else {
+           // 3 Numbers: two addition one subtraction (A + B - C) OR one addition two subtraction (A - B - C)
+           // Range 10 to 10000
+           const isType1 = Math.random() > 0.5; // A + B - C
+           const n1 = generateNonRepeatingNumber(500, 9999);
+           const n2 = generateNonRepeatingNumber(50, 999, [n1]);
+           const n3 = generateNonRepeatingNumber(10, 400, [n1, n2]);
+           
+           if (isType1) {
+             q = `${n1} + ${n2} - ${n3}`;
+             a = (n1 + n2 - n3).toString();
+           } else {
+             // Ensure result positive for A - B - C
+             const safeN1 = Math.max(n1, n2 + n3 + 50); 
+             q = `${safeN1} - ${n2} - ${n3}`;
+             a = (safeN1 - n2 - n3).toString();
+           }
+        }
+        break;
       }
       case 'squares': {
         const num = Math.floor(Math.random() * 59) + 2; // 2 to 60
@@ -335,8 +389,24 @@ const SpeedMath: React.FC = () => {
 
   const initGameSetup = (cat: string) => {
     setCategory(cat);
-    setMode('timer-selection');
+    if (cat === 'speed_addition' || cat === 'speed_subtraction') {
+       startFixedTimeDrill(cat);
+    } else {
+       setMode('timer-selection');
+    }
   };
+
+  const startFixedTimeDrill = (cat: string) => {
+     const seconds = 60; // Fixed 1 min
+     setTotalTime(seconds);
+     setTimeLeft(seconds);
+     setMode('practice');
+     setScore(0);
+     setIsActive(true);
+     setInput('');
+     nextQuestion(cat);
+     setTimeout(() => inputRef.current?.focus(), 100);
+  }
 
   const startWithDuration = (mins: number) => {
     const seconds = mins * 60;
@@ -395,78 +465,119 @@ const SpeedMath: React.FC = () => {
         <p className="text-slate-500">Master calculation speed for banking exams.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Viral Maths Promo Card */}
         <div 
           onClick={() => setMode('viral-menu')}
-          className="bg-gradient-to-r from-indigo-900 to-violet-900 rounded-2xl p-8 text-white shadow-xl cursor-pointer transform hover:scale-[1.01] transition-all relative overflow-hidden border border-indigo-700 group h-full"
+          className="lg:col-span-1 bg-gradient-to-r from-indigo-900 to-violet-900 rounded-2xl p-6 text-white shadow-xl cursor-pointer transform hover:scale-[1.01] transition-all relative overflow-hidden border border-indigo-700 group h-full flex flex-col justify-between"
         >
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-16 -mt-16 blur-3xl group-hover:bg-white/20 transition-all"></div>
-          <div className="relative z-10 flex flex-col justify-between h-full">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded animate-pulse">NEW</span>
-                <span className="text-indigo-200 font-semibold tracking-wider text-sm">BY ADDA247 CONTENT</span>
-              </div>
-              <h3 className="text-3xl font-bold mb-2 flex items-center gap-2">
-                <Flame className="text-orange-400" fill="currentColor" />
-                Viral Maths
-              </h3>
-              <p className="text-indigo-200 text-sm mb-6">
-                Learn Todu-Modu, Judwa Approach, and 100+ shortcuts.
-              </p>
+          <div className="relative z-10">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded animate-pulse">NEW</span>
             </div>
-            <button className="bg-white text-indigo-900 px-6 py-3 rounded-xl font-bold shadow-lg hover:bg-indigo-50 transition-colors flex items-center gap-2 w-max">
-              Open Brahmastra <ChevronLeft className="rotate-180" size={20} />
-            </button>
+            <h3 className="text-2xl font-bold mb-2 flex items-center gap-2">
+              <Flame className="text-orange-400" fill="currentColor" />
+              Viral Maths
+            </h3>
+            <p className="text-indigo-200 text-sm mb-4">
+              Learn Todu-Modu, Judwa Approach, and 100+ shortcuts.
+            </p>
           </div>
+          <button className="bg-white text-indigo-900 px-4 py-2 rounded-xl font-bold shadow-lg hover:bg-indigo-50 transition-colors flex items-center gap-2 w-max text-sm">
+            Open Brahmastra <ChevronLeft className="rotate-180" size={16} />
+          </button>
         </div>
 
         {/* Specific Table Drill Card */}
-        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm relative overflow-hidden h-full flex flex-col justify-between">
+        <div className="lg:col-span-1 bg-white rounded-2xl p-5 border border-slate-200 shadow-sm relative overflow-hidden h-full flex flex-col justify-between">
           <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full -mr-10 -mt-10 blur-2xl"></div>
           <div className="relative z-10">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 bg-indigo-100 text-indigo-700 rounded-lg">
                 <Settings size={20} />
               </div>
-              <h3 className="text-xl font-bold text-slate-800">Specific Table Drill</h3>
+              <h3 className="text-lg font-bold text-slate-800">Specific Table</h3>
             </div>
-            <p className="text-slate-500 text-sm mb-4">
-              Practice a specific table range (e.g., Table of 19 up to 20).
-            </p>
             
-            <div className="flex flex-col sm:flex-row gap-2 items-end">
+            <div className="flex flex-col sm:flex-row gap-2 items-end mt-4">
               <div className="flex-1">
                 <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Table Of</label>
                 <input 
                   type="number" 
                   value={customTable.table}
                   onChange={(e) => setCustomTable({...customTable, table: e.target.value})}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg font-bold text-lg outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg font-bold text-lg outline-none focus:ring-2 focus:ring-indigo-500"
                   placeholder="12"
                 />
               </div>
-              <div className="text-slate-400 font-bold hidden sm:block pb-3">×</div>
+              <div className="text-slate-400 font-bold hidden sm:block pb-2">×</div>
               <div className="flex-1">
                 <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Up To</label>
                 <input 
                   type="number" 
                   value={customTable.limit}
                   onChange={(e) => setCustomTable({...customTable, limit: e.target.value})}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg font-bold text-lg outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg font-bold text-lg outline-none focus:ring-2 focus:ring-indigo-500"
                   placeholder="10"
                 />
               </div>
             </div>
-            <button 
+          </div>
+          <button 
                 onClick={() => initGameSetup('specific_table')}
                 disabled={!customTable.table || !customTable.limit}
-                className="w-full mt-4 py-2.5 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2 text-sm"
+                className="w-full mt-4 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2 text-sm"
               >
-                <Zap size={16} /> Start Drill
+                <Zap size={16} /> Start
             </button>
-          </div>
+        </div>
+
+        {/* Speed Drills Group */}
+        <div className="lg:col-span-1 flex flex-col gap-4">
+            {/* Addition Card */}
+            <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex items-center justify-between">
+               <div className="flex items-center gap-3">
+                 <div className="p-2 bg-green-100 text-green-700 rounded-lg"><Plus size={20} /></div>
+                 <div>
+                   <h3 className="font-bold text-slate-800">Speed Addition</h3>
+                   <p className="text-xs text-slate-500">2-Digit Rapid Fire (1 Min)</p>
+                 </div>
+               </div>
+               <button onClick={() => initGameSetup('speed_addition')} className="bg-green-600 hover:bg-green-700 text-white p-2 rounded-lg">
+                 <Zap size={20} />
+               </button>
+            </div>
+
+            {/* Subtraction Card */}
+            <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex flex-col">
+               <div className="flex items-center justify-between mb-3">
+                 <div className="flex items-center gap-3">
+                    <div className="p-2 bg-red-100 text-red-700 rounded-lg"><Minus size={20} /></div>
+                    <div>
+                      <h3 className="font-bold text-slate-800">Subtraction</h3>
+                      <p className="text-xs text-slate-500">Complex Drills (1 Min)</p>
+                    </div>
+                 </div>
+                 <button onClick={() => initGameSetup('speed_subtraction')} className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg">
+                    <Zap size={20} />
+                 </button>
+               </div>
+               <div className="flex gap-2 bg-slate-50 p-1 rounded-lg">
+                 <button 
+                   onClick={() => setSubtractionMode('2num')}
+                   className={`flex-1 text-xs font-bold py-1.5 rounded-md transition-all ${subtractionMode === '2num' ? 'bg-white shadow-sm text-slate-800' : 'text-slate-500 hover:text-slate-700'}`}
+                 >
+                   2 Num
+                 </button>
+                 <button 
+                   onClick={() => setSubtractionMode('3num')}
+                   className={`flex-1 text-xs font-bold py-1.5 rounded-md transition-all ${subtractionMode === '3num' ? 'bg-white shadow-sm text-slate-800' : 'text-slate-500 hover:text-slate-700'}`}
+                 >
+                   3 Num
+                 </button>
+               </div>
+            </div>
         </div>
       </div>
 
@@ -764,9 +875,12 @@ const SpeedMath: React.FC = () => {
 
             <div className="mb-12 relative">
               <div className="text-sm uppercase tracking-wider text-slate-400 font-bold mb-4">
-                {category === 'specific_table' ? `Table of ${customTable.table}` : 'Solve Fast'}
+                {category === 'specific_table' ? `Table of ${customTable.table}` : 
+                 category === 'speed_addition' ? 'Speed Addition' :
+                 category === 'speed_subtraction' ? 'Speed Subtraction' :
+                 'Solve Fast'}
               </div>
-              <div className={`text-6xl md:text-8xl font-bold text-slate-800 transition-transform duration-100 ${feedback === 'correct' ? 'scale-110 text-green-600' : ''}`}>
+              <div className={`font-bold text-slate-800 transition-transform duration-100 ${feedback === 'correct' ? 'scale-110 text-green-600' : ''} ${category === 'speed_subtraction' ? 'text-4xl' : 'text-6xl md:text-8xl'}`}>
                 {question.text}
               </div>
             </div>
@@ -806,7 +920,13 @@ const SpeedMath: React.FC = () => {
                 Exit
               </button>
               <button 
-                onClick={() => initGameSetup(category)}
+                onClick={() => {
+                  if (category === 'speed_addition' || category === 'speed_subtraction') {
+                    startFixedTimeDrill(category);
+                  } else {
+                    initGameSetup(category);
+                  }
+                }}
                 className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 shadow-lg"
               >
                 Retry
