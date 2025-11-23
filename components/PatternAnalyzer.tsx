@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import { Search, FileText, AlertTriangle, Loader2, ChevronDown, Check } from 'lucide-react';
+import { Search, FileText, AlertTriangle, Loader2, ChevronDown, Check, BarChart2 } from 'lucide-react';
 import { PatternAnalysis } from '../types';
 import { analyzeExamPattern } from '../services/geminiService';
 
@@ -182,7 +182,7 @@ const PatternAnalyzer: React.FC = () => {
        {!data && !loading && (
           <div className="text-center py-20 bg-white/50 backdrop-blur-sm rounded-3xl border border-dashed border-slate-300 text-slate-400">
             <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <BarChart className="text-slate-300" size={32} />
+              <BarChart2 className="text-slate-300" size={32} />
             </div>
             <p className="text-lg font-medium text-slate-500">Select exam details to generate an analysis report.</p>
           </div>
