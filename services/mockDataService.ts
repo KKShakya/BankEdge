@@ -65,10 +65,31 @@ const generateSimplification = (count: number): MockQuestion[] => {
 
 const generateArithmetic = (count: number): MockQuestion[] => {
   const questions: MockQuestion[] = [];
+  
+  // Explicitly typed functions to avoid parser issues
   const topics = [
-    { name: 'Profit Loss', q: (v1: number, v2: number) => `An item is bought for Rs.${v1 * 100} and sold at a profit of ${v2}%. Find the selling price.`, a: (v1: number, v2: number) => v1 * 100 * (1 + v2/100) },
-    { name: 'Ages', q: (v1: number, v2: number) => `The ratio of ages of A and B is ${v1}:${v2}. If A is ${v1*5} years old, how old is B?`, a: (v1: number, v2: number) => v2 * 5 },
-    { name: 'Time Work', q: (v1: number, v2: number) => `A can do a work in ${v1} days and B in ${v2} days. In how many days can they complete it together?`, a: (v1: number, v2: number) => Number(((v1*v2)/(v1+v2)).toFixed(1)) }
+    { 
+      name: 'Profit Loss', 
+      q: (v1: number, v2: number) => `An item is bought for Rs.${v1 * 100} and sold at a profit of ${v2}%. Find the selling price.`, 
+      a: (v1: number, v2: number) => {
+        return v1 * 100 * (1 + v2/100);
+      }
+    },
+    { 
+      name: 'Ages', 
+      q: (v1: number, v2: number) => `The ratio of ages of A and B is ${v1}:${v2}. If A is ${v1*5} years old, how old is B?`, 
+      a: (v1: number, v2: number) => {
+        return v2 * 5;
+      }
+    },
+    { 
+      name: 'Time Work', 
+      q: (v1: number, v2: number) => `A can do a work in ${v1} days and B in ${v2} days. In how many days can they complete it together?`, 
+      a: (v1: number, v2: number) => {
+        const result = (v1 * v2) / (v1 + v2);
+        return Number(result.toFixed(1));
+      }
+    }
   ];
 
   for (let i = 0; i < count; i++) {

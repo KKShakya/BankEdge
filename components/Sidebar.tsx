@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { LayoutDashboard, MessageSquare, BookOpen, BarChart2, Menu, X, MonitorPlay, Zap, FileText } from 'lucide-react';
+import { LayoutDashboard, MessageSquare, BookOpen, BarChart2, Menu, X, MonitorPlay, Zap, FileText, Youtube } from 'lucide-react';
 
 interface SidebarProps {
   activeTab: string;
@@ -11,9 +12,10 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen, setIsOpen }) => {
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'notes', label: 'Smart Notes', icon: FileText },
-    { id: 'mock', label: 'Mock Exam', icon: MonitorPlay },
     { id: 'speed', label: 'Speed Math', icon: Zap },
+    { id: 'notes', label: 'Smart Notes', icon: FileText },
+    { id: 'video', label: 'Video Classes', icon: Youtube },
+    { id: 'mock', label: 'Mock Exam', icon: MonitorPlay },
     { id: 'chat', label: 'AI Tutor Chat', icon: MessageSquare },
     { id: 'practice', label: 'Practice Zone', icon: BookOpen },
     { id: 'analysis', label: 'Pattern Analysis', icon: BarChart2 },

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Menu } from 'lucide-react';
 import Sidebar from './components/Sidebar';
@@ -8,6 +9,7 @@ import PatternAnalyzer from './components/PatternAnalyzer';
 import MockExam from './components/MockExam';
 import SpeedMath from './components/SpeedMath';
 import SmartNotes from './components/SmartNotes';
+import YouTubeZone from './components/YouTubeZone';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -30,6 +32,8 @@ const App: React.FC = () => {
         return <SpeedMath />;
       case 'notes':
         return <SmartNotes />;
+      case 'video':
+        return <YouTubeZone />;
       case 'chat':
         return <ChatInterface />;
       case 'practice':

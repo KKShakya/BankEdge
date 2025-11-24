@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Zap, Book, Timer, Trophy, ChevronLeft, RefreshCcw, Brain, Eye, X, Flame, Star, Hash, Settings, Clock, Plus, Minus, Check, FileUp, Loader2, ArrowRight, ChevronDown } from 'lucide-react';
+import { Zap, Book, Timer, Trophy, ChevronLeft, RefreshCcw, Brain, Eye, X, Flame, Star, Hash, Settings, Clock, Plus, Minus, Check, FileUp, Loader2, ArrowRight, ChevronDown, MoveLeft } from 'lucide-react';
 import { extractQuestionsFromPdf } from '../services/geminiService';
 
 type Category = 'tables' | 'squares' | 'cubes' | 'alpha' | 'percent' | 'multiplication' | 'specific_table' | 'speed_addition' | 'speed_subtraction';
@@ -320,6 +320,7 @@ const SpeedMath: React.FC = () => {
   const [category, setCategory] = useState<string>('tables'); // General or Viral key
   const [customTable, setCustomTable] = useState<{table: string, limit: string}>({ table: '19', limit: '10' });
   const [subtractionMode, setSubtractionMode] = useState<'2num' | '3num'>('2num');
+  const [reverseInputMode, setReverseInputMode] = useState(false);
   
   // PDF Mode State
   const [pdfFile, setPdfFile] = useState<string | null>(null);
@@ -458,6 +459,14 @@ const SpeedMath: React.FC = () => {
 
   const initGameSetup = (cat: string) => {
     setCategory(cat);
+    
+    // Auto-enable reverse input logic for subtraction
+    if (cat === 'speed_subtraction' || cat === 'viral_subtraction') {
+      setReverseInputMode(true);
+    } else {
+      setReverseInputMode(false);
+    }
+
     if (cat === 'speed_addition' || cat === 'speed_subtraction') {
        startFixedTimeDrill(cat);
     } else {
@@ -538,7 +547,7 @@ const SpeedMath: React.FC = () => {
     setTimeout(() => inputRef.current?.focus(), 100);
   };
 
-  const handlePdfInput = () => {
+  const handlePdfInputCheck = () => {
      const currentQ = activePdfQuestions[currentQIndex];
      // Simple string comparison for now. Ideally should parse numerical value.
      // Removing spaces for loose comparison
@@ -585,8 +594,24 @@ const SpeedMath: React.FC = () => {
     return () => clearInterval(interval);
   }, [isActive, timeLeft, mode]);
 
+  // Unified Input Handler with Reverse Mode Support
+  const processInput = (e: React.ChangeEvent<HTMLInputElement>, currentInput: string) => {
+    const rawVal = e.target.value;
+    
+    // Reverse Mode (Right-to-Left Digits) logic:
+    // If the new value is just the old value + 1 char at the end (standard typing),
+    // move that new char to the front.
+    if (reverseInputMode && rawVal.length === currentInput.length + 1 && rawVal.startsWith(currentInput)) {
+       const newChar = rawVal.slice(-1);
+       return newChar + currentInput;
+    }
+    
+    // Default behavior (includes backspace handling, selection replacement, etc.)
+    return rawVal;
+  };
+
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
+    const val = processInput(e, input);
     setInput(val);
 
     if (mode === 'practice') {
@@ -599,6 +624,11 @@ const SpeedMath: React.FC = () => {
       }
     }
   };
+
+  const handlePdfInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = processInput(e, input);
+    setInput(val);
+  }
 
   // --- Views ---
 
@@ -1061,6 +1091,15 @@ const SpeedMath: React.FC = () => {
                 className="w-full bg-white border-2 border-slate-200 rounded-xl py-4 text-center text-2xl font-bold focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-300"
                 autoFocus
               />
+              <div className="mt-4 flex justify-center">
+                 <button 
+                   onClick={() => setReverseInputMode(!reverseInputMode)}
+                   className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${reverseInputMode ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
+                 >
+                   {reverseInputMode ? <MoveLeft size={12} /> : null}
+                   {reverseInputMode ? 'Right-to-Left (Units First) ON' : 'Standard Input'}
+                 </button>
+              </div>
             </div>
           </>
         ) : (
@@ -1214,20 +1253,31 @@ const SpeedMath: React.FC = () => {
            </div>
         </div>
 
-        <div className="max-w-xs mx-auto flex gap-2">
+        <div className="max-w-xs mx-auto flex flex-col gap-4">
+           <div className="flex gap-2">
             <input
                 ref={inputRef}
                 type="text"
                 value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handlePdfInput()}
+                onChange={handlePdfInputChange}
+                onKeyDown={(e) => e.key === 'Enter' && handlePdfInputCheck()}
                 placeholder="Answer"
                 className="w-full bg-white border-2 border-slate-200 rounded-xl py-4 text-center text-xl font-bold focus:ring-4 focus:ring-emerald-100 focus:border-emerald-500 outline-none transition-all placeholder:text-slate-300"
                 autoFocus
             />
-            <button onClick={handlePdfInput} className="bg-emerald-600 text-white rounded-xl px-4 hover:bg-emerald-700">
+            <button onClick={handlePdfInputCheck} className="bg-emerald-600 text-white rounded-xl px-4 hover:bg-emerald-700">
                <ChevronLeft className="rotate-180" size={24} />
             </button>
+           </div>
+           <div className="flex justify-center">
+                 <button 
+                   onClick={() => setReverseInputMode(!reverseInputMode)}
+                   className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${reverseInputMode ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
+                 >
+                   {reverseInputMode ? <MoveLeft size={12} /> : null}
+                   {reverseInputMode ? 'Right-to-Left (Units First) ON' : 'Standard Input'}
+                 </button>
+           </div>
         </div>
      </div>
   );
