@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Zap, Book, Timer, Trophy, ChevronLeft, RefreshCcw, Brain, Eye, X, Flame, Star, Hash, Settings, Clock, Plus, Minus, Check, FileUp, Loader2, ArrowRight, ChevronDown, MoveLeft } from 'lucide-react';
+import { Zap, Book, Timer, Trophy, ChevronLeft, RefreshCcw, Brain, Eye, X, Flame, Star, Hash, Settings, Clock, Plus, Minus, Check, FileUp, Loader2, ArrowRight, ChevronDown, MoveLeft, Box, Cuboid } from 'lucide-react';
 import { extractQuestionsFromPdf } from '../services/geminiService';
 
-type Category = 'tables' | 'squares' | 'cubes' | 'alpha' | 'percent' | 'multiplication' | 'specific_table' | 'speed_addition' | 'speed_subtraction';
+type Category = 'tables' | 'squares' | 'cubes' | 'alpha' | 'percent' | 'multiplication' | 'specific_table' | 'speed_addition' | 'speed_subtraction' | 'mensuration';
 type ViralCategory = 'viral_products' | 'viral_addition' | 'viral_subtraction' | 'viral_multiplication' | 'viral_squares' | 'viral_division';
 
 // --- Custom Select (Light Mode - Modern Glass) ---
@@ -96,6 +96,38 @@ const FRACTION_MAP = [
   { f: '15/2', p: '750%' },
   { f: '17/2', p: '850%' },
   { f: '19/2', p: '950%' }
+];
+
+const MENSURATION_DATA = [
+  // 2D Shapes
+  { type: '2D', shape: 'Rectangle', param: 'Area', formula: 'l × b' },
+  { type: '2D', shape: 'Rectangle', param: 'Perimeter', formula: '2(l + b)' },
+  { type: '2D', shape: 'Square', param: 'Area', formula: 'a²' },
+  { type: '2D', shape: 'Square', param: 'Perimeter', formula: '4a' },
+  { type: '2D', shape: 'Circle', param: 'Area', formula: 'πr²' },
+  { type: '2D', shape: 'Circle', param: 'Circumference', formula: '2πr' },
+  { type: '2D', shape: 'Triangle', param: 'Area', formula: '½ × b × h' },
+  { type: '2D', shape: 'Parallelogram', param: 'Area', formula: 'b × h' },
+  { type: '2D', shape: 'Rhombus', param: 'Area', formula: '½ × d1 × d2' },
+  
+  // 3D Shapes
+  { type: '3D', shape: 'Cuboid', param: 'Volume', formula: 'l × b × h' },
+  { type: '3D', shape: 'Cuboid', param: 'TSA', formula: '2(lb + bh + hl)' },
+  { type: '3D', shape: 'Cuboid', param: 'LSA/CSA', formula: '2h(l + b)' },
+  { type: '3D', shape: 'Cube', param: 'Volume', formula: 'a³' },
+  { type: '3D', shape: 'Cube', param: 'TSA', formula: '6a²' },
+  { type: '3D', shape: 'Cube', param: 'LSA/CSA', formula: '4a²' },
+  { type: '3D', shape: 'Cylinder', param: 'Volume', formula: 'πr²h' },
+  { type: '3D', shape: 'Cylinder', param: 'CSA', formula: '2πrh' },
+  { type: '3D', shape: 'Cylinder', param: 'TSA', formula: '2πr(r + h)' },
+  { type: '3D', shape: 'Cone', param: 'Volume', formula: '⅓πr²h' },
+  { type: '3D', shape: 'Cone', param: 'CSA', formula: 'πrl' },
+  { type: '3D', shape: 'Cone', param: 'TSA', formula: 'πr(l + r)' },
+  { type: '3D', shape: 'Sphere', param: 'Volume', formula: '4/3 πr³' },
+  { type: '3D', shape: 'Sphere', param: 'Surface Area', formula: '4πr²' },
+  { type: '3D', shape: 'Hemisphere', param: 'Volume', formula: '⅔πr³' },
+  { type: '3D', shape: 'Hemisphere', param: 'CSA', formula: '2πr²' },
+  { type: '3D', shape: 'Hemisphere', param: 'TSA', formula: '3πr²' }
 ];
 
 const EXAM_MULTIPLICATIONS = [
@@ -322,6 +354,11 @@ const STANDARD_CONCEPTS = {
     title: "Important Exam Multiplications",
     type: "grid-simple",
     data: EXAM_MULTIPLICATIONS
+  },
+  mensuration: {
+    title: "Mensuration Formulas (2D & 3D)",
+    type: "mensuration-list",
+    data: MENSURATION_DATA
   }
 };
 
@@ -344,7 +381,7 @@ const SpeedMath: React.FC = () => {
   const [totalTime, setTotalTime] = useState(60);
   const [timeLeft, setTimeLeft] = useState(60);
   const [isActive, setIsActive] = useState(false);
-  const [question, setQuestion] = useState({ text: '', answer: '' });
+  const [question, setQuestion] = useState<{ text: string, answer: string, options?: string[] }>({ text: '', answer: '' });
   const [input, setInput] = useState('');
   const [feedback, setFeedback] = useState<'none' | 'correct' | 'wrong'>('none');
   const [currentQIndex, setCurrentQIndex] = useState(0); // For PDF mode indexing
@@ -370,6 +407,8 @@ const SpeedMath: React.FC = () => {
   // --- Standard Game Logic (Same as before for Tables, etc) ---
   const generateStandardQuestion = (cat: Category) => {
     let q = '', a = '';
+    let opts: string[] | undefined = undefined;
+
     switch (cat) {
       case 'tables': {
         const num = Math.floor(Math.random() * 19) + 2; // 2 to 20
@@ -387,8 +426,6 @@ const SpeedMath: React.FC = () => {
          break;
       }
       case 'speed_addition': {
-        // Random number 10-99 as base + random 2 digit number
-        // Try to ensure non repeating digits within the operands for clean practice
         const n1 = generateNonRepeatingNumber(10, 99);
         const n2 = generateNonRepeatingNumber(10, 99, [n1]); // Avoid same numbers
         q = `${n1} + ${n2}`;
@@ -397,15 +434,11 @@ const SpeedMath: React.FC = () => {
       }
       case 'speed_subtraction': {
         if (subtractionMode === '2num') {
-          // Range 10 to 10000
-          // Simple A - B
           const n1 = generateNonRepeatingNumber(100, 9999);
           const n2 = generateNonRepeatingNumber(10, n1 - 1, [n1]); // Ensure result is positive
           q = `${n1} - ${n2}`;
           a = (n1 - n2).toString();
         } else {
-           // 3 Numbers: two addition one subtraction (A + B - C) OR one addition two subtraction (A - B - C)
-           // Range 10 to 10000
            const isType1 = Math.random() > 0.5; // A + B - C
            const n1 = generateNonRepeatingNumber(500, 9999);
            const n2 = generateNonRepeatingNumber(50, 999, [n1]);
@@ -415,7 +448,6 @@ const SpeedMath: React.FC = () => {
              q = `${n1} + ${n2} - ${n3}`;
              a = (n1 + n2 - n3).toString();
            } else {
-             // Ensure result positive for A - B - C
              const safeN1 = Math.max(n1, n2 + n3 + 50); 
              q = `${safeN1} - ${n2} - ${n3}`;
              a = (safeN1 - n2 - n3).toString();
@@ -443,14 +475,12 @@ const SpeedMath: React.FC = () => {
         break;
       }
       case 'percent': {
-        // Use FRACTION_MAP
         const item = FRACTION_MAP[Math.floor(Math.random() * FRACTION_MAP.length)];
         q = `${item.p} = ?`;
         a = item.f;
         break;
       }
       case 'multiplication': {
-        // Mix of random and Important Exam Multiplications
         if (Math.random() > 0.5) {
            const item = EXAM_MULTIPLICATIONS[Math.floor(Math.random() * EXAM_MULTIPLICATIONS.length)];
            q = item.q;
@@ -463,8 +493,20 @@ const SpeedMath: React.FC = () => {
         }
         break;
       }
+      case 'mensuration': {
+        const item = MENSURATION_DATA[Math.floor(Math.random() * MENSURATION_DATA.length)];
+        q = `${item.shape} (${item.param})?`;
+        a = item.formula;
+        
+        // Generate distractors from other formulas
+        const others = MENSURATION_DATA.filter(x => x.formula !== a);
+        const shuffledOthers = others.sort(() => 0.5 - Math.random()).slice(0, 3);
+        const rawOptions = [a, ...shuffledOthers.map(o => o.formula)];
+        opts = rawOptions.sort(() => 0.5 - Math.random());
+        break;
+      }
     }
-    return { text: q, answer: a };
+    return { text: q, answer: a, options: opts };
   };
 
   const initGameSetup = (cat: string) => {
@@ -505,7 +547,11 @@ const SpeedMath: React.FC = () => {
     setIsActive(true);
     setInput('');
     nextQuestion(category);
-    setTimeout(() => inputRef.current?.focus(), 100);
+    // Only focus input if standard drill (no options)
+    const isOptionDrill = category === 'mensuration';
+    if (!isOptionDrill) {
+       setTimeout(() => inputRef.current?.focus(), 100);
+    }
   };
 
   const nextQuestion = (cat: string) => {
@@ -581,6 +627,21 @@ const SpeedMath: React.FC = () => {
         setFeedback('wrong');
         setTimeout(() => setFeedback('none'), 500);
      }
+  };
+
+  const handleOptionClick = (selectedOption: string) => {
+    if (!isActive) return;
+    if (selectedOption === question.answer) {
+        setScore(s => s + 1);
+        setFeedback('correct');
+        setTimeout(() => {
+          setFeedback('none');
+          nextQuestion(category);
+        }, 200);
+    } else {
+        setFeedback('wrong');
+        setTimeout(() => setFeedback('none'), 200);
+    }
   };
 
   // --- Timer Effects ---
@@ -795,6 +856,7 @@ const SpeedMath: React.FC = () => {
           { id: 'cubes', label: 'Cubes (1-25)', icon: Brain, color: 'bg-indigo-500' },
           { id: 'alpha', label: 'Alphabet Ranks', icon: Eye, color: 'bg-emerald-500' },
           { id: 'percent', label: '% to Fractions', icon: RefreshCcw, color: 'bg-rose-500' },
+          { id: 'mensuration', label: 'Mensuration', icon: Box, color: 'bg-teal-500' },
           { id: 'multiplication', label: 'Random Practice', icon: X, color: 'bg-slate-500' },
         ].map((item) => (
           <div key={item.id} className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all border border-slate-100 overflow-hidden group">
@@ -969,6 +1031,32 @@ const SpeedMath: React.FC = () => {
                  </div>
                </div>
              )}
+             
+             {stdData.type === 'mensuration-list' && (
+                <div className="space-y-8">
+                  {['2D', '3D'].map(dim => (
+                    <div key={dim} className="space-y-4">
+                      <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                        {dim === '2D' ? <Box size={20} className="text-indigo-600" /> : <Cuboid size={20} className="text-purple-600" />}
+                        {dim} Formulas
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                         {(stdData.data as any[]).filter(d => d.type === dim).map((item, i) => (
+                           <div key={i} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-indigo-300 transition-colors">
+                              <div className="flex justify-between items-start mb-2">
+                                <span className="font-bold text-slate-800">{item.shape}</span>
+                                <span className="text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 px-2 py-0.5 rounded">{item.param}</span>
+                              </div>
+                              <div className="text-2xl font-bold text-indigo-600 font-mono">
+                                {item.formula}
+                              </div>
+                           </div>
+                         ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+             )}
 
              {stdData.type === 'custom-alpha' && (
                <div className="space-y-6">
@@ -1084,6 +1172,7 @@ const SpeedMath: React.FC = () => {
                 {category === 'specific_table' ? `Table of ${customTable.table}` : 
                  category === 'speed_addition' ? 'Speed Addition' :
                  category === 'speed_subtraction' ? 'Speed Subtraction' :
+                 category === 'mensuration' ? 'Mensuration Quiz' :
                  'Solve Fast'}
               </div>
               <div className={`font-bold text-slate-800 transition-transform duration-100 ${feedback === 'correct' ? 'scale-110 text-green-600' : ''} ${category === 'speed_subtraction' ? 'text-4xl' : 'text-6xl md:text-8xl'}`}>
@@ -1091,26 +1180,42 @@ const SpeedMath: React.FC = () => {
               </div>
             </div>
 
-            <div className="max-w-xs mx-auto">
-              <input
-                ref={inputRef}
-                type="text"
-                value={input}
-                onChange={handleInput}
-                placeholder="?"
-                className="w-full bg-white border-2 border-slate-200 rounded-xl py-4 text-center text-2xl font-bold focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-300"
-                autoFocus
-              />
-              <div className="mt-4 flex justify-center">
-                 <button 
-                   onClick={() => setReverseInputMode(!reverseInputMode)}
-                   className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${reverseInputMode ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
-                 >
-                   {reverseInputMode ? <MoveLeft size={12} /> : null}
-                   {reverseInputMode ? 'Right-to-Left (Units First) ON' : 'Standard Input'}
-                 </button>
+            {question.options ? (
+               // Multiple Choice Interface for Mensuration/Formulas
+               <div className="max-w-lg mx-auto grid grid-cols-1 md:grid-cols-2 gap-4">
+                 {question.options.map((opt, idx) => (
+                   <button
+                     key={idx}
+                     onClick={() => handleOptionClick(opt)}
+                     className="bg-white border-2 border-slate-200 hover:border-indigo-500 hover:bg-indigo-50 rounded-xl py-4 px-6 text-xl font-bold text-slate-700 transition-all shadow-sm"
+                   >
+                     {opt}
+                   </button>
+                 ))}
+               </div>
+            ) : (
+              // Standard Input Interface
+              <div className="max-w-xs mx-auto">
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={input}
+                  onChange={handleInput}
+                  placeholder="?"
+                  className="w-full bg-white border-2 border-slate-200 rounded-xl py-4 text-center text-2xl font-bold focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-300"
+                  autoFocus
+                />
+                <div className="mt-4 flex justify-center">
+                   <button 
+                     onClick={() => setReverseInputMode(!reverseInputMode)}
+                     className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${reverseInputMode ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
+                   >
+                     {reverseInputMode ? <MoveLeft size={12} /> : null}
+                     {reverseInputMode ? 'Right-to-Left (Units First) ON' : 'Standard Input'}
+                   </button>
+                </div>
               </div>
-            </div>
+            )}
           </>
         ) : (
           <div className="bg-white p-8 rounded-2xl shadow-xl border border-slate-100">
