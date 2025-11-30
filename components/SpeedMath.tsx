@@ -387,9 +387,16 @@ const CHEAT_SHEET_DATA = [
         subtitle: "Speed, Time, Distance (STD)",
         points: [
           { label: "The King Rule", desc: "Distance is King (Top). Speed & Time are Servants." },
-          { label: "The Trigger", desc: "See Distance? → DIVIDE (D/S or D/T). Missing Distance? → MULTIPLY (S×T)." },
-          { label: "Boats", desc: "Downstream (+): Helping Hand (B+W). Upstream (-): The Bully (B-W)." }
+          { label: "The Trigger", desc: "See Distance? → DIVIDE (D/S or D/T). Missing Distance? → MULTIPLY (S×T)." }
         ]
+      },
+      {
+         subtitle: "Boats & Streams",
+         points: [
+            { label: "Golden Shortcut", desc: "Round Trips? Distance = Total Time × (B² - S²) / 2B" },
+            { label: "Option Attack", desc: "Don't solve quadratics. Plug options into B+S and B-S. Correct one divides Distance cleanly." },
+            { label: "Speed Definitions", desc: "Down(D) = B+S. Up(U) = B-S. Boat = (D+U)/2. Stream = (D-U)/2." }
+         ]
       },
       {
         subtitle: "Profit & Loss",
@@ -406,6 +413,13 @@ const CHEAT_SHEET_DATA = [
     icon: Brain,
     color: "purple",
     sections: [
+      {
+         subtitle: "Alphabet Series",
+         points: [
+            { label: "Speak and Seek", desc: "Don't convert to numbers. Recite alphabet while moving eye. Match = Pair." },
+            { label: "The Gap Trick", desc: "Ignore letters that are neighbors in word (A,Z) but far in alphabet. Don't count dead ends." }
+         ]
+      },
       {
         subtitle: "Syllogism",
         points: [
@@ -424,8 +438,8 @@ const CHEAT_SHEET_DATA = [
       {
         subtitle: "Seating & Direction",
         points: [
-          { label: "Hand Rule", desc: "Palm = Right. Nails = Left." },
-          { label: "Circular", desc: "Inside: Anti-Clockwise = Right. Outside: Pretend Inside, then FLIP answer." }
+          { label: "Direction (NEWS)", desc: "All faces outside: Clockwise is Right, Anti-clockwise is Left." },
+          { label: "Circular Seating", desc: "Facing Inside: Anti-clockwise is Right. Facing Outside: Clockwise is Right." }
         ]
       }
     ]
@@ -435,6 +449,14 @@ const CHEAT_SHEET_DATA = [
     icon: Zap,
     color: "amber",
     sections: [
+      {
+        subtitle: "Mensuration",
+        points: [
+           { label: "Divisibility by 11", desc: "Volume/Area with π? Answer must be divisible by 11. (Sum Odd - Sum Even = 0 or 11)." },
+           { label: "Mother Formula", desc: "Vol = Base Area × H. CSA = Base Perimeter × H. (Cylinder, Cube, Cuboid)." },
+           { label: "Relation Tricks", desc: "Cone Vol = 1/3 Cylinder. Sphere Area = 4 Circles. Hemisphere TSA = 3 Circles." }
+        ]
+      },
       {
         subtitle: "Simplification Hacks",
         points: [
@@ -1063,7 +1085,18 @@ const SpeedMath: React.FC = () => {
     </div>
   );
 
-  const renderTricksSheet = () => (
+  const renderTricksSheet = () => {
+    // Keywords for normal highlighting
+    const HIGHLIGHT_KEYWORDS = [
+      'King', 'Servants', 'DIVIDE', 'MULTIPLY', 'Helping Hand', 'The Bully', 
+      'Profit', 'Investment', 'Restricted', 'Free', 'NO', 'YES', 'married', 
+      'Empty Spot', 'Right', 'Left', 'Numbers', 'Symbols', 'Shapes'
+    ];
+
+    // The special formula to highlight
+    const FORMULA_KEYWORD = "Distance = Total Time × (B² - S²) / 2B";
+
+    return (
     <div className="animate-in fade-in slide-in-from-right-4 pb-12 max-w-6xl mx-auto">
        <button onClick={() => setMode('menu')} className="mb-6 flex items-center text-slate-500 hover:text-indigo-600 transition-colors group">
          <ChevronLeft size={20} className="group-hover:-translate-x-1 transition-transform" /> Back to Menu
@@ -1098,8 +1131,11 @@ const SpeedMath: React.FC = () => {
                          <li key={pIdx} className="text-slate-600 leading-relaxed text-sm">
                            <span className={`font-bold text-${section.color}-700 block mb-1`}>{pt.label}</span>
                            <span className="bg-slate-50 px-3 py-2 rounded-lg block border border-slate-100">
-                             {pt.desc.split(/(King|Servants|DIVIDE|MULTIPLY|Helping Hand|The Bully|Profit|Investment|Restricted|Free|NO|YES|married|Empty Spot|Right|Left|Numbers|Symbols|Shapes)/g).map((part, i) => {
-                               if (['King', 'Servants', 'DIVIDE', 'MULTIPLY', 'Helping Hand', 'The Bully', 'Profit', 'Investment', 'Restricted', 'Free', 'NO', 'YES', 'married', 'Empty Spot', 'Right', 'Left', 'Numbers', 'Symbols', 'Shapes'].includes(part)) {
+                             {pt.desc.split(new RegExp(`(${FORMULA_KEYWORD.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}|${HIGHLIGHT_KEYWORDS.join('|')})`, 'g')).map((part, i) => {
+                               if (part === FORMULA_KEYWORD) {
+                                  return <span key={i} className="font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded mx-1">{part}</span>;
+                               }
+                               if (HIGHLIGHT_KEYWORDS.includes(part)) {
                                  return <span key={i} className="font-extrabold text-slate-800 bg-yellow-100 px-1 rounded mx-0.5">{part}</span>;
                                }
                                return part;
@@ -1116,7 +1152,7 @@ const SpeedMath: React.FC = () => {
          })}
        </div>
     </div>
-  );
+  )};
 
   const renderAlphaMenu = () => (
     <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-right-4">
