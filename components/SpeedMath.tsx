@@ -399,6 +399,14 @@ const CHEAT_SHEET_DATA = [
          ]
       },
       {
+        subtitle: "Mixtures & Dishonest Shopkeeper",
+        points: [
+          { label: "Adulteration Logic", desc: "In mixture if water is added it is free so profit% = 20% = 1/5 → Water: 1, Milk: 5, Mixture: 6. Cost Price of Water is ₹0." },
+          { label: "False Weight Rule", desc: "Assume ₹1 = 1gm. False weight is the CP and actual weight is the SP." },
+          { label: "The Double Cheat (Markup + Weight)", desc: "Shopkeeper marks up 20% & uses 900gm for 1kg. Linear Line Trick: Left(CP) 900gm. Right(SP) 1200 (1000+20%). Gap=300. Profit = 33.33%." }
+        ]
+      },
+      {
         subtitle: "Profit & Loss",
         points: [
           { label: "The King Rule", desc: "Profit is King. Investment & Time are Servants." },
@@ -427,6 +435,15 @@ const CHEAT_SHEET_DATA = [
           { label: "Only A Few", desc: "A→B: Restricted (Some A not B). B→A: Free (All B can be A)." },
           { label: "School Trap", desc: "If 'Only few A are B' & 'All B are C' → Can All A be C? YES." }
         ]
+      },
+      {
+         subtitle: "Inequalities (Either/Or Rules)",
+         points: [
+           { label: "The Trigger (Step 1)", desc: "Check ONLY if: 1) Both elements same (A & B). 2) Both conclusions individually False/CND." },
+           { label: "Case A: Established Relation", desc: "Statement A ≥ B → Need (>) and (=). Statement A ≤ B → Need (<) and (=)." },
+           { label: "Case B: No Relation (Block)", desc: "Opposite signs (A > M < B) → Relation Unknown. Need ALL 3 symbols combined: (> & ≤) OR (< & ≥)." },
+           { label: "The Missing Symbol Trap", desc: "If No Relation, having just (>) and (=) is NEITHER/NOR. You are missing (<)." }
+         ]
       },
       {
         subtitle: "Blood Relations",
@@ -1090,7 +1107,8 @@ const SpeedMath: React.FC = () => {
     const HIGHLIGHT_KEYWORDS = [
       'King', 'Servants', 'DIVIDE', 'MULTIPLY', 'Helping Hand', 'The Bully', 
       'Profit', 'Investment', 'Restricted', 'Free', 'NO', 'YES', 'married', 
-      'Empty Spot', 'Right', 'Left', 'Numbers', 'Symbols', 'Shapes'
+      'Empty Spot', 'Right', 'Left', 'Numbers', 'Symbols', 'Shapes',
+      'Cost Price of Water is ₹0', '₹1 = 1gm', 'False weight is the CP', 'actual weight is the SP', 'Double Cheat', 'Linear Line'
     ];
 
     // The special formula to highlight
