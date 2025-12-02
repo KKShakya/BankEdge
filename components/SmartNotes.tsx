@@ -82,9 +82,94 @@ If the Statement has **No Relation** (Opposite Signs):
 | Case 1 | A ≤ B | (<) and (=) |
 | Case 2 | **No Relation** (Opposite Signs) | Must cover all 3 signs combined: (> & ≤) OR (< & ≥) |`;
 
+  // Define the Golden Numbers Note Content
+  const goldenNumbersNoteContent = `🏆 The "Golden Numbers" Cheat Sheet
+
+Memorize these numbers. They appear frequently because they have many factors, allowing you to reverse-engineer calculations.
+
+### 1. The "Golden Numbers" (Factors & Equivalencies)
+
+| Number | Primary Breakdown | Other Factors (The Logic) |
+| :--- | :--- | :--- |
+| **108** | 12 x 9 | 27 x 4 | 36 x 3 | 18 x 6 |
+| **144** | 12² | 16 x 9 | 18 x 8 | 24 x 6 | 36 x 4 |
+| **180** | 12 x 15 | 20 x 9 | 45 x 4 | 36 x 5 |
+| **192** | 12 x 16 | 24 x 8 | 32 x 6 | 64 x 3 |
+| **216** | 6³ | 12 x 18 | 24 x 9 | 36 x 6 |
+| **272** | 16 x 17 | 34 x 8 | (Consecutive Logic) |
+| **224** | 16 x 14 | 32 x 7 | (7 Multiple) |
+| **176** | 16 x 11 | 22 x 8 | (11 Rule) |
+| **315** | 15 x 21 | 45 x 7 | 35 x 9 |
+| **208** | 16 x 13 | 26 x 8 | 52 x 4 |
+
+---
+
+### 2. Speed Multipliers (Mental Math Strategy)
+
+**A. The "Consecutive" Logic (n * (n+1))**
+* 12 x 13 = 156
+* 14 x 15 = 210
+* 15 x 16 = 240
+* 16 x 17 = 272
+* 17 x 18 = 306
+* 18 x 19 = 342
+
+**B. The "Split & Merge" Logic**
+* 12 x 18 = 216 (Think: 18x10 + 18x2)
+* 13 x 14 = 182
+* 14 x 28 = 392 (Think: 14x14x2 -> 196x2)
+* 15 x 18 = 270 (Think: 18x1.5x10)
+
+**C. The "25" Rule (Divide by 4, x100)**
+* 24 x 25 = 600 (Think: 24/4 = 6)
+* 12 x 25 = 300
+* 16 x 25 = 400
+* 18 x 25 = 450 (Think: 18/2 = 9 -> 9x50)
+
+**D. The "7" Multiples (Mensuration)**
+* 15 x 7 = 105
+* 21 x 7 = 147
+* 27 x 7 = 189
+* 32 x 7 = 224
+
+---
+
+### 3. High-Frequency Squares & Cubes (From PDF)
+
+**Squares:**
+* 784 (28²)
+* 841 (29²)
+* 961 (31²)
+* 1024 (32²)
+* 1156 (34²)
+* 1296 (36²)
+* 1369 (37²)
+* 1444 (38²)
+* 1521 (39²)
+* 2209 (47²)
+* 2304 (48²)
+* 4489 (67²)
+
+**Cubes:**
+* 1331 (11³)
+* 1728 (12³)
+* 2197 (13³)
+* 3375 (15³)
+* 4096 (16³)
+* 4913 (17³)
+* 5832 (18³)
+* 6859 (19³)
+
+**Percentages:**
+* 12.5% = 1/8
+* 37.5% = 3/8
+* 62.5% = 5/8
+* 87.5% = 7/8`;
+
   // Load from Local Storage on Mount
   useEffect(() => {
     const savedNotes = localStorage.getItem('bankedge_notes');
+    
     const inequalityNote: Note = {
       id: 'inequality-master-rules',
       title: '⚖️ Inequality: The Either/Or Master Rules',
@@ -93,20 +178,38 @@ If the Statement has **No Relation** (Opposite Signs):
       tags: ['Reasoning', 'Inequality', 'Rules']
     };
 
+    const goldenNote: Note = {
+      id: 'golden-numbers-cheat',
+      title: '🏆 Golden Numbers & Speed Multipliers',
+      content: goldenNumbersNoteContent,
+      date: Date.now(),
+      tags: ['Quant', 'Calculation', 'Factors']
+    };
+
     if (savedNotes) {
       const parsed: Note[] = JSON.parse(savedNotes);
+      let updatedNotes = [...parsed];
+      let changed = false;
+
+      // Check if inequality note exists
+      if (!parsed.some(n => n.id === inequalityNote.id || n.title === inequalityNote.title)) {
+        updatedNotes = [inequalityNote, ...updatedNotes];
+        changed = true;
+      }
+
+      // Check if golden numbers note exists
+      if (!parsed.some(n => n.id === goldenNote.id || n.title === goldenNote.title)) {
+        updatedNotes = [goldenNote, ...updatedNotes];
+        changed = true;
+      }
       
-      // Check if the inequality note already exists (by ID or Title) to prevent duplicates
-      const exists = parsed.some(n => n.id === inequalityNote.id || n.title === inequalityNote.title);
-      
-      if (!exists) {
-        // Inject the new note at the top if it doesn't exist
-        const updatedNotes = [inequalityNote, ...parsed];
+      if (changed) {
         setNotes(updatedNotes);
-        setActiveNoteId(inequalityNote.id);
+        // Set active note to the golden note if it was just added, or the first one
+        setActiveNoteId(goldenNote.id);
       } else {
         setNotes(parsed);
-        if (parsed.length > 0) setActiveNoteId(parsed[0].id);
+        if (parsed.length > 0 && !activeNoteId) setActiveNoteId(parsed[0].id);
       }
     } else {
       // Default notes if storage is empty
@@ -118,9 +221,9 @@ If the Statement has **No Relation** (Opposite Signs):
         tags: ['Quant', 'Tricks'] 
       };
       
-      const initialNotes = [inequalityNote, defaultNote];
+      const initialNotes = [goldenNote, inequalityNote, defaultNote];
       setNotes(initialNotes);
-      setActiveNoteId(inequalityNote.id);
+      setActiveNoteId(goldenNote.id);
     }
   }, []);
 

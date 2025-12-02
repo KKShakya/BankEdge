@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Zap, Book, Timer, Trophy, ChevronLeft, RefreshCcw, Brain, Eye, X, Flame, Star, Hash, Settings, Clock, Plus, Minus, Check, FileUp, Loader2, ArrowRight, ChevronDown, MoveLeft, Box, Cuboid, SortAsc, RefreshCw, Lightbulb, MousePointer2, ChevronRight } from 'lucide-react';
+import { Zap, Book, Timer, Trophy, ChevronLeft, RefreshCcw, Brain, Eye, X, Flame, Star, Hash, Settings, Clock, Plus, Minus, Check, FileUp, Loader2, ArrowRight, ChevronDown, MoveLeft, Box, Cuboid, SortAsc, RefreshCw, Lightbulb, MousePointer2, ChevronRight, Gem } from 'lucide-react';
 import { extractQuestionsFromPdf } from '../services/geminiService';
 
-type Category = 'tables' | 'squares' | 'cubes' | 'alpha' | 'alpha_rank' | 'alpha_pair' | 'percent' | 'multiplication' | 'specific_table' | 'speed_addition' | 'speed_subtraction' | 'mensuration';
+type Category = 'tables' | 'squares' | 'cubes' | 'alpha' | 'alpha_rank' | 'alpha_pair' | 'percent' | 'multiplication' | 'specific_table' | 'speed_addition' | 'speed_subtraction' | 'mensuration' | 'golden_numbers';
 type ViralCategory = 'viral_products' | 'viral_addition' | 'viral_subtraction' | 'viral_multiplication' | 'viral_squares' | 'viral_division';
 
 // --- Custom Select (Light Mode - Modern Glass) ---
@@ -160,6 +160,19 @@ const EXAM_MULTIPLICATIONS = [
   { q: '35 × 35', a: '1225' }, { q: '45 × 45', a: '2025' }, 
   { q: '55 × 55', a: '3025' }, { q: '65 × 65', a: '4225' },
   { q: '75 × 75', a: '5625' }
+];
+
+const GOLDEN_NUMBERS_DATA = [
+  { num: 108, pairs: [[12,9], [27,4], [36,3], [18,6]] },
+  { num: 144, pairs: [[12,12], [16,9], [18,8], [24,6], [36,4]] },
+  { num: 180, pairs: [[12,15], [20,9], [45,4], [36,5]] },
+  { num: 192, pairs: [[12,16], [24,8], [32,6], [64,3]] },
+  { num: 216, pairs: [[6,6,6], [12,18], [24,9], [36,6]] },
+  { num: 272, pairs: [[16,17], [34,8]] },
+  { num: 224, pairs: [[16,14], [32,7]] },
+  { num: 176, pairs: [[16,11], [22,8]] },
+  { num: 315, pairs: [[15,21], [45,7], [35,9]] },
+  { num: 208, pairs: [[16,13], [26,8], [52,4]] }
 ];
 
 // --- Viral Concepts ---
@@ -374,6 +387,11 @@ const STANDARD_CONCEPTS = {
     title: "Mensuration Formulas (2D & 3D)",
     type: "mensuration-list",
     data: MENSURATION_DATA
+  },
+  golden_numbers: {
+    title: "Golden Numbers (Factors)",
+    type: "golden-list",
+    data: GOLDEN_NUMBERS_DATA
   }
 };
 
@@ -685,6 +703,22 @@ const SpeedMath: React.FC = () => {
         const shuffledOthers = others.sort(() => 0.5 - Math.random()).slice(0, 3);
         const rawOptions = [a, ...shuffledOthers.map(o => o.formula)];
         opts = rawOptions.sort(() => 0.5 - Math.random());
+        break;
+      }
+      case 'golden_numbers': {
+        // Missing Factor Logic
+        // Pick a golden number
+        const item = GOLDEN_NUMBERS_DATA[Math.floor(Math.random() * GOLDEN_NUMBERS_DATA.length)];
+        // Pick a pair
+        const pair = item.pairs[Math.floor(Math.random() * item.pairs.length)];
+        // Decide which part to hide
+        // pair is like [12, 9] for 108.
+        const hideIndex = Math.random() > 0.5 ? 0 : 1;
+        const visible = pair[hideIndex === 0 ? 1 : 0];
+        const hidden = pair[hideIndex];
+        
+        q = `${item.num} = ${visible} × ?`;
+        a = hidden.toString();
         break;
       }
     }
@@ -1059,6 +1093,7 @@ const SpeedMath: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {[
           { id: 'tables', label: 'Tables (1-20)', icon: Hash, color: 'bg-amber-500' },
+          { id: 'golden_numbers', label: 'Golden Numbers', icon: Gem, color: 'bg-yellow-500' },
           { id: 'squares', label: 'Squares (1-50)', icon: Brain, color: 'bg-blue-500' },
           { id: 'cubes', label: 'Cubes (1-25)', icon: Brain, color: 'bg-indigo-500' },
           { id: 'alpha', label: 'Alphabet Ranks', icon: Eye, color: 'bg-emerald-500' },
@@ -1368,6 +1403,31 @@ const SpeedMath: React.FC = () => {
                  </div>
                </div>
              )}
+
+             {stdData.type === 'golden-list' && (
+               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                 {(stdData.data as any[]).map((item, i) => (
+                   <div key={i} className="bg-white border-2 border-yellow-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all hover:border-yellow-300">
+                     <div className="flex items-center justify-between mb-4 border-b border-yellow-50 pb-3">
+                        <span className="text-4xl font-extrabold text-yellow-500">{item.num}</span>
+                        <Gem size={24} className="text-yellow-400" />
+                     </div>
+                     <div className="space-y-2">
+                       {item.pairs.map((pair: number[], idx: number) => (
+                         <div key={idx} className="flex justify-between items-center bg-yellow-50/50 p-2 rounded-lg">
+                           <span className="font-mono font-bold text-slate-700 text-lg">
+                             {pair.join(' × ')}
+                           </span>
+                           <span className="text-xs text-slate-400 font-medium bg-white px-2 py-0.5 rounded border border-slate-100">
+                             Factor
+                           </span>
+                         </div>
+                       ))}
+                     </div>
+                   </div>
+                 ))}
+               </div>
+             )}
              
              {stdData.type === 'mensuration-list' && (
                 <div className="space-y-8">
@@ -1497,7 +1557,7 @@ const SpeedMath: React.FC = () => {
     // Determine font size based on category and question length
     let fontSizeClass = 'text-6xl md:text-8xl';
     if (category === 'speed_subtraction') fontSizeClass = 'text-4xl';
-    else if (['alpha', 'alpha_rank', 'alpha_pair'].includes(category) && question.text.length > 5) fontSizeClass = 'text-4xl md:text-5xl'; // Smaller for "Opposite of X" text
+    else if (['alpha', 'alpha_rank', 'alpha_pair', 'golden_numbers'].includes(category) && question.text.length > 5) fontSizeClass = 'text-4xl md:text-5xl'; // Smaller for "Opposite of X" text or Golden Numbers drill
 
     return (
       <div className="max-w-2xl mx-auto text-center animate-in zoom-in-95 duration-200">
@@ -1536,6 +1596,7 @@ const SpeedMath: React.FC = () => {
                  category === 'mensuration' ? 'Mensuration Quiz' :
                  category === 'alpha_rank' ? 'Position Drill' :
                  category === 'alpha_pair' ? 'Opposite Pairs' :
+                 category === 'golden_numbers' ? 'Find the Factor' :
                  'Solve Fast'}
               </div>
               <div className={`font-bold text-slate-800 transition-transform duration-100 ${feedback === 'correct' ? 'scale-110 text-green-600' : ''} ${fontSizeClass}`}>
