@@ -221,11 +221,18 @@ export const parseMockFromText = async (questionText: string, answerText: string
      `;
   } else {
      prompt = `
-      You are an expert exam solver.
+      You are an intelligent exam parser and solver.
       I have pasted a raw text containing questions (and possibly options) from an exam paper.
       
+      CRITICAL INSTRUCTIONS:
+      1. The input text may contain conversational noise, preambles, or headers (e.g., "Here is the plain text version..."). **IGNORE ALL non-question text.**
+      2. Look for numbered patterns like "1.", "2.", "Q1", "1)" to identify questions.
+      3. The text contains Unicode math symbols (e.g., √ for square root, ÷ for division, × or * for multiplication). Handle them correctly.
+      4. It may contain mixed fractions (e.g., "4 3/6" or "8(2/3)"). Parse them as numbers in your solution logic.
+      5. Extract the options if present ((a), (b), etc.).
+      
       Task:
-      1. Extract individual questions.
+      1. Extract individual questions only.
       2. SOLVE THEM YOURSELF to find the correct answer index. 
       3. Generate a brief explanation for the solution.
       4. Return a clean JSON array.
