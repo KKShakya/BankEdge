@@ -1,10 +1,7 @@
-
 import React, { useState } from 'react';
 import { Menu } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
-import ChatInterface from './components/ChatInterface';
-import PracticeZone from './components/PracticeZone';
 import PatternAnalyzer from './components/PatternAnalyzer';
 import MockExam from './components/MockExam';
 import SpeedMath from './components/SpeedMath';
@@ -34,10 +31,6 @@ const App: React.FC = () => {
         return <SmartNotes />;
       case 'video':
         return <YouTubeZone />;
-      case 'chat':
-        return <ChatInterface />;
-      case 'practice':
-        return <PracticeZone initialTopic={navProps.topic} initialDifficulty={navProps.difficulty} />;
       case 'analysis':
         return <PatternAnalyzer />;
       default:

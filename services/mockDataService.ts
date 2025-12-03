@@ -33,7 +33,8 @@ const generateNumberSeries = (count: number): MockQuestion[] => {
       topic: 'Number Series',
       difficulty: 'Easy',
       section: 'Quantitative Aptitude',
-      status: 'not_visited'
+      status: 'not_visited',
+      timeSpent: 0
     });
   }
   return questions;
@@ -57,7 +58,8 @@ const generateSimplification = (count: number): MockQuestion[] => {
       topic: 'Simplification',
       difficulty: 'Easy',
       section: 'Quantitative Aptitude',
-      status: 'not_visited'
+      status: 'not_visited',
+      timeSpent: 0
     });
   }
   return questions;
@@ -107,7 +109,8 @@ const generateArithmetic = (count: number): MockQuestion[] => {
       topic: t.name,
       difficulty: 'Moderate',
       section: 'Quantitative Aptitude',
-      status: 'not_visited'
+      status: 'not_visited',
+      timeSpent: 0
     });
   }
   return questions;
@@ -134,6 +137,7 @@ const generateDI = (): MockQuestion[] => {
     difficulty: 'Moderate',
     section: 'Quantitative Aptitude',
     status: 'not_visited',
+    timeSpent: 0,
     chartData: { type: 'bar', title: 'Production Units', data: data.map(d => ({ name: d.name, value: d.val })) }
   });
 
@@ -147,6 +151,7 @@ const generateDI = (): MockQuestion[] => {
     difficulty: 'Moderate',
     section: 'Quantitative Aptitude',
     status: 'not_visited',
+    timeSpent: 0,
      chartData: { type: 'bar', title: 'Production Units', data: data.map(d => ({ name: d.name, value: d.val })) }
   });
 
@@ -161,6 +166,7 @@ const generateDI = (): MockQuestion[] => {
         difficulty: 'Easy',
         section: 'Quantitative Aptitude',
         status: 'not_visited',
+        timeSpent: 0,
          chartData: { type: 'bar', title: 'Production Units', data: data.map(d => ({ name: d.name, value: d.val })) }
      });
   }
@@ -181,7 +187,8 @@ const generateSyllogism = (count: number): MockQuestion[] => {
       topic: 'Syllogism',
       difficulty: 'Easy',
       section: 'Reasoning',
-      status: 'not_visited'
+      status: 'not_visited',
+      timeSpent: 0
     });
   }
   return questions;
@@ -198,7 +205,8 @@ const generateInequality = (count: number): MockQuestion[] => {
       topic: 'Inequality',
       difficulty: 'Easy',
       section: 'Reasoning',
-      status: 'not_visited'
+      status: 'not_visited',
+      timeSpent: 0
     });
   }
   return questions;
@@ -218,7 +226,8 @@ const generatePuzzles = (): MockQuestion[] => {
       topic: 'Puzzles',
       difficulty: 'Difficult',
       section: 'Reasoning',
-      status: 'not_visited'
+      status: 'not_visited',
+      timeSpent: 0
     });
   }
   return questions;
@@ -235,7 +244,8 @@ const generateCoding = (count: number): MockQuestion[] => {
        topic: 'Coding-Decoding',
        difficulty: 'Easy',
        section: 'Reasoning',
-       status: 'not_visited'
+       status: 'not_visited',
+       timeSpent: 0
      });
    }
    return questions;

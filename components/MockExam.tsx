@@ -1,103 +1,82 @@
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { Clock, ChevronRight, Flag, X, CheckCircle2, RotateCcw, Tag, Save, Lock, Menu as MenuIcon, LayoutGrid } from 'lucide-react';
-import { MockQuestion, AnalysisTag, ExamResult } from '../types';
-import { generateMockExam, parseMockFromText } from '../services/geminiService';
+import React, { useState, useEffect, useRef } from 'react';
+import { Clock, Flag, X, CheckCircle2, RotateCcw, Target, LayoutGrid, FileText, ArrowRight, Play } from 'lucide-react';
+import { MockQuestion, ExamResult } from '../types';
+import { parseMockFromText } from '../services/geminiService';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 
 const MockExam: React.FC = () => {
-  // Modes: 'landing' | 'loading' | 'exam' | 'result'
-  const [mode, setMode] = useState<'landing' | 'loading' | 'exam' | 'result'>('landing');
+  // Modes: 'setup' | 'config' | 'loading' | 'exam' | 'result'
+  const [mode, setMode] = useState<'setup' | 'config' | 'loading' | 'exam' | 'result'>('setup');
   const [questions, setQuestions] = useState<MockQuestion[]>([]);
   
-  // Section Management
-  const [currentSection, setCurrentSection] = useState<'Reasoning' | 'Quantitative Aptitude'>('Reasoning');
-  const [sectionTimeLeft, setSectionTimeLeft] = useState(25 * 60); // 25 mins for Reasoning
-  const [isReasoningSubmitted, setIsReasoningSubmitted] = useState(false);
-
-  const [currentQIndex, setCurrentQIndex] = useState(0); // Relative to section
-  const [pasteText, setPasteText] = useState('');
-  const [examId, setExamId] = useState<string>('');
-  const [isPaletteOpen, setIsPaletteOpen] = useState(false); // For mobile toggle
-
-  // Derived state for current section questions
-  const sectionQuestions = useMemo(() => {
-    return questions.filter(q => q.section === currentSection);
-  }, [questions, currentSection]);
-
-  const currentQuestion = sectionQuestions[currentQIndex];
+  // Setup State
+  const [questionText, setQuestionText] = useState('');
+  const [answerText, setAnswerText] = useState('');
+  const [targetTime, setTargetTime] = useState(30); // Default 30s
   
-  // Find the actual global index in the main 'questions' array
-  const globalIndex = useMemo(() => {
-    if (!currentQuestion) return -1;
-    return questions.indexOf(currentQuestion);
-  }, [questions, currentQuestion]);
+  // Exam State
+  const [currentQIndex, setCurrentQIndex] = useState(0);
+  const [examId, setExamId] = useState<string>('');
+  const [isPaletteOpen, setIsPaletteOpen] = useState(false);
+  
+  // Timer Refs
+  const questionStartTimeRef = useRef<number>(Date.now());
+  const [currentQTimer, setCurrentQTimer] = useState(0);
 
-  // Timer Logic
+  // --- TIMER LOGIC ---
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
-    if (mode === 'exam' && sectionTimeLeft > 0) {
+
+    if (mode === 'exam') {
+      // Reset timer visual when question changes to reflect time spent SO FAR on this question
+      // This is the "Bank" logic: if I spent 5s earlier, it starts at 5s.
+      setCurrentQTimer(questions[currentQIndex]?.timeSpent || 0);
+      questionStartTimeRef.current = Date.now();
+
       interval = setInterval(() => {
-        setSectionTimeLeft(prev => {
-          if (prev <= 1) {
-            handleSectionTimeout();
-            return 0;
-          }
-          return prev - 1;
+        const now = Date.now();
+        // Visual update
+        setCurrentQTimer(prev => prev + 1);
+        
+        // Data update: Increment the existing timeSpent for the current question
+        setQuestions(prev => {
+           const newQs = [...prev];
+           // Safety check
+           if (newQs[currentQIndex]) {
+             newQs[currentQIndex].timeSpent += 1;
+           }
+           return newQs;
         });
+        
+        questionStartTimeRef.current = now;
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [mode, sectionTimeLeft]);
+  }, [mode, currentQIndex]);
 
-  const handleStartAI = async () => {
-    setMode('loading');
-    const qs = await generateMockExam('PO'); 
-    if (qs.length > 0) {
-      startExam(qs);
-    } else {
-      setMode('landing');
-      alert("Failed to generate mock. Please try again.");
-    }
-  };
 
   const handleParseText = async () => {
-    if (!pasteText.trim()) return;
+    if (!questionText.trim()) {
+      alert("Please paste the questions first.");
+      return;
+    }
     setMode('loading');
-    const qs = await parseMockFromText(pasteText);
+    const qs = await parseMockFromText(questionText, answerText);
     if (qs.length > 0) {
-      startExam(qs);
+      setQuestions(qs);
+      setMode('config');
     } else {
-      setMode('landing');
-      alert("Could not parse questions from text. Ensure the text is clear.");
+      setMode('setup');
+      alert("Could not parse questions. Please ensure text is readable.");
     }
   };
 
-  const startExam = (qs: MockQuestion[]) => {
-    setQuestions(qs);
+  const startExam = () => {
     setMode('exam');
     setExamId(Date.now().toString());
-    
-    // Initialize Section 1: Reasoning
-    setCurrentSection('Reasoning');
-    setSectionTimeLeft(25 * 60); // 25 Minutes
-    setIsReasoningSubmitted(false);
     setCurrentQIndex(0);
-  };
-
-  const handleSectionTimeout = () => {
-    if (currentSection === 'Reasoning') {
-      alert("Time Up for Reasoning! Switching to Quantitative Aptitude.");
-      submitReasoningSection();
-    } else {
-      handleSubmitExam();
-    }
-  };
-
-  const submitReasoningSection = () => {
-    setIsReasoningSubmitted(true);
-    setCurrentSection('Quantitative Aptitude');
-    setSectionTimeLeft(20 * 60); // 20 Minutes for Quant
-    setCurrentQIndex(0); // Reset to Q1 of Quant
+    questionStartTimeRef.current = Date.now();
   };
 
   const updateStatus = (idx: number, status: MockQuestion['status'], answer?: number) => {
@@ -112,42 +91,41 @@ const MockExam: React.FC = () => {
     });
   };
 
+  const changeQuestion = (newIndex: number) => {
+    setCurrentQIndex(newIndex);
+  };
+
   const handleSaveAndNext = () => {
-    if (globalIndex === -1) return;
-    const q = questions[globalIndex];
+    const q = questions[currentQIndex];
     if (q.userAnswer !== undefined) {
-       updateStatus(globalIndex, 'answered');
+       updateStatus(currentQIndex, 'answered');
     } else if (q.status === 'not_visited') {
-       updateStatus(globalIndex, 'not_answered');
+       updateStatus(currentQIndex, 'not_answered');
     }
-    goNext();
+    if (currentQIndex < questions.length - 1) {
+      changeQuestion(currentQIndex + 1);
+    }
   };
 
   const handleMarkAndNext = () => {
-    if (globalIndex === -1) return;
-    const q = questions[globalIndex];
+    const q = questions[currentQIndex];
     if (q.userAnswer !== undefined) {
-      updateStatus(globalIndex, 'marked_answered');
+      updateStatus(currentQIndex, 'marked_answered');
     } else {
-      updateStatus(globalIndex, 'marked');
+      updateStatus(currentQIndex, 'marked');
     }
-    goNext();
+    if (currentQIndex < questions.length - 1) {
+      changeQuestion(currentQIndex + 1);
+    }
   };
 
   const handleClearResponse = () => {
-    if (globalIndex === -1) return;
     setQuestions(prev => {
       const newQs = [...prev];
-      newQs[globalIndex].userAnswer = undefined;
-      newQs[globalIndex].status = 'not_answered';
+      newQs[currentQIndex].userAnswer = undefined;
+      newQs[currentQIndex].status = 'not_answered';
       return newQs;
     });
-  };
-
-  const goNext = () => {
-    if (currentQIndex < sectionQuestions.length - 1) {
-      setCurrentQIndex(prev => prev + 1);
-    }
   };
 
   const handleSubmitExam = () => {
@@ -167,6 +145,7 @@ const MockExam: React.FC = () => {
       timestamp: Date.now(),
       score: score,
       totalQuestions: questions.length,
+      targetTimePerQuestion: targetTime,
       questions: questions
     };
 
@@ -177,80 +156,61 @@ const MockExam: React.FC = () => {
     setMode('result');
   };
 
-  const handleTagUpdate = (qIndex: number, tag: AnalysisTag) => {
-    const updatedQuestions = [...questions];
-    updatedQuestions[qIndex].analysisTag = tag;
-    setQuestions(updatedQuestions);
-
-    const existingHistory = localStorage.getItem('bankedge_exam_history');
-    if (existingHistory) {
-      const history: ExamResult[] = JSON.parse(existingHistory);
-      const examIndex = history.findIndex(h => h.id === examId);
-      if (examIndex > -1) {
-        history[examIndex].questions = updatedQuestions;
-        localStorage.setItem('bankedge_exam_history', JSON.stringify(history));
-      }
-    }
+  const getTimerColor = (time: number) => {
+    if (time <= targetTime) return 'text-emerald-600 bg-emerald-50 border-emerald-200';
+    if (time <= targetTime + 10) return 'text-amber-600 bg-amber-50 border-amber-200 animate-pulse';
+    return 'text-red-600 bg-red-50 border-red-200 animate-pulse';
   };
 
-  const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-  };
+  // --- Renders ---
 
-  // -- Renders --
-
-  if (mode === 'landing') {
+  if (mode === 'setup') {
     return (
       <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4">
         <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold text-slate-900">IBPS RRB Exam Simulator</h1>
+          <h1 className="text-4xl font-bold text-slate-900">Drill Engine</h1>
           <p className="text-slate-500 max-w-2xl mx-auto">
-             Strict Pattern: <strong>Reasoning (40 Qs - 25m)</strong> followed by <strong>Quant (40 Qs - 20m)</strong>. 
-             Sectional switching is disabled.
+            Paste your questions, set a target time, and build speed. 
+            <br/>AI will auto-solve if you don't have an answer key.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white p-8 rounded-2xl shadow-lg border border-indigo-100 hover:border-indigo-300 transition-all">
-            <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center mb-4 text-indigo-600">
-              <Clock size={24} />
-            </div>
-            <h3 className="text-xl font-bold text-slate-800 mb-2">Take Full Mock</h3>
-            <p className="text-slate-500 mb-6 text-sm">
-              Full length paper (80 Questions). Real exam interface.
-            </p>
-            <button 
-              onClick={handleStartAI}
-              className="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors"
-            >
-              Start Mock Exam
-            </button>
+          <div className="space-y-4">
+            <label className="block font-bold text-slate-700 flex items-center gap-2">
+              <div className="bg-indigo-100 p-1.5 rounded text-indigo-600"><FileText size={18} /></div>
+              Input Questions (Required)
+            </label>
+            <textarea 
+              className="w-full h-64 p-4 text-sm border border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-100 outline-none transition-all shadow-sm"
+              placeholder="Paste the raw text of questions here...&#10;1. A train moving at speed...&#10;2. Ratio of ages..."
+              value={questionText}
+              onChange={(e) => setQuestionText(e.target.value)}
+            />
           </div>
 
-          <div className="bg-white p-8 rounded-2xl shadow-lg border border-slate-100 hover:border-slate-300 transition-all">
-             <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mb-4 text-emerald-600">
-              <Save size={24} />
-            </div>
-            <h3 className="text-xl font-bold text-slate-800 mb-2">Paste & Solve</h3>
-            <p className="text-slate-500 mb-4 text-sm">
-              Paste text from any PDF. We'll apply the 25m + 20m timer logic to it.
-            </p>
+          <div className="space-y-4">
+            <label className="block font-bold text-slate-700 flex items-center gap-2">
+              <div className="bg-emerald-100 p-1.5 rounded text-emerald-600"><CheckCircle2 size={18} /></div>
+              Input Answer Key (Optional)
+            </label>
             <textarea 
-              className="w-full h-24 p-3 text-sm border border-slate-200 rounded-lg mb-4 focus:ring-2 focus:ring-emerald-500 outline-none"
-              placeholder="Paste question paper text here..."
-              value={pasteText}
-              onChange={(e) => setPasteText(e.target.value)}
+              className="w-full h-64 p-4 text-sm border border-slate-200 rounded-xl focus:ring-4 focus:ring-emerald-100 outline-none transition-all shadow-sm"
+              placeholder="If you have the key, paste it here.&#10;1. B&#10;2. C&#10;3. A&#10;&#10;If left empty, AI will solve the questions for you."
+              value={answerText}
+              onChange={(e) => setAnswerText(e.target.value)}
             />
-            <button 
-              onClick={handleParseText}
-              disabled={!pasteText.trim()}
-              className="w-full bg-emerald-600 text-white py-2.5 rounded-lg font-semibold hover:bg-emerald-700 disabled:opacity-50 transition-colors"
-            >
-              Parse & Start Exam
-            </button>
           </div>
+        </div>
+
+        <div className="flex justify-end">
+          <button 
+            onClick={handleParseText}
+            disabled={!questionText.trim()}
+            className="bg-slate-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-slate-800 disabled:opacity-50 transition-all flex items-center gap-2"
+          >
+             Next Step <ArrowRight size={20} />
+          </button>
         </div>
       </div>
     );
@@ -258,237 +218,369 @@ const MockExam: React.FC = () => {
 
   if (mode === 'loading') {
     return (
-      <div className="flex flex-col items-center justify-center h-full space-y-4">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-        <p className="text-slate-600 font-medium">Generating Exam Paper (80 Questions)...</p>
+      <div className="flex flex-col items-center justify-center h-[60vh] space-y-6">
+        <div className="relative">
+          <div className="w-20 h-20 border-4 border-slate-100 rounded-full"></div>
+          <div className="w-20 h-20 border-4 border-indigo-600 rounded-full border-t-transparent animate-spin absolute top-0 left-0"></div>
+        </div>
+        <div className="text-center">
+          <h3 className="text-xl font-bold text-slate-800">Processing Exam Data</h3>
+          <p className="text-slate-500 mt-2">
+            {answerText.trim() ? "Mapping questions to provided key..." : "AI is solving your questions..."}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (mode === 'config') {
+    return (
+      <div className="max-w-xl mx-auto text-center animate-in zoom-in-95 mt-10">
+        <div className="bg-white p-8 rounded-2xl shadow-xl border border-slate-200">
+           <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-6 text-amber-600">
+             <Target size={32} />
+           </div>
+           <h2 className="text-2xl font-bold text-slate-800 mb-2">Set Your Target</h2>
+           <p className="text-slate-500 mb-8">
+             How many seconds should each question take?
+             <br/><span className="text-xs text-amber-600 font-bold">The timer will turn RED if you exceed this.</span>
+           </p>
+           
+           <div className="mb-10 px-8">
+             <input 
+               type="range" 
+               min="10" 
+               max="120" 
+               step="5"
+               value={targetTime}
+               onChange={(e) => setTargetTime(parseInt(e.target.value))}
+               className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+             />
+             <div className="mt-4 text-4xl font-bold text-indigo-600 font-mono">
+               {targetTime} <span className="text-lg text-slate-400">sec/ques</span>
+             </div>
+           </div>
+
+           <div className="flex gap-4">
+             <button onClick={() => setMode('setup')} className="flex-1 py-3 border border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-50">Back</button>
+             <button onClick={startExam} className="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 shadow-lg flex items-center justify-center gap-2">
+               <Play size={20} fill="currentColor" /> Start Drill
+             </button>
+           </div>
+        </div>
       </div>
     );
   }
 
   if (mode === 'result') {
-    let correct = 0;
-    let wrong = 0;
-    let unattempted = 0;
+    let correct = 0, wrong = 0, skipped = 0;
+    
+    // Quadrant Analysis Counts
+    let sniper = 0, struggle = 0, gambler = 0, timeWaster = 0;
+
     questions.forEach(q => {
-      if (q.userAnswer === undefined) unattempted++;
-      else if (q.userAnswer === q.correctAnswerIndex) correct++;
-      else wrong++;
+      const isCorrect = q.userAnswer === q.correctAnswerIndex;
+      const isFast = q.timeSpent <= targetTime;
+      const attempted = q.userAnswer !== undefined;
+
+      if (!attempted) {
+        skipped++;
+      } else {
+        if (isCorrect) correct++; else wrong++;
+        
+        if (isCorrect && isFast) sniper++;
+        else if (isCorrect && !isFast) struggle++;
+        else if (!isCorrect && isFast) gambler++;
+        else if (!isCorrect && !isFast) timeWaster++;
+      }
     });
+
     const score = correct * 1 - wrong * 0.25;
+    
+    // Prepare Data for Chart
+    const quadrantData = [
+      { name: 'Sniper (Fast & Correct)', value: sniper, color: '#10b981' }, // Emerald
+      { name: 'Struggle (Slow & Correct)', value: struggle, color: '#f59e0b' }, // Amber
+      { name: 'Gambler (Fast & Wrong)', value: gambler, color: '#6366f1' }, // Indigo
+      { name: 'Time Waster (Slow & Wrong)', value: timeWaster, color: '#ef4444' } // Red
+    ].filter(d => d.value > 0);
 
     return (
-      <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
-        <div className="bg-slate-900 text-white p-8 text-center">
-          <h2 className="text-3xl font-bold mb-2">Exam Analysis</h2>
-          <div className="text-5xl font-bold text-emerald-400 my-6">{score} <span className="text-lg text-slate-400">/ {questions.length}</span></div>
-          <div className="flex justify-center gap-8 text-sm mb-6">
-             <div className="text-center">
-               <div className="text-emerald-400 font-bold text-xl">{correct}</div>
-               <div className="text-slate-400">Correct</div>
-             </div>
-             <div className="text-center">
-               <div className="text-red-400 font-bold text-xl">{wrong}</div>
-               <div className="text-slate-400">Wrong</div>
-             </div>
-             <div className="text-center">
-               <div className="text-slate-200 font-bold text-xl">{unattempted}</div>
-               <div className="text-slate-400">Skipped</div>
-             </div>
+      <div className="max-w-5xl mx-auto space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Main Score Card */}
+          <div className="bg-slate-900 text-white p-6 rounded-2xl shadow-lg md:col-span-1">
+            <h2 className="text-lg font-bold text-slate-300 mb-4">Exam Summary</h2>
+            <div className="text-5xl font-bold text-white mb-2">{score}</div>
+            <div className="text-sm text-slate-400 mb-6">out of {questions.length}</div>
+            
+            <div className="space-y-3">
+              <div className="flex justify-between items-center bg-white/10 p-2 rounded">
+                <span className="text-emerald-400 font-bold">Correct</span>
+                <span className="font-mono">{correct}</span>
+              </div>
+              <div className="flex justify-between items-center bg-white/10 p-2 rounded">
+                <span className="text-red-400 font-bold">Wrong</span>
+                <span className="font-mono">{wrong}</span>
+              </div>
+              <div className="flex justify-between items-center bg-white/10 p-2 rounded">
+                <span className="text-slate-300 font-bold">Skipped</span>
+                <span className="font-mono">{skipped}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Quadrant Chart */}
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 md:col-span-2 flex flex-col items-center justify-center relative">
+             <h3 className="absolute top-6 left-6 font-bold text-slate-800">Time-Accuracy Matrix</h3>
+             {quadrantData.length > 0 ? (
+               <div className="flex flex-col md:flex-row items-center w-full">
+                 <div className="h-64 w-64">
+                   <ResponsiveContainer>
+                     <PieChart>
+                       <Pie data={quadrantData} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
+                         {quadrantData.map((entry, index) => (
+                           <Cell key={`cell-${index}`} fill={entry.color} />
+                         ))}
+                       </Pie>
+                       <Tooltip />
+                     </PieChart>
+                   </ResponsiveContainer>
+                 </div>
+                 <div className="flex-1 grid grid-cols-1 gap-4 ml-4">
+                    {quadrantData.map(d => (
+                      <div key={d.name} className="flex items-center gap-3">
+                        <div className="w-3 h-3 rounded-full flex-shrink-0" style={{backgroundColor: d.color}} />
+                        <div>
+                          <p className="font-bold text-slate-800">{d.value} Qs</p>
+                          <p className="text-xs text-slate-500">{d.name}</p>
+                        </div>
+                      </div>
+                    ))}
+                 </div>
+               </div>
+             ) : (
+               <div className="text-slate-400">No attempts made.</div>
+             )}
           </div>
         </div>
-        <div className="p-8 bg-slate-50">
-           <h3 className="font-bold text-slate-800 mb-6 text-xl">Detailed Solutions</h3>
-           <div className="space-y-6">
-             {questions.map((q, i) => (
-                 <div key={i} className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-                   <div className="flex gap-3 mb-4">
-                      <span className={`flex items-center justify-center w-8 h-8 rounded-full font-bold text-sm ${q.userAnswer === q.correctAnswerIndex ? 'bg-emerald-100 text-emerald-700' : q.userAnswer === undefined ? 'bg-slate-100 text-slate-600' : 'bg-red-100 text-red-700'}`}>{i+1}</span>
-                      <div className="flex-1">
-                         <p className="font-medium text-slate-800 text-lg">{q.questionText}</p>
-                         <div className="flex gap-2 mt-1"><span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">{q.section}</span></div>
+
+        {/* Detailed Review */}
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+          <div className="p-6 border-b border-slate-100 bg-slate-50">
+            <h3 className="font-bold text-slate-800">Question Analysis</h3>
+          </div>
+          <div className="divide-y divide-slate-100">
+            {questions.map((q, i) => {
+               const isCorrect = q.userAnswer === q.correctAnswerIndex;
+               const isFast = q.timeSpent <= targetTime;
+               let badge = "Unattempted";
+               let badgeColor = "bg-slate-100 text-slate-600";
+               
+               if (q.userAnswer !== undefined) {
+                 if (isCorrect && isFast) { badge = "Sniper"; badgeColor = "bg-emerald-100 text-emerald-700"; }
+                 else if (isCorrect && !isFast) { badge = "Struggle"; badgeColor = "bg-amber-100 text-amber-700"; }
+                 else if (!isCorrect && isFast) { badge = "Gambler"; badgeColor = "bg-indigo-100 text-indigo-700"; }
+                 else { badge = "Time Waster"; badgeColor = "bg-red-100 text-red-700"; }
+               }
+
+               return (
+                 <div key={i} className="p-6 hover:bg-slate-50 transition-colors">
+                   <div className="flex justify-between items-start mb-4">
+                      <div className="flex items-center gap-3">
+                         <span className={`w-8 h-8 flex items-center justify-center rounded-full font-bold text-sm ${isCorrect ? 'bg-emerald-100 text-emerald-700' : q.userAnswer === undefined ? 'bg-slate-200 text-slate-600' : 'bg-red-100 text-red-700'}`}>
+                           {i+1}
+                         </span>
+                         <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${badgeColor}`}>
+                           {badge}
+                         </span>
+                      </div>
+                      <div className="flex items-center gap-4 text-sm">
+                         <div className={`flex items-center gap-1 font-mono font-bold ${q.timeSpent > targetTime ? 'text-red-500' : 'text-slate-400'}`}>
+                           <Clock size={16} /> {q.timeSpent}s
+                         </div>
+                         <div className="text-slate-400 font-mono text-xs">Target: {targetTime}s</div>
                       </div>
                    </div>
-                   <div className="ml-11 space-y-2 text-sm mb-4">
+                   
+                   <p className="text-slate-800 font-medium mb-4">{q.questionText}</p>
+                   
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
                      {q.options.map((opt, idx) => (
-                       <div key={idx} className={`flex items-center gap-2 p-2 rounded border ${idx === q.correctAnswerIndex ? 'border-green-200 bg-green-50 text-green-800 font-medium' : ''} ${idx === q.userAnswer && idx !== q.correctAnswerIndex ? 'border-red-200 bg-red-50 text-red-800 line-through' : 'border-transparent text-slate-600'}`}>
-                         {idx === q.correctAnswerIndex && <CheckCircle2 size={16} />}
-                         {idx === q.userAnswer && idx !== q.correctAnswerIndex && <X size={16} />}
-                         {opt}
+                       <div key={idx} className={`p-2 rounded border text-sm flex items-center gap-2 ${idx === q.correctAnswerIndex ? 'border-emerald-500 bg-emerald-50 text-emerald-800' : idx === q.userAnswer ? 'border-red-500 bg-red-50 text-red-800' : 'border-slate-200 text-slate-600'}`}>
+                          {idx === q.correctAnswerIndex && <CheckCircle2 size={16} />}
+                          {idx === q.userAnswer && idx !== q.correctAnswerIndex && <X size={16} />}
+                          {opt}
                        </div>
                      ))}
                    </div>
-                   <div className="ml-11 bg-slate-50 p-4 rounded-lg text-sm text-slate-700 border border-slate-100 mb-4"><span className="font-bold block mb-1 text-indigo-900">Explanation:</span> {q.explanation}</div>
-                   <div className="ml-11 pt-4 border-t border-slate-100">
-                      <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Analysis Tag</p>
-                      <div className="flex flex-wrap gap-2">
-                        {['Silly Mistake', 'Conceptual Error', 'Time Management', 'Guessed', 'Skipped Strategically'].map((tag) => (
-                          <button key={tag} onClick={() => handleTagUpdate(i, tag as AnalysisTag)} className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all border ${q.analysisTag === tag ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-500 border-slate-200 hover:border-indigo-300 hover:text-indigo-600'}`}>{tag}</button>
-                        ))}
-                      </div>
+                   
+                   <div className="bg-slate-50 p-3 rounded text-sm text-slate-600 border border-slate-200">
+                     <span className="font-bold text-slate-700">Explanation: </span> {q.explanation}
                    </div>
                  </div>
-             ))}
-           </div>
-           <button onClick={() => setMode('landing')} className="w-full mt-8 bg-slate-900 text-white py-4 rounded-xl font-bold hover:bg-slate-800 shadow-lg transition-all">Return to Dashboard</button>
+               );
+            })}
+          </div>
         </div>
+
+        <button onClick={() => setMode('setup')} className="w-full bg-slate-900 text-white py-4 rounded-xl font-bold hover:bg-slate-800 shadow-lg mb-8">Start New Drill</button>
       </div>
     );
   }
 
-  // --- EXAM UI ---
-  
-  const paletteStatusColor = (status: MockQuestion['status'], current: boolean) => {
-    if (current) return 'ring-2 ring-black ring-offset-1'; 
-    switch(status) {
-      case 'answered': return 'bg-green-500 text-white';
-      case 'not_answered': return 'bg-red-500 text-white';
-      case 'marked': return 'bg-purple-600 text-white rounded-full';
-      case 'marked_answered': return 'bg-purple-600 text-white relative after:content-["✔"] after:absolute after:bottom-0 after:right-0 after:text-[8px] after:bg-green-500 after:rounded-full after:px-0.5';
-      default: return 'bg-slate-100 text-slate-700 border border-slate-300'; 
-    }
-  };
+  // --- Exam Interface ---
+
+  const currentQ = questions[currentQIndex];
 
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col font-sans">
-      <header className="bg-[#2c3e50] text-white h-14 px-4 flex justify-between items-center shadow-md z-20">
-         <div className="font-bold text-lg tracking-wide">IBPS RRB Simulator</div>
-         <div className="flex items-center space-x-4">
-           <div className="hidden md:flex items-center gap-2">
-              <span className={`px-3 py-1 rounded text-xs font-bold ${currentSection === 'Reasoning' ? 'bg-green-500 text-white' : 'bg-slate-700 text-slate-400'}`}>Reasoning</span>
-              <ChevronRight size={14} className="text-slate-500" />
-              <span className={`px-3 py-1 rounded text-xs font-bold ${currentSection === 'Quantitative Aptitude' ? 'bg-green-500 text-white' : 'bg-slate-700 text-slate-400'}`}>Quant</span>
-           </div>
-           <div className="bg-black/30 px-3 py-1 rounded flex items-center gap-2 border border-slate-600">
-             <Clock size={16} className={sectionTimeLeft < 60 ? "text-red-400 animate-pulse" : "text-white"} />
-             <span className="font-mono font-bold text-xl">{formatTime(sectionTimeLeft)}</span>
-           </div>
-           <button 
-            onClick={() => setIsPaletteOpen(!isPaletteOpen)}
-            className="md:hidden bg-slate-700 p-2 rounded text-white hover:bg-slate-600"
-           >
-             <LayoutGrid size={20} />
-           </button>
+      {/* Header */}
+      <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 shadow-sm z-20">
+         <div className="flex items-center gap-4">
+            <span className="font-bold text-xl text-slate-800 tracking-tight">Drill Mode</span>
+            <div className="hidden md:flex items-center gap-2 bg-slate-100 px-3 py-1 rounded-full text-xs font-bold text-slate-500">
+              <Target size={14} /> Target: {targetTime}s
+            </div>
+         </div>
+         <div className="flex items-center gap-4">
+            <button 
+             onClick={() => setIsPaletteOpen(!isPaletteOpen)}
+             className="md:hidden bg-slate-100 p-2 rounded text-slate-600"
+            >
+              <LayoutGrid size={20} />
+            </button>
+            <button 
+              onClick={handleSubmitExam}
+              className="bg-slate-900 text-white px-6 py-2 rounded-lg font-bold text-sm hover:bg-slate-800 transition-colors"
+            >
+              Finish Drill
+            </button>
          </div>
       </header>
 
       <div className="flex-1 flex overflow-hidden relative">
-        <div className="flex-1 flex flex-col min-w-0">
-          <div className="bg-[#3498db] text-white px-4 py-2 flex justify-between items-center text-sm shadow-sm z-10">
-            <span className="font-bold text-lg">{currentSection}</span>
-            <span className="bg-white/20 px-2 py-0.5 rounded text-xs font-bold text-green-300">+1.0 | -0.25</span>
-          </div>
+        {/* Main Area */}
+        <div className="flex-1 flex flex-col min-w-0 bg-slate-50">
+           
+           {/* Timer Bar */}
+           <div className="bg-white/80 backdrop-blur-md p-4 flex justify-center border-b border-slate-200 sticky top-0 z-10">
+              <div className={`px-8 py-3 rounded-2xl border-2 font-mono text-4xl font-bold shadow-sm transition-colors duration-500 flex items-center gap-4 ${getTimerColor(currentQTimer)}`}>
+                 <Clock size={32} />
+                 {currentQTimer}s
+              </div>
+           </div>
 
-          <div className="flex-1 overflow-y-auto p-6 bg-white">
-             {currentQuestion ? (
-               <div className="max-w-4xl">
-                 <div className="flex gap-2 mb-4">
-                   <span className="font-bold text-slate-800 text-lg">Q.{currentQIndex + 1}</span>
-                   <p className="text-lg text-slate-800 leading-relaxed font-medium font-serif border-b border-slate-100 pb-4 w-full whitespace-pre-wrap">
-                     {currentQuestion.questionText}
-                   </p>
+           <div className="flex-1 overflow-y-auto p-4 md:p-8">
+              <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-200 p-8 min-h-[400px]">
+                 <div className="flex justify-between items-start mb-6">
+                    <span className="text-sm font-bold text-slate-400 uppercase tracking-widest">Question {currentQIndex + 1}</span>
+                    {currentQ.status === 'marked' || currentQ.status === 'marked_answered' ? (
+                       <Flag size={20} className="text-purple-600 fill-purple-600" />
+                    ) : null}
                  </div>
-                 <div className="space-y-3 ml-8">
-                   {currentQuestion.options.map((opt, idx) => (
-                     <label key={idx} className="flex items-start gap-3 cursor-pointer group">
+                 
+                 <p className="text-xl md:text-2xl font-medium text-slate-800 leading-relaxed mb-8 font-serif">
+                   {currentQ.questionText}
+                 </p>
+
+                 <div className="space-y-3">
+                   {currentQ.options.map((opt, idx) => (
+                     <label key={idx} className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all group ${currentQ.userAnswer === idx ? 'border-indigo-600 bg-indigo-50 shadow-md' : 'border-slate-100 hover:border-indigo-200 hover:bg-slate-50'}`}>
+                       <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${currentQ.userAnswer === idx ? 'border-indigo-600' : 'border-slate-300 group-hover:border-indigo-400'}`}>
+                          {currentQ.userAnswer === idx && <div className="w-3 h-3 bg-indigo-600 rounded-full" />}
+                       </div>
+                       <span className={`text-lg ${currentQ.userAnswer === idx ? 'text-indigo-900 font-medium' : 'text-slate-600'}`}>{opt}</span>
                        <input 
                          type="radio" 
-                         name={`q-${globalIndex}`}
-                         checked={currentQuestion.userAnswer === idx}
+                         className="hidden"
+                         name={`q-${currentQIndex}`}
+                         checked={currentQ.userAnswer === idx}
                          onChange={() => {
                            setQuestions(prev => {
                              const n = [...prev];
-                             n[globalIndex].userAnswer = idx;
+                             n[currentQIndex].userAnswer = idx;
                              return n;
                            });
                          }}
-                         className="mt-1.5 w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300"
                        />
-                       <span className="text-slate-700 text-base group-hover:text-slate-900">{opt}</span>
                      </label>
                    ))}
                  </div>
-               </div>
-             ) : (
-               <div className="flex flex-col items-center justify-center h-full text-slate-400">
-                 <Lock size={48} className="mb-4 opacity-20" />
-                 <p>Section Locked or Empty.</p>
-               </div>
-             )}
-          </div>
+              </div>
+           </div>
 
-          <div className="h-16 border-t border-slate-300 bg-slate-50 px-4 flex items-center justify-between z-10">
-             <div className="flex gap-2">
-               <button onClick={handleMarkAndNext} className="px-3 md:px-4 py-2 bg-indigo-100 text-indigo-800 border border-indigo-300 rounded hover:bg-indigo-200 text-xs md:text-sm font-semibold flex items-center gap-2"><Flag size={16} /> <span className="hidden md:inline">Mark Review</span></button>
-               <button onClick={handleClearResponse} className="px-3 md:px-4 py-2 bg-slate-200 text-slate-700 border border-slate-300 rounded hover:bg-slate-300 text-xs md:text-sm font-semibold flex items-center gap-2"><RotateCcw size={16} /> <span className="hidden md:inline">Clear</span></button>
-             </div>
-             <button onClick={handleSaveAndNext} className="px-6 py-2 bg-[#3498db] text-white rounded hover:bg-blue-600 font-bold text-sm shadow-sm flex items-center gap-2">Save & Next <ChevronRight size={18} /></button>
-          </div>
+           {/* Footer Control */}
+           <div className="h-20 bg-white border-t border-slate-200 px-8 flex items-center justify-between z-10">
+              <div className="flex gap-4">
+                 <button onClick={handleMarkAndNext} className="flex flex-col items-center text-xs font-bold text-slate-500 hover:text-purple-600 transition-colors gap-1">
+                    <Flag size={20} /> Mark
+                 </button>
+                 <button onClick={handleClearResponse} className="flex flex-col items-center text-xs font-bold text-slate-500 hover:text-red-600 transition-colors gap-1">
+                    <RotateCcw size={20} /> Clear
+                 </button>
+              </div>
+
+              <div className="flex gap-4">
+                 <button 
+                   onClick={() => changeQuestion(Math.max(0, currentQIndex - 1))}
+                   disabled={currentQIndex === 0}
+                   className="px-6 py-3 rounded-xl font-bold text-slate-600 hover:bg-slate-100 disabled:opacity-50 transition-colors"
+                 >
+                   Previous
+                 </button>
+                 <button 
+                   onClick={handleSaveAndNext}
+                   className="px-8 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all active:scale-95"
+                 >
+                   {currentQIndex === questions.length - 1 ? 'Finish' : 'Save & Next'}
+                 </button>
+              </div>
+           </div>
         </div>
 
-        {/* Right Sidebar - Question Palette */}
+        {/* Right Palette */}
         <div className={`
-          fixed inset-y-0 right-0 w-80 bg-[#eef2f5] border-l border-slate-300 flex flex-col shadow-2xl transform transition-transform duration-300 z-30
-          md:static md:translate-x-0 md:shadow-inner md:z-auto
+          fixed inset-y-0 right-0 w-80 bg-slate-50 border-l border-slate-200 shadow-2xl transform transition-transform duration-300 z-30 flex flex-col
+          md:static md:translate-x-0 md:shadow-none
           ${isPaletteOpen ? 'translate-x-0' : 'translate-x-full'}
         `}>
-           {/* Mobile Header for Sidebar */}
-           <div className="md:hidden p-4 bg-slate-200 flex justify-between items-center border-b border-slate-300">
-              <span className="font-bold text-slate-700">Question Palette</span>
-              <button onClick={() => setIsPaletteOpen(false)}>
-                <X size={24} className="text-slate-600" />
-              </button>
+           <div className="p-4 bg-white border-b border-slate-200 flex justify-between items-center md:hidden">
+              <span className="font-bold text-slate-800">Question Palette</span>
+              <button onClick={() => setIsPaletteOpen(false)}><X size={24} /></button>
            </div>
-
-           <div className="p-4 bg-slate-100 border-b border-slate-200 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-500 border-2 border-white shadow-sm">
-                 User
-              </div>
-              <div>
-                <div className="font-bold text-slate-700">Candidate</div>
-                <div className="text-xs text-slate-500">Roll No: 20250101</div>
-              </div>
-           </div>
-
-           <div className="bg-[#3498db] text-white p-2 font-bold text-center text-sm">
-             {currentSection} Palette
-           </div>
-
-           <div className="p-4 flex-1 overflow-y-auto">
+           
+           <div className="p-6 overflow-y-auto flex-1">
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Jump to Question</h3>
               <div className="grid grid-cols-4 gap-3">
-                {sectionQuestions.map((q, idx) => {
-                   const isCurrent = currentQuestion === q;
-                   return (
-                     <button
-                       key={idx}
-                       onClick={() => {
-                         setCurrentQIndex(idx);
-                         setIsPaletteOpen(false); // Close on selection on mobile
-                       }}
-                       className={`w-10 h-9 flex items-center justify-center text-sm font-bold rounded shadow-sm transition-all ${paletteStatusColor(q.status, isCurrent)}`}
-                     >
-                       {idx + 1}
-                     </button>
-                   )
-                })}
+                 {questions.map((q, idx) => {
+                    let bg = "bg-white border-slate-200 text-slate-600";
+                    if (idx === currentQIndex) bg = "ring-2 ring-indigo-600 border-transparent bg-indigo-50 text-indigo-700";
+                    else if (q.status === 'answered') bg = "bg-emerald-500 text-white border-transparent";
+                    else if (q.status === 'not_answered') bg = "bg-red-500 text-white border-transparent";
+                    else if (q.status === 'marked') bg = "bg-purple-500 text-white border-transparent";
+                    else if (q.status === 'marked_answered') bg = "bg-purple-600 text-white border-transparent ring-2 ring-emerald-400";
+
+                    return (
+                      <button 
+                        key={idx}
+                        onClick={() => changeQuestion(idx)}
+                        className={`h-10 rounded-lg font-bold text-sm shadow-sm border transition-all ${bg}`}
+                      >
+                        {idx + 1}
+                      </button>
+                    )
+                 })}
               </div>
            </div>
-
-           <div className="p-4 bg-white border-t border-slate-300">
-             {currentSection === 'Reasoning' ? (
-               <button 
-                onClick={submitReasoningSection}
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded font-bold shadow-md transition-colors flex items-center justify-center gap-2"
-               >
-                 Submit Reasoning <ChevronRight size={16} />
-               </button>
-             ) : (
-               <button 
-                onClick={handleSubmitExam}
-                className="w-full bg-[#2ecc71] hover:bg-green-600 text-white py-3 rounded font-bold shadow-md transition-colors"
-               >
-                 Submit Final Exam
-               </button>
-             )}
+           
+           <div className="p-6 bg-white border-t border-slate-200">
+              <div className="grid grid-cols-2 gap-2 text-xs font-medium text-slate-500">
+                 <div className="flex items-center gap-2"><div className="w-3 h-3 bg-emerald-500 rounded-sm"></div> Answered</div>
+                 <div className="flex items-center gap-2"><div className="w-3 h-3 bg-red-500 rounded-sm"></div> Skipped</div>
+                 <div className="flex items-center gap-2"><div className="w-3 h-3 bg-purple-500 rounded-sm"></div> Marked</div>
+                 <div className="flex items-center gap-2"><div className="w-3 h-3 bg-white border border-slate-300 rounded-sm"></div> Not Visited</div>
+              </div>
            </div>
         </div>
       </div>

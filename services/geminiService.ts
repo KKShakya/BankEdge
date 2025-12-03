@@ -179,10 +179,12 @@ export const generateMockExam = async (type: 'PO' | 'Clerk'): Promise<MockQuesti
   // Prefer using the static generator for full mocks to ensure 80 questions (40+40) reliability
   // The AI API often times out with such large output requirements.
   console.log("Using local high-performance generator for full mock...");
-  return getStaticMockExam();
+  const questions = getStaticMockExam();
+  // Initialize with 0 time spent
+  return questions.map(q => ({...q, timeSpent: 0}));
 };
 
-export const parseMockFromText = async (rawText: string): Promise<MockQuestion[]> => {
+export const parseMockFromText = async (questionText: string, answerText: string): Promise<MockQuestion[]> => {
   const schema: Schema = {
     type: Type.ARRAY,
     items: {
@@ -191,24 +193,47 @@ export const parseMockFromText = async (rawText: string): Promise<MockQuestion[]
         questionText: { type: Type.STRING },
         options: { type: Type.ARRAY, items: { type: Type.STRING } },
         correctAnswerIndex: { type: Type.INTEGER },
-        explanation: { type: Type.STRING, description: "Generate a brief explanation if missing in text" },
+        explanation: { type: Type.STRING, description: "Generate a brief explanation." },
         topic: { type: Type.STRING, description: "Infer topic" },
         difficulty: { type: Type.STRING, description: "Infer difficulty" },
-        section: { type: Type.STRING, enum: ['Reasoning', 'Quantitative Aptitude'], description: "Infer section based on content" }
+        section: { type: Type.STRING, enum: ['Reasoning', 'Quantitative Aptitude', 'General'], description: "Infer section based on content" }
       },
       required: ["questionText", "options", "correctAnswerIndex", "section"]
     }
   };
 
-  const prompt = `Analyze the following raw text which contains questions from a banking exam paper.
-  Extract individual multiple-choice questions.
-  Classify them into 'Reasoning' or 'Quantitative Aptitude'.
-  If the correct answer is not explicitly marked, solve it yourself and set 'correctAnswerIndex'.
-  
-  RAW TEXT START:
-  ${rawText.substring(0, 30000)} 
-  RAW TEXT END
-  `;
+  let prompt = '';
+  if (answerText.trim()) {
+     prompt = `
+      You are an exam parser. 
+      Input 1 contains Questions. Input 2 contains the Answer Key/Solutions.
+      
+      Task:
+      1. Extract questions from Input 1.
+      2. Match them with correct answers from Input 2.
+      3. Return a clean JSON array.
+      
+      INPUT 1 (Questions):
+      ${questionText.substring(0, 20000)}
+
+      INPUT 2 (Answers):
+      ${answerText.substring(0, 5000)}
+     `;
+  } else {
+     prompt = `
+      You are an expert exam solver.
+      I have pasted a raw text containing questions (and possibly options) from an exam paper.
+      
+      Task:
+      1. Extract individual questions.
+      2. SOLVE THEM YOURSELF to find the correct answer index. 
+      3. Generate a brief explanation for the solution.
+      4. Return a clean JSON array.
+      
+      RAW TEXT:
+      ${questionText.substring(0, 25000)}
+     `;
+  }
 
   try {
     const response = await ai.models.generateContent({
@@ -223,7 +248,12 @@ export const parseMockFromText = async (rawText: string): Promise<MockQuestion[]
     const text = response.text;
     if (!text) return [];
     const questions = JSON.parse(text) as MockQuestion[];
-    return questions.map(q => ({ ...q, status: 'not_visited', explanation: q.explanation || "Derived from uploaded text." }));
+    return questions.map(q => ({ 
+      ...q, 
+      status: 'not_visited', 
+      explanation: q.explanation || "Derived from uploaded text.",
+      timeSpent: 0
+    }));
   } catch (error) {
     console.error("Text Parse Error:", error);
     return [];

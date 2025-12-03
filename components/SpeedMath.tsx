@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Zap, Book, Timer, Trophy, ChevronLeft, RefreshCcw, Brain, Eye, X, Flame, Star, Hash, Settings, Clock, Plus, Minus, Check, FileUp, Loader2, ArrowRight, ChevronDown, MoveLeft, Box, Cuboid, SortAsc, RefreshCw, Lightbulb, MousePointer2, ChevronRight, Gem } from 'lucide-react';
+import { Zap, Book, Timer, Trophy, ChevronLeft, RefreshCcw, Brain, Eye, X, Flame, Star, Hash, Settings, Clock, Plus, Minus, Check, FileUp, Loader2, ArrowRight, ChevronDown, MoveLeft, Box, Cuboid, SortAsc, RefreshCw, Lightbulb, MousePointer2, ChevronRight, Gem, TrendingUp } from 'lucide-react';
 import { extractQuestionsFromPdf } from '../services/geminiService';
 
-type Category = 'tables' | 'squares' | 'cubes' | 'alpha' | 'alpha_rank' | 'alpha_pair' | 'percent' | 'multiplication' | 'specific_table' | 'speed_addition' | 'speed_subtraction' | 'mensuration' | 'golden_numbers';
+type Category = 'tables' | 'squares' | 'cubes' | 'alpha' | 'alpha_rank' | 'alpha_pair' | 'percent' | 'multiplication' | 'specific_table' | 'speed_addition' | 'speed_subtraction' | 'mensuration' | 'golden_numbers' | 'ci_rates';
 type ViralCategory = 'viral_products' | 'viral_addition' | 'viral_subtraction' | 'viral_multiplication' | 'viral_squares' | 'viral_division';
 
 // --- Custom Select (Light Mode - Modern Glass) ---
@@ -96,6 +96,13 @@ const FRACTION_MAP = [
   { f: '15/2', p: '750%' },
   { f: '17/2', p: '850%' },
   { f: '19/2', p: '950%' }
+];
+
+const CI_RATES_DATA = [
+  { r: '10%', y2: '21%', y3: '33.1%', y4: '46.41%' },
+  { r: '20%', y2: '44%', y3: '72.8%', y4: '107.36%' },
+  { r: '5%', y2: '10.25%', y3: '15.76%', y4: '21.55%' },
+  { r: '4%', y2: '8.16%', y3: '12.48%', y4: '16.98%' }
 ];
 
 const MENSURATION_DATA = [
@@ -377,6 +384,11 @@ const STANDARD_CONCEPTS = {
     title: "Fraction to Percentage Table",
     type: "grid-table",
     data: FRACTION_MAP
+  },
+  ci_rates: {
+    title: "Compound Interest Effective Rates",
+    type: "ci-table",
+    data: CI_RATES_DATA
   },
   multiplication: {
     title: "Important Exam Multiplications",
@@ -707,18 +719,37 @@ const SpeedMath: React.FC = () => {
       }
       case 'golden_numbers': {
         // Missing Factor Logic
-        // Pick a golden number
         const item = GOLDEN_NUMBERS_DATA[Math.floor(Math.random() * GOLDEN_NUMBERS_DATA.length)];
-        // Pick a pair
         const pair = item.pairs[Math.floor(Math.random() * item.pairs.length)];
-        // Decide which part to hide
-        // pair is like [12, 9] for 108.
         const hideIndex = Math.random() > 0.5 ? 0 : 1;
         const visible = pair[hideIndex === 0 ? 1 : 0];
         const hidden = pair[hideIndex];
-        
         q = `${item.num} = ${visible} × ?`;
         a = hidden.toString();
+        break;
+      }
+      case 'ci_rates': {
+        // Pick a Rate
+        const item = CI_RATES_DATA[Math.floor(Math.random() * CI_RATES_DATA.length)];
+        // Pick a Year (2, 3, or 4)
+        const years = [2, 3, 4];
+        const selectedYear = years[Math.floor(Math.random() * years.length)];
+        
+        q = `Effective CI % for ${item.r} over ${selectedYear} Years?`;
+        
+        if (selectedYear === 2) a = item.y2;
+        else if (selectedYear === 3) a = item.y3;
+        else a = item.y4;
+
+        // Generate distractors
+        const others = CI_RATES_DATA.filter(x => x.r !== item.r);
+        const distractors = others.slice(0, 3).map(o => {
+             if (selectedYear === 2) return o.y2;
+             if (selectedYear === 3) return o.y3;
+             return o.y4;
+        });
+        const rawOptions = [a, ...distractors];
+        opts = rawOptions.sort(() => 0.5 - Math.random());
         break;
       }
     }
@@ -764,7 +795,7 @@ const SpeedMath: React.FC = () => {
     setInput('');
     nextQuestion(category);
     // Only focus input if standard drill (no options)
-    const isOptionDrill = category === 'mensuration';
+    const isOptionDrill = category === 'mensuration' || category === 'ci_rates';
     if (!isOptionDrill) {
        setTimeout(() => inputRef.current?.focus(), 100);
     }
@@ -1096,6 +1127,7 @@ const SpeedMath: React.FC = () => {
           { id: 'golden_numbers', label: 'Golden Numbers', icon: Gem, color: 'bg-yellow-500' },
           { id: 'squares', label: 'Squares (1-50)', icon: Brain, color: 'bg-blue-500' },
           { id: 'cubes', label: 'Cubes (1-25)', icon: Brain, color: 'bg-indigo-500' },
+          { id: 'ci_rates', label: 'CI Effective Rates', icon: TrendingUp, color: 'bg-green-500' },
           { id: 'alpha', label: 'Alphabet Ranks', icon: Eye, color: 'bg-emerald-500' },
           { id: 'percent', label: '% to Fractions', icon: RefreshCcw, color: 'bg-rose-500' },
           { id: 'mensuration', label: 'Mensuration', icon: Box, color: 'bg-teal-500' },
@@ -1404,6 +1436,53 @@ const SpeedMath: React.FC = () => {
                </div>
              )}
 
+             {stdData.type === 'ci-table' && (
+                <div className="space-y-8">
+                   <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                    <table className="w-full text-sm text-left">
+                       <thead className="bg-green-50 text-green-800 uppercase font-bold">
+                         <tr>
+                           <th className="px-6 py-4">Rate (R)</th>
+                           <th className="px-6 py-4">2 Years</th>
+                           <th className="px-6 py-4">3 Years</th>
+                           <th className="px-6 py-4">4 Years</th>
+                         </tr>
+                       </thead>
+                       <tbody className="divide-y divide-slate-100">
+                         {(stdData.data as any[]).map((item, i) => (
+                           <tr key={i} className="hover:bg-slate-50 font-mono font-medium text-slate-700">
+                              <td className="px-6 py-4 font-bold text-indigo-600">{item.r}</td>
+                              <td className="px-6 py-4">{item.y2}</td>
+                              <td className="px-6 py-4">{item.y3}</td>
+                              <td className="px-6 py-4">{item.y4}</td>
+                           </tr>
+                         ))}
+                       </tbody>
+                    </table>
+                   </div>
+                   
+                   <div className="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-r-xl">
+                      <h4 className="font-bold text-yellow-800 mb-4 flex items-center gap-2">
+                        <Lightbulb size={20} /> Compounding Frequency Rules
+                      </h4>
+                      <div className="space-y-4">
+                         <div className="bg-white/60 p-3 rounded-lg">
+                           <p className="font-bold text-slate-800 mb-1">Half-Yearly Compounding</p>
+                           <p className="text-slate-600 text-sm">
+                             When interest is compounded half-yearly, the Rate is halved <span className="font-mono bg-yellow-100 px-1 rounded">(R/2)</span> and the Time period is doubled <span className="font-mono bg-yellow-100 px-1 rounded">(2T)</span>.
+                           </p>
+                         </div>
+                         <div className="bg-white/60 p-3 rounded-lg">
+                           <p className="font-bold text-slate-800 mb-1">Quarterly Compounding</p>
+                           <p className="text-slate-600 text-sm">
+                             When interest is compounded quarterly, the Rate becomes one-fourth <span className="font-mono bg-yellow-100 px-1 rounded">(R/4)</span> and the Time period becomes four times <span className="font-mono bg-yellow-100 px-1 rounded">(4T)</span>.
+                           </p>
+                         </div>
+                      </div>
+                   </div>
+                </div>
+             )}
+
              {stdData.type === 'golden-list' && (
                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                  {(stdData.data as any[]).map((item, i) => (
@@ -1557,7 +1636,7 @@ const SpeedMath: React.FC = () => {
     // Determine font size based on category and question length
     let fontSizeClass = 'text-6xl md:text-8xl';
     if (category === 'speed_subtraction') fontSizeClass = 'text-4xl';
-    else if (['alpha', 'alpha_rank', 'alpha_pair', 'golden_numbers'].includes(category) && question.text.length > 5) fontSizeClass = 'text-4xl md:text-5xl'; // Smaller for "Opposite of X" text or Golden Numbers drill
+    else if (['alpha', 'alpha_rank', 'alpha_pair', 'golden_numbers', 'ci_rates'].includes(category) && question.text.length > 5) fontSizeClass = 'text-4xl md:text-5xl'; // Smaller for "Opposite of X" text or Golden Numbers drill
 
     return (
       <div className="max-w-2xl mx-auto text-center animate-in zoom-in-95 duration-200">
@@ -1597,6 +1676,7 @@ const SpeedMath: React.FC = () => {
                  category === 'alpha_rank' ? 'Position Drill' :
                  category === 'alpha_pair' ? 'Opposite Pairs' :
                  category === 'golden_numbers' ? 'Find the Factor' :
+                 category === 'ci_rates' ? 'Compound Interest' :
                  'Solve Fast'}
               </div>
               <div className={`font-bold text-slate-800 transition-transform duration-100 ${feedback === 'correct' ? 'scale-110 text-green-600' : ''} ${fontSizeClass}`}>

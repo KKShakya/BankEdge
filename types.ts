@@ -1,3 +1,4 @@
+
 export enum Difficulty {
   EASY = 'Easy',
   MODERATE = 'Moderate',
@@ -30,12 +31,14 @@ export interface Question {
 }
 
 export type AnalysisTag = 'Silly Mistake' | 'Conceptual Error' | 'Time Management' | 'Guessed' | 'Skipped Strategically';
+export type QuadrantType = 'Sniper' | 'Struggle' | 'Gambler' | 'Time Waster' | 'Unattempted';
 
 export interface MockQuestion extends Question {
-  section: 'Reasoning' | 'Quantitative Aptitude';
+  section: 'Reasoning' | 'Quantitative Aptitude' | 'General'; 
   status: 'not_visited' | 'not_answered' | 'answered' | 'marked' | 'marked_answered';
   userAnswer?: number;
   analysisTag?: AnalysisTag;
+  timeSpent: number; // In seconds
 }
 
 export interface ExamResult {
@@ -43,6 +46,7 @@ export interface ExamResult {
   timestamp: number;
   score: number;
   totalQuestions: number;
+  targetTimePerQuestion: number;
   questions: MockQuestion[];
 }
 
