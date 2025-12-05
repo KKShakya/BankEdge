@@ -23,6 +23,14 @@ const MockExam: React.FC = () => {
   // Timer Refs
   const questionStartTimeRef = useRef<number>(Date.now());
   const [currentQTimer, setCurrentQTimer] = useState(0);
+  
+  // Mounted Check to prevent async errors
+  const isMounted = useRef(true);
+
+  useEffect(() => {
+    isMounted.current = true;
+    return () => { isMounted.current = false; };
+  }, []);
 
   // --- TIMER LOGIC ---
   useEffect(() => {
@@ -62,13 +70,19 @@ const MockExam: React.FC = () => {
       return;
     }
     setMode('loading');
+    
+    // Call service
     const qs = await parseMockFromText(questionText, answerText);
+    
+    // Check if component still mounted before updating state
+    if (!isMounted.current) return;
+
     if (qs.length > 0) {
       setQuestions(qs);
       setMode('config');
     } else {
       setMode('setup');
-      alert("Could not parse questions. Please ensure text is readable.");
+      alert("Could not parse questions. Please ensure text is readable and contains clear question patterns.");
     }
   };
 

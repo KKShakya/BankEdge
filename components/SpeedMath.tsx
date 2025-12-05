@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Zap, Book, Timer, Trophy, ChevronLeft, RefreshCcw, Brain, Eye, X, Flame, Star, Hash, Settings, Clock, Plus, Minus, Check, FileUp, Loader2, ArrowRight, ChevronDown, MoveLeft, Box, Cuboid, SortAsc, RefreshCw, Lightbulb, MousePointer2, ChevronRight, Gem, TrendingUp, Target, Divide } from 'lucide-react';
+import { Zap, Book, Timer, Trophy, ChevronLeft, RefreshCcw, Brain, Eye, X, Flame, Star, Hash, Settings, Clock, Plus, Minus, Check, FileUp, Loader2, ArrowRight, ChevronDown, MoveLeft, Box, Cuboid, SortAsc, RefreshCw, Lightbulb, MousePointer2, ChevronRight, Gem, TrendingUp, Target, Divide, Layers } from 'lucide-react';
 import { extractQuestionsFromPdf } from '../services/geminiService';
 
-type Category = 'tables' | 'squares' | 'cubes' | 'alpha' | 'alpha_rank' | 'alpha_pair' | 'percent' | 'multiplication' | 'specific_table' | 'speed_addition' | 'speed_subtraction' | 'mensuration' | 'golden_numbers' | 'ci_rates' | 'quadratic_blitz' | 'unit_digit';
+type Category = 'tables' | 'squares' | 'cubes' | 'alpha' | 'alpha_rank' | 'alpha_pair' | 'percent' | 'multiplication' | 'specific_table' | 'speed_addition' | 'speed_subtraction' | 'mensuration' | 'golden_numbers' | 'ci_rates' | 'quadratic_blitz' | 'unit_digit' | 'consecutive_mult';
 type ViralCategory = 'viral_products' | 'viral_addition' | 'viral_subtraction' | 'viral_multiplication' | 'viral_squares' | 'viral_division';
 
 // --- Custom Select (Light Mode - Modern Glass) ---
@@ -395,6 +395,15 @@ const STANDARD_CONCEPTS = {
     type: "grid-simple",
     data: EXAM_MULTIPLICATIONS
   },
+  consecutive_mult: {
+    title: "Consecutive Factors (Product → n * n+1)",
+    type: "grid-simple",
+    data: Array.from({length: 9}, (_, i) => {
+      const n = i + 11;
+      const prod = n * (n+1);
+      return { q: `${prod}`, a: `${n}*${n+1}` };
+    })
+  },
   mensuration: {
     title: "Mensuration Formulas (2D & 3D)",
     type: "mensuration-list",
@@ -705,6 +714,12 @@ const SpeedMath: React.FC = () => {
         }
         break;
       }
+      case 'consecutive_mult': {
+        const n = Math.floor(Math.random() * 9) + 11; // 11 to 19
+        q = (n * (n+1)).toString();
+        a = `${n}*${n+1}`;
+        break;
+      }
       case 'mensuration': {
         const item = MENSURATION_DATA[Math.floor(Math.random() * MENSURATION_DATA.length)];
         q = `${item.shape} (${item.param})?`;
@@ -980,7 +995,10 @@ const SpeedMath: React.FC = () => {
     setInput(val);
 
     if (mode === 'practice') {
-      if (val.trim().toLowerCase() === question.answer.toLowerCase()) {
+      const cleanVal = val.trim().toLowerCase().replace(/x/g, '*');
+      const cleanAns = question.answer.toLowerCase().replace(/x/g, '*');
+      
+      if (cleanVal === cleanAns) {
         setScore((s) => s + 1);
         setFeedback('correct');
         setInput('');
@@ -1170,6 +1188,7 @@ const SpeedMath: React.FC = () => {
       {/* Standard Modules */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {[
+          { id: 'consecutive_mult', label: 'Consecutive Factors', icon: Layers, color: 'bg-cyan-500' },
           { id: 'quadratic_blitz', label: 'Quadratic Sign Blitz', icon: RefreshCw, color: 'bg-orange-500' },
           { id: 'unit_digit', label: 'Unit Digit Sniper', icon: Target, color: 'bg-pink-500' },
           { id: 'tables', label: 'Tables (1-20)', icon: Hash, color: 'bg-amber-500' },
@@ -1728,6 +1747,7 @@ const SpeedMath: React.FC = () => {
                  category === 'ci_rates' ? 'Compound Interest' :
                  category === 'quadratic_blitz' ? 'Sign Method Blitz' :
                  category === 'unit_digit' ? 'Unit Digit Sniper' :
+                 category === 'consecutive_mult' ? 'Consecutive Mult (n × n+1)' :
                  'Solve Fast'}
               </div>
               <div className={`font-bold text-slate-800 transition-transform duration-100 whitespace-pre-line ${feedback === 'correct' ? 'scale-110 text-green-600' : ''} ${fontSizeClass}`}>

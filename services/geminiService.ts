@@ -13,6 +13,17 @@ You can assist with math, logic, writing, planning, and general knowledge.
 However, if the user asks about exam specifics, prioritize methods suitable for banking exams (speed math, short tricks).
 `;
 
+// Helper to strip markdown code blocks if present
+const cleanJson = (text: string): string => {
+  if (!text) return "";
+  let cleaned = text.trim();
+  // Remove ```json ... ``` or ``` ... ``` wrappers
+  if (cleaned.startsWith('```')) {
+    cleaned = cleaned.replace(/^```(json)?/, '').replace(/```$/, '');
+  }
+  return cleaned.trim();
+};
+
 export const sendChatMessage = async (history: { role: string; parts: { text: string }[] }[], message: string): Promise<string> => {
   try {
     const chat = ai.chats.create({
@@ -89,7 +100,7 @@ export const generatePracticeQuestions = async (subject: Subject, difficulty: Di
       },
     });
 
-    const text = response.text;
+    const text = cleanJson(response.text || "");
     if (!text) return [];
     return JSON.parse(text) as Question[];
   } catch (error) {
@@ -135,7 +146,7 @@ export const analyzeExamPattern = async (examType: 'PO' | 'Clerk', year: string)
       },
     });
 
-    const text = response.text;
+    const text = cleanJson(response.text || "");
     if (!text) return null;
     return JSON.parse(text) as PatternAnalysis;
   } catch (error) {
@@ -211,7 +222,8 @@ export const parseMockFromText = async (questionText: string, answerText: string
       Task:
       1. Extract questions from Input 1.
       2. Match them with correct answers from Input 2.
-      3. Return a clean JSON array.
+      3. Extract all options (usually 4 or 5, e.g., a, b, c, d, e).
+      4. Return a clean JSON array.
       
       INPUT 1 (Questions):
       ${questionText.substring(0, 20000)}
@@ -229,7 +241,7 @@ export const parseMockFromText = async (questionText: string, answerText: string
       2. Look for numbered patterns like "1.", "2.", "Q1", "1)" to identify questions.
       3. The text contains Unicode math symbols (e.g., √ for square root, ÷ for division, × or * for multiplication). Handle them correctly.
       4. It may contain mixed fractions (e.g., "4 3/6" or "8(2/3)"). Parse them as numbers in your solution logic.
-      5. Extract the options if present ((a), (b), etc.).
+      5. Extract ALL options if present ((a), (b), (c), (d), (e)). Do not limit to 4.
       
       Task:
       1. Extract individual questions only.
@@ -252,15 +264,22 @@ export const parseMockFromText = async (questionText: string, answerText: string
       },
     });
 
-    const text = response.text;
+    const text = cleanJson(response.text || "");
     if (!text) return [];
-    const questions = JSON.parse(text) as MockQuestion[];
-    return questions.map(q => ({ 
-      ...q, 
-      status: 'not_visited', 
-      explanation: q.explanation || "Derived from uploaded text.",
-      timeSpent: 0
-    }));
+    
+    // Safety check for JSON parsing
+    try {
+      const questions = JSON.parse(text) as MockQuestion[];
+      return questions.map(q => ({ 
+        ...q, 
+        status: 'not_visited', 
+        explanation: q.explanation || "Derived from uploaded text.",
+        timeSpent: 0
+      }));
+    } catch (parseError) {
+      console.error("JSON Parse Error on: ", text);
+      return [];
+    }
   } catch (error) {
     console.error("Text Parse Error:", error);
     return [];
@@ -308,7 +327,7 @@ export const extractQuestionsFromPdf = async (pdfBase64: string): Promise<{ q: s
       }
     });
 
-    const text = response.text;
+    const text = cleanJson(response.text || "");
     if (!text) return [];
     return JSON.parse(text) as { q: string; a: string }[];
   } catch (error) {
