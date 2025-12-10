@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Zap, Book, Timer, Trophy, ChevronLeft, RefreshCcw, Brain, Eye, X, Flame, Star, Hash, Settings, Clock, Plus, Minus, Check, FileUp, Loader2, ArrowRight, ChevronDown, MoveLeft, Box, Cuboid, SortAsc, RefreshCw, Lightbulb, MousePointer2, ChevronRight, Gem, TrendingUp, Target, Divide, Layers } from 'lucide-react';
+import { Zap, Book, Timer, Trophy, ChevronLeft, RefreshCcw, Brain, Eye, X, Flame, Star, Hash, Settings, Clock, Plus, Minus, Check, FileUp, Loader2, ArrowRight, ChevronDown, MoveLeft, Box, Cuboid, SortAsc, RefreshCw, Lightbulb, MousePointer2, ChevronRight, Gem, TrendingUp, Target, Divide, Layers, ArrowLeftRight } from 'lucide-react';
 import { extractQuestionsFromPdf } from '../services/geminiService';
 
 type Category = 'tables' | 'squares' | 'cubes' | 'alpha' | 'alpha_rank' | 'alpha_pair' | 'percent' | 'multiplication' | 'specific_table' | 'speed_addition' | 'speed_subtraction' | 'mensuration' | 'golden_numbers' | 'ci_rates' | 'quadratic_blitz' | 'unit_digit' | 'consecutive_mult';
@@ -557,8 +557,9 @@ const CHEAT_SHEET_DATA = [
 ];
 
 const SpeedMath: React.FC = () => {
-  const [mode, setMode] = useState<'menu' | 'viral-menu' | 'alpha-menu' | 'tricks-sheet' | 'practice' | 'reference' | 'timer-selection' | 'pdf-upload' | 'pdf-config' | 'pdf-drill' | 'pdf-result'>('menu');
+  const [mode, setMode] = useState<'menu' | 'viral-menu' | 'alpha-menu' | 'tricks-sheet' | 'practice' | 'reference' | 'timer-selection' | 'pdf-upload' | 'pdf-config' | 'pdf-drill' | 'pdf-result' | 'mode-selection'>('menu');
   const [category, setCategory] = useState<string>('tables'); // General or Viral key
+  const [subMode, setSubMode] = useState<'normal' | 'reverse'>('normal'); // For Squares/Cubes
   const [customTable, setCustomTable] = useState<{table: string, limit: string}>({ table: '19', limit: '10' });
   const [subtractionMode, setSubtractionMode] = useState<'2num' | '3num'>('2num');
   const [reverseInputMode, setReverseInputMode] = useState(false);
@@ -651,14 +652,26 @@ const SpeedMath: React.FC = () => {
       }
       case 'squares': {
         const num = Math.floor(Math.random() * 49) + 2; // 2 to 50
-        q = `${num}²`;
-        a = (num * num).toString();
+        const sq = num * num;
+        if (subMode === 'reverse') {
+          q = `√${sq}`;
+          a = num.toString();
+        } else {
+          q = `${num}²`;
+          a = sq.toString();
+        }
         break;
       }
       case 'cubes': {
         const num = Math.floor(Math.random() * 24) + 2; // 2 to 25
-        q = `${num}³`;
-        a = (num * num * num).toString();
+        const cb = num * num * num;
+        if (subMode === 'reverse') {
+          q = `∛${cb}`;
+          a = num.toString();
+        } else {
+          q = `${num}³`;
+          a = cb.toString();
+        }
         break;
       }
       case 'alpha': {
@@ -1221,6 +1234,9 @@ const SpeedMath: React.FC = () => {
                   onClick={() => {
                     if (item.id === 'alpha') {
                       setMode('alpha-menu');
+                    } else if (item.id === 'squares' || item.id === 'cubes') {
+                      setCategory(item.id);
+                      setMode('mode-selection');
                     } else {
                       initGameSetup(item.id);
                     }
@@ -1237,63 +1253,176 @@ const SpeedMath: React.FC = () => {
     </div>
   );
 
-  const renderTricksSheet = () => {
-    // Keywords for normal highlighting
-    const HIGHLIGHT_KEYWORDS = [
-      'King', 'Servants', 'DIVIDE', 'MULTIPLY', 'Helping Hand', 'The Bully', 
-      'Profit', 'Investment', 'Restricted', 'Free', 'NO', 'YES', 'married', 
-      'Empty Spot', 'Right', 'Left', 'Numbers', 'Symbols', 'Shapes',
-      'Cost Price of Water is ₹0', '₹1 = 1gm', 'False weight is the CP', 'actual weight is the SP', 'Double Cheat', 'Linear Line'
-    ];
-
-    // The special formula to highlight
-    const FORMULA_KEYWORD = "Distance = Total Time × (B² - S²) / 2B";
-
-    return (
-    <div className="animate-in fade-in slide-in-from-right-4 pb-12 max-w-6xl mx-auto">
-       <button onClick={() => setMode('menu')} className="mb-6 flex items-center text-slate-500 hover:text-indigo-600 transition-colors group">
-         <ChevronLeft size={20} className="group-hover:-translate-x-1 transition-transform" /> Back to Menu
+  const renderModeSelection = () => (
+    <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-right-4">
+       <button onClick={() => setMode('menu')} className="mb-6 flex items-center text-slate-500 hover:text-indigo-600">
+         <ChevronLeft size={20} /> Back to Menu
        </button>
        
-       <div className="mb-10 text-center">
-         <h2 className="text-4xl font-extrabold text-slate-900 mb-3 flex items-center justify-center gap-3">
-           <Trophy className="text-yellow-500" size={40} fill="currentColor" />
-           The Topper's Cheat Sheet
+       <div className="text-center mb-8">
+         <h2 className="text-3xl font-bold text-slate-800 flex items-center justify-center gap-3 capitalize">
+           <Brain className="text-indigo-500" size={32} />
+           {category} Mastery
          </h2>
-         <p className="text-slate-500 text-lg">Consolidated King Rules, Visual Models & No-Pen Protocols</p>
+         <p className="text-slate-500">Choose your practice direction.</p>
        </div>
 
-       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 masonry-grid">
-         {CHEAT_SHEET_DATA.map((section, idx) => {
+       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+         {/* Normal Mode */}
+         <div onClick={() => { setSubMode('normal'); setMode('timer-selection'); }} className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm hover:border-blue-400 hover:shadow-lg cursor-pointer transition-all group flex flex-col items-center text-center">
+            <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600 mb-6 group-hover:scale-110 transition-transform">
+              <Zap size={32} />
+            </div>
+            <h3 className="text-2xl font-bold text-slate-800 mb-2">
+              {category === 'squares' ? 'Find Square' : 'Find Cube'}
+            </h3>
+            <p className="text-slate-500 text-base mb-6">
+              {category === 'squares' ? '12² = ?' : '12³ = ?'}
+            </p>
+            <div className="text-sm font-bold text-blue-600 bg-blue-50 px-4 py-2 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-colors">Select Normal Mode</div>
+         </div>
+
+         {/* Reverse Mode */}
+         <div onClick={() => { setSubMode('reverse'); setMode('timer-selection'); }} className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm hover:border-indigo-400 hover:shadow-lg cursor-pointer transition-all group flex flex-col items-center text-center">
+            <div className="w-16 h-16 bg-indigo-100 rounded-2xl flex items-center justify-center text-indigo-600 mb-6 group-hover:scale-110 transition-transform">
+              <ArrowLeftRight size={32} />
+            </div>
+            <h3 className="text-2xl font-bold text-slate-800 mb-2">
+              {category === 'squares' ? 'Find Root' : 'Find Cube Root'}
+            </h3>
+            <p className="text-slate-500 text-base mb-6">
+              {category === 'squares' ? '√144 = ?' : '∛1728 = ?'}
+            </p>
+            <div className="text-sm font-bold text-indigo-600 bg-indigo-50 px-4 py-2 rounded-lg group-hover:bg-indigo-600 group-hover:text-white transition-colors">Select Reverse Mode</div>
+         </div>
+       </div>
+    </div>
+  );
+
+  const renderViralMenu = () => (
+    <div className="max-w-6xl mx-auto animate-in fade-in slide-in-from-right-4">
+      <button onClick={() => setMode('menu')} className="mb-6 flex items-center text-slate-500 hover:text-indigo-600">
+        <ChevronLeft size={20} /> Back to Menu
+      </button>
+
+      <div className="text-center mb-10">
+        <h2 className="text-4xl font-bold text-slate-900 mb-2 flex items-center justify-center gap-3">
+          <Flame className="text-orange-500" size={40} fill="currentColor" />
+          Viral Maths
+        </h2>
+        <p className="text-slate-500">Shortcuts that defy traditional methods.</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {Object.entries(VIRAL_CONCEPTS).map(([key, data]) => (
+          <div key={key} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:border-orange-300 transition-all group">
+            <h3 className="text-xl font-bold text-slate-800 mb-2 group-hover:text-orange-600 transition-colors">{data.title}</h3>
+            <p className="text-sm text-slate-500 mb-6 min-h-[40px]">{data.description}</p>
+            
+            <div className="space-y-3 mb-6">
+               {data.tricks.slice(0, 2).map((trick, i) => (
+                 <div key={i} className="bg-orange-50 p-3 rounded-lg text-xs">
+                   <span className="font-bold text-orange-800 block mb-1">{trick.name}</span>
+                   <span className="text-orange-700 opacity-80">{trick.logic}</span>
+                 </div>
+               ))}
+            </div>
+
+            <button 
+              onClick={() => { setCategory(key); setMode('timer-selection'); }}
+              className="w-full py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 flex items-center justify-center gap-2"
+            >
+              <Zap size={18} /> Practice
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderAlphaMenu = () => (
+    <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-right-4">
+      <button onClick={() => setMode('menu')} className="mb-6 flex items-center text-slate-500 hover:text-emerald-600">
+        <ChevronLeft size={20} /> Back to Menu
+      </button>
+
+      <div className="text-center mb-10">
+        <h2 className="text-3xl font-bold text-slate-900 mb-2 flex items-center justify-center gap-3">
+          <Eye className="text-emerald-500" size={40} />
+          Alphabet Mastery
+        </h2>
+        <p className="text-slate-500">Essential for Reasoning (Coding-Decoding, Series)</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+         <div onClick={() => initGameSetup('alpha_rank')} className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 hover:border-emerald-400 cursor-pointer group hover:shadow-lg transition-all text-center">
+            <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4 text-emerald-600 group-hover:scale-110 transition-transform">
+               <span className="text-2xl font-bold">#</span>
+            </div>
+            <h3 className="text-xl font-bold text-slate-800 mb-2">Positions</h3>
+            <p className="text-sm text-slate-500">A = 1, Z = 26</p>
+         </div>
+
+         <div onClick={() => initGameSetup('alpha_pair')} className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 hover:border-emerald-400 cursor-pointer group hover:shadow-lg transition-all text-center">
+            <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4 text-emerald-600 group-hover:scale-110 transition-transform">
+               <ArrowLeftRight size={28} />
+            </div>
+            <h3 className="text-xl font-bold text-slate-800 mb-2">Opposites</h3>
+            <p className="text-sm text-slate-500">A ↔ Z, B ↔ Y</p>
+         </div>
+
+         <div onClick={() => initGameSetup('alpha')} className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 hover:border-emerald-400 cursor-pointer group hover:shadow-lg transition-all text-center">
+            <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4 text-emerald-600 group-hover:scale-110 transition-transform">
+               <RefreshCcw size={28} />
+            </div>
+            <h3 className="text-xl font-bold text-slate-800 mb-2">Mixed Bag</h3>
+            <p className="text-sm text-slate-500">Random drill</p>
+         </div>
+      </div>
+      
+      <div className="mt-8 flex justify-center">
+         <button onClick={() => { setCategory('alpha'); setMode('reference'); }} className="flex items-center gap-2 px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors">
+            <Book size={18} /> View Cheatsheet
+         </button>
+      </div>
+    </div>
+  );
+
+  const renderTricksSheet = () => (
+    <div className="max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-8">
+      <div className="flex items-center justify-between mb-8 sticky top-0 bg-slate-50/95 backdrop-blur-sm py-4 z-20 border-b border-slate-200">
+        <div className="flex items-center gap-4">
+          <button onClick={() => setMode('menu')} className="bg-white p-2 rounded-full shadow-sm border border-slate-200 hover:bg-slate-100">
+            <ChevronLeft size={24} className="text-slate-600" />
+          </button>
+          <h2 className="text-2xl font-bold text-slate-800">Topper's Cheat Sheet</h2>
+        </div>
+      </div>
+
+      <div className="space-y-8 pb-12">
+        {CHEAT_SHEET_DATA.map((section, idx) => {
            const Icon = section.icon;
            return (
-             <div key={idx} className="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden">
-               <div className={`bg-${section.color}-50 p-4 border-b border-${section.color}-100 flex items-center gap-3`}>
-                 <div className={`p-2 bg-${section.color}-100 text-${section.color}-700 rounded-lg`}>
-                   <Icon size={24} />
-                 </div>
-                 <h3 className={`text-xl font-bold text-${section.color}-900`}>{section.title}</h3>
+             <div key={idx} className="bg-white rounded-3xl p-8 shadow-sm border border-slate-200">
+               <div className={`flex items-center gap-4 mb-8 pb-4 border-b border-slate-100`}>
+                  <div className={`p-3 rounded-2xl bg-${section.color}-100 text-${section.color}-600`}>
+                    <Icon size={32} />
+                  </div>
+                  <h3 className="text-2xl font-bold text-slate-800">{section.title}</h3>
                </div>
                
-               <div className="p-6 space-y-8">
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                  {section.sections.map((sub, sIdx) => (
-                   <div key={sIdx}>
-                     <h4 className="font-bold text-slate-800 text-lg mb-3 border-l-4 border-slate-200 pl-3">{sub.subtitle}</h4>
+                   <div key={sIdx} className="bg-slate-50 rounded-2xl p-6 border border-slate-100 hover:border-indigo-100 transition-colors">
+                     <h4 className="font-bold text-lg text-slate-700 mb-4 flex items-center gap-2">
+                       <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
+                       {sub.subtitle}
+                     </h4>
                      <ul className="space-y-4">
                        {sub.points.map((pt, pIdx) => (
-                         <li key={pIdx} className="text-slate-600 leading-relaxed text-sm">
-                           <span className={`font-bold text-${section.color}-700 block mb-1`}>{pt.label}</span>
-                           <span className="bg-slate-50 px-3 py-2 rounded-lg block border border-slate-100">
-                             {pt.desc.split(new RegExp(`(${FORMULA_KEYWORD.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}|${HIGHLIGHT_KEYWORDS.join('|')})`, 'g')).map((part, i) => {
-                               if (part === FORMULA_KEYWORD) {
-                                  return <span key={i} className="font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded mx-1">{part}</span>;
-                               }
-                               if (HIGHLIGHT_KEYWORDS.includes(part)) {
-                                 return <span key={i} className="font-extrabold text-slate-800 bg-yellow-100 px-1 rounded mx-0.5">{part}</span>;
-                               }
-                               return part;
-                             })}
-                           </span>
+                         <li key={pIdx}>
+                           <span className="block font-bold text-slate-800 text-sm mb-1">{pt.label}</span>
+                           <span className="block text-slate-600 text-sm leading-relaxed">{pt.desc}</span>
                          </li>
                        ))}
                      </ul>
@@ -1302,359 +1431,194 @@ const SpeedMath: React.FC = () => {
                </div>
              </div>
            );
-         })}
-       </div>
-    </div>
-  )};
-
-  const renderAlphaMenu = () => (
-    <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-right-4">
-       <button onClick={() => setMode('menu')} className="mb-6 flex items-center text-slate-500 hover:text-indigo-600">
-         <ChevronLeft size={20} /> Back to Menu
-       </button>
-       
-       <div className="text-center mb-8">
-         <h2 className="text-3xl font-bold text-slate-800 flex items-center justify-center gap-3">
-           <Eye className="text-emerald-500" size={32} />
-           Alphabet Mastery
-         </h2>
-         <p className="text-slate-500">Master ranks, opposite pairs, and rapid recall.</p>
-       </div>
-
-       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-         {/* Positions Only */}
-         <div onClick={() => initGameSetup('alpha_rank')} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:border-emerald-400 hover:shadow-lg cursor-pointer transition-all group">
-            <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600 mb-4 group-hover:scale-110 transition-transform">
-              <SortAsc size={24} />
-            </div>
-            <h3 className="text-xl font-bold text-slate-800 mb-2">Positions Only</h3>
-            <p className="text-slate-500 text-sm mb-4">You see 'P', you type '16'. Rapid fire ranking drill.</p>
-            <button className="w-full py-2 bg-emerald-50 text-emerald-700 rounded-lg font-bold text-sm">Start Drill</button>
-         </div>
-
-         {/* Pairs Only */}
-         <div onClick={() => initGameSetup('alpha_pair')} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:border-blue-400 hover:shadow-lg cursor-pointer transition-all group">
-            <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 mb-4 group-hover:scale-110 transition-transform">
-              <RefreshCw size={24} />
-            </div>
-            <h3 className="text-xl font-bold text-slate-800 mb-2">Pairs Only</h3>
-            <p className="text-slate-500 text-sm mb-4">You see 'Opposite of A', you type 'Z'. Master pairs like AZ, BY.</p>
-            <button className="w-full py-2 bg-blue-50 text-blue-700 rounded-lg font-bold text-sm">Start Drill</button>
-         </div>
-
-         {/* Mixed Mode */}
-         <div onClick={() => initGameSetup('alpha')} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:border-indigo-400 hover:shadow-lg cursor-pointer transition-all group">
-            <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 mb-4 group-hover:scale-110 transition-transform">
-              <Zap size={24} />
-            </div>
-            <h3 className="text-xl font-bold text-slate-800 mb-2">Mixed Mode</h3>
-            <p className="text-slate-500 text-sm mb-4">Random mix of positions and pairs. The ultimate test.</p>
-            <button className="w-full py-2 bg-indigo-50 text-indigo-700 rounded-lg font-bold text-sm">Start Drill</button>
-         </div>
-       </div>
-    </div>
-  );
-
-  const renderViralMenu = () => (
-    <div className="animate-in fade-in slide-in-from-right-4">
-      <div className="flex items-center gap-4 mb-8">
-        <button onClick={() => setMode('menu')} className="p-2 rounded-full hover:bg-slate-200 text-slate-600">
-          <ChevronLeft size={28} />
-        </button>
-        <div>
-          <h2 className="text-3xl font-bold text-slate-900 flex items-center gap-2">
-            <Star className="text-yellow-500" fill="currentColor" />
-            Viral Maths Modules
-          </h2>
-          <p className="text-slate-500">Select a concept to Study or Blitz</p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {(Object.keys(VIRAL_CONCEPTS) as ViralCategory[]).map((key) => {
-          const item = VIRAL_CONCEPTS[key];
-          return (
-            <div key={key} className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm hover:border-indigo-300 transition-all">
-              <h3 className="text-xl font-bold text-indigo-900 mb-1">{item.title}</h3>
-              <p className="text-slate-500 text-sm mb-4 h-10 line-clamp-2">{item.description}</p>
-              
-              <div className="space-y-2 bg-slate-50 p-3 rounded-lg mb-4">
-                {item.tricks.slice(0, 2).map((trick, i) => (
-                  <div key={i} className="flex items-start gap-2 text-xs text-slate-700">
-                    <span className="font-bold text-indigo-600 whitespace-nowrap">{trick.name}:</span>
-                    <span className="truncate">{trick.logic}</span>
-                  </div>
-                ))}
-                <div className="text-xs text-center text-indigo-500 font-medium">+ more inside</div>
-              </div>
-
-              <div className="flex gap-3">
-                <button 
-                  onClick={() => { setCategory(key); setMode('reference'); }}
-                  className="flex-1 py-2.5 bg-indigo-50 text-indigo-700 rounded-lg font-semibold text-sm hover:bg-indigo-100 transition-colors flex items-center justify-center gap-2"
-                >
-                  <Book size={16} /> Study Concepts
-                </button>
-                <button 
-                  onClick={() => initGameSetup(key)}
-                  className="flex-1 py-2.5 bg-indigo-600 text-white rounded-lg font-semibold text-sm hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2"
-                >
-                  <Zap size={16} /> Blitz Practice
-                </button>
-              </div>
-            </div>
-          );
         })}
       </div>
     </div>
   );
 
   const renderReference = () => {
-    const isViral = Object.keys(VIRAL_CONCEPTS).includes(category);
-    const viralData = isViral ? VIRAL_CONCEPTS[category as ViralCategory] : null;
-    // @ts-ignore
-    const stdData = !isViral && STANDARD_CONCEPTS[category] ? STANDARD_CONCEPTS[category] : null;
+    // Standard Concepts Reference
+    const data = STANDARD_CONCEPTS[category as keyof typeof STANDARD_CONCEPTS];
+    if (!data) return <div className="p-8 text-center text-slate-500">No reference data available.</div>;
 
     return (
-      <div className="animate-in fade-in slide-in-from-right-4 pb-10 max-w-5xl mx-auto">
-         <button onClick={() => setMode(isViral ? 'viral-menu' : 'menu')} className="mb-4 flex items-center text-slate-500 hover:text-indigo-600">
-           <ChevronLeft size={20} /> Back to Menu
-         </button>
-         
-         {isViral && viralData ? (
-           <div>
-             <div className="bg-indigo-900 text-white p-8 rounded-2xl mb-8 relative overflow-hidden">
-               <div className="relative z-10">
-                 <h2 className="text-3xl font-bold mb-2">{viralData.title}</h2>
-                 <p className="text-indigo-200">{viralData.description}</p>
-               </div>
-               <div className="absolute right-0 top-0 text-white/5 -mr-10 -mt-10">
-                 <Brain size={200} />
-               </div>
-             </div>
+      <div className="max-w-5xl mx-auto animate-in fade-in slide-in-from-right-4">
+        <div className="flex items-center justify-between mb-8">
+          <button onClick={() => setMode('menu')} className="flex items-center text-slate-500 hover:text-indigo-600">
+            <ChevronLeft size={20} /> Back to Menu
+          </button>
+          <button onClick={() => initGameSetup(category)} className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-indigo-700 shadow-md flex items-center gap-2">
+             <Zap size={18} /> Practice This
+          </button>
+        </div>
 
-             <div className="grid gap-6">
-               {viralData.tricks.map((trick, idx) => (
-                 <div key={idx} className="bg-white border-l-4 border-indigo-500 shadow-sm rounded-r-xl p-6">
-                   <h3 className="text-lg font-bold text-indigo-900 mb-2">{trick.name}</h3>
-                   <div className="text-slate-700 font-mono bg-slate-50 p-4 rounded-lg text-lg">
-                     {trick.logic}
+        <div className="text-center mb-10">
+          <h2 className="text-3xl font-bold text-slate-900 mb-2">{data.title}</h2>
+          <p className="text-slate-500">Review before you practice.</p>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+          {data.type === 'grid-card' && (
+             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 divide-x divide-y divide-slate-100">
+               {(data.data as any[]).map((item: any, i: number) => (
+                 <div key={i} className="p-4 hover:bg-slate-50 transition-colors">
+                   <div className="text-2xl font-bold text-indigo-600 mb-2 text-center bg-indigo-50 rounded-lg py-1">{item.label}</div>
+                   <div className="space-y-1 text-center text-xs text-slate-600 font-mono">
+                      {item.values.slice(0, 5).map((v: string, idx: number) => <div key={idx}>{v}</div>)}
+                      <div className="text-slate-400 text-[10px] italic">...and so on</div>
                    </div>
                  </div>
                ))}
              </div>
-           </div>
-         ) : stdData ? (
-           <div>
-             <div className="bg-slate-800 text-white p-6 rounded-2xl mb-6 flex justify-between items-center">
-                <div>
-                  <h2 className="text-2xl font-bold">{stdData.title}</h2>
-                  <p className="text-slate-400 text-sm">Memorize these for higher speed.</p>
-                </div>
-                <button 
-                  onClick={() => {
-                    if (category === 'alpha') {
-                      setMode('alpha-menu');
-                    } else {
-                      initGameSetup(category);
-                    }
-                  }}
-                  className="bg-white text-slate-900 px-6 py-2 rounded-lg font-bold hover:bg-slate-100"
-                >
-                  Play Now
-                </button>
+          )}
+
+          {data.type === 'grid-simple' && (
+             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-1 p-1 bg-slate-100">
+               {(data.data as any[]).map((item: any, i: number) => (
+                 <div key={i} className="bg-white p-4 flex flex-col items-center justify-center aspect-square rounded-lg hover:shadow-md transition-shadow">
+                    <div className="text-slate-500 text-sm mb-1">{item.q}</div>
+                    <div className="text-2xl font-bold text-slate-800">{item.a}</div>
+                 </div>
+               ))}
              </div>
-
-             {stdData.type === 'grid-card' && (
-               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                 {(stdData.data as any[]).map((table, i) => (
-                   <div key={i} className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-all">
-                     <h4 className="font-bold text-indigo-600 text-center mb-3 bg-indigo-50 py-1 rounded">Table of {table.label}</h4>
-                     <div className="space-y-1 text-sm text-slate-700 font-mono text-center">
-                       {table.values.map((row: string, j: number) => (
-                         <div key={j}>{row}</div>
+          )}
+          
+          {data.type === 'grid-table' && (
+            <div className="overflow-x-auto">
+               <table className="w-full text-left">
+                 <thead className="bg-slate-50 border-b border-slate-200">
+                   <tr>
+                     <th className="p-4 font-bold text-slate-600">Fraction</th>
+                     <th className="p-4 font-bold text-slate-600">Percentage</th>
+                   </tr>
+                 </thead>
+                 <tbody className="divide-y divide-slate-100">
+                   {(data.data as any[]).map((row: any, i: number) => (
+                     <tr key={i} className="hover:bg-slate-50">
+                       <td className="p-4 font-mono font-bold text-indigo-600 text-lg">{row.f}</td>
+                       <td className="p-4 font-bold text-slate-800 text-lg">{row.p}</td>
+                     </tr>
+                   ))}
+                 </tbody>
+               </table>
+            </div>
+          )}
+          
+          {data.type === 'custom-alpha' && (
+            <div className="p-8 space-y-8">
+               <div className="grid grid-cols-4 md:grid-cols-9 gap-2">
+                  {(data.data as any).forward.map((item: any, i: number) => (
+                    <div key={i} className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-center">
+                       <div className="text-2xl font-bold text-slate-800">{item.char}</div>
+                       <div className="text-xs font-bold text-indigo-500">{item.val}</div>
+                    </div>
+                  ))}
+               </div>
+               
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                 <div className="bg-indigo-50 rounded-xl p-6 border border-indigo-100">
+                    <h3 className="font-bold text-indigo-800 mb-4 flex items-center gap-2"><Lightbulb size={18}/> Mnemonics for Ranks</h3>
+                    <ul className="space-y-3">
+                       {(data.data as any).mnemonics.map((m: any, i: number) => (
+                         <li key={i} className="flex justify-between border-b border-indigo-100 pb-2">
+                           <span className="font-bold text-indigo-900">{m.code}</span>
+                           <span className="font-mono text-indigo-700">{m.val}</span>
+                         </li>
                        ))}
-                     </div>
-                   </div>
-                 ))}
+                    </ul>
+                 </div>
+                 
+                 <div className="bg-emerald-50 rounded-xl p-6 border border-emerald-100">
+                    <h3 className="font-bold text-emerald-800 mb-4 flex items-center gap-2"><ArrowLeftRight size={18}/> Opposite Pairs (Sum 27)</h3>
+                    <div className="grid grid-cols-2 gap-x-8 gap-y-2">
+                       {(data.data as any).opposites_list.map((o: any, i: number) => (
+                         <div key={i} className="flex justify-between text-sm">
+                           <span className="font-bold text-emerald-900">{o.pair}</span>
+                           <span className="text-emerald-700 italic">{o.mnemonic}</span>
+                         </div>
+                       ))}
+                    </div>
+                 </div>
                </div>
-             )}
-
-             {stdData.type === 'grid-simple' && (
-               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                 {(stdData.data as any[]).map((item, i) => (
-                   <div key={i} className="bg-white border border-slate-200 rounded-lg p-3 text-center hover:bg-indigo-50 transition-colors">
-                     <div className="text-slate-500 text-xs mb-1">{item.q}</div>
-                     <div className="text-lg font-bold text-indigo-700">{item.a}</div>
-                   </div>
-                 ))}
-               </div>
-             )}
-
-             {stdData.type === 'grid-table' && (
-               <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 divide-x divide-y divide-slate-200">
-                   {(stdData.data as any[]).map((item, i) => (
-                     <div key={i} className="p-4 text-center hover:bg-indigo-50">
-                       <div className="text-slate-500 text-sm mb-1">{item.f}</div>
-                       <div className="text-xl font-bold text-indigo-700">{item.p}</div>
+            </div>
+          )}
+          
+          {data.type === 'ci-table' && (
+             <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead className="bg-slate-50 border-b border-slate-200">
+                    <tr>
+                      <th className="p-4 font-bold text-slate-600">Rate %</th>
+                      <th className="p-4 font-bold text-slate-600">2 Years (Eff %)</th>
+                      <th className="p-4 font-bold text-slate-600">3 Years (Eff %)</th>
+                      <th className="p-4 font-bold text-slate-600">4 Years (Eff %)</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {(data.data as any[]).map((row: any, i: number) => (
+                      <tr key={i} className="hover:bg-slate-50">
+                        <td className="p-4 font-bold text-indigo-600">{row.r}</td>
+                        <td className="p-4 font-mono text-slate-700">{row.y2}</td>
+                        <td className="p-4 font-mono text-slate-700">{row.y3}</td>
+                        <td className="p-4 font-mono text-slate-700">{row.y4}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+             </div>
+          )}
+          
+          {data.type === 'mensuration-list' && (
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-0 divide-y md:divide-y-0 md:divide-x divide-slate-100">
+               <div className="p-6">
+                 <h3 className="font-bold text-slate-400 uppercase tracking-widest text-xs mb-4">2D Formulas</h3>
+                 <div className="space-y-3">
+                   {(data.data as any[]).filter((x: any) => x.type === '2D').map((item: any, i: number) => (
+                     <div key={i} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                        <div>
+                          <div className="font-bold text-slate-800">{item.shape}</div>
+                          <div className="text-xs text-slate-500">{item.param}</div>
+                        </div>
+                        <div className="font-mono font-bold text-indigo-600 text-lg">{item.formula}</div>
                      </div>
                    ))}
                  </div>
                </div>
-             )}
-
-             {stdData.type === 'ci-table' && (
-                <div className="space-y-8">
-                   <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-                    <table className="w-full text-sm text-left">
-                       <thead className="bg-green-50 text-green-800 uppercase font-bold">
-                         <tr>
-                           <th className="px-6 py-4">Rate (R)</th>
-                           <th className="px-6 py-4">2 Years</th>
-                           <th className="px-6 py-4">3 Years</th>
-                           <th className="px-6 py-4">4 Years</th>
-                         </tr>
-                       </thead>
-                       <tbody className="divide-y divide-slate-100">
-                         {(stdData.data as any[]).map((item, i) => (
-                           <tr key={i} className="hover:bg-slate-50 font-mono font-medium text-slate-700">
-                              <td className="px-6 py-4 font-bold text-indigo-600">{item.r}</td>
-                              <td className="px-6 py-4">{item.y2}</td>
-                              <td className="px-6 py-4">{item.y3}</td>
-                              <td className="px-6 py-4">{item.y4}</td>
-                           </tr>
-                         ))}
-                       </tbody>
-                    </table>
-                   </div>
-                   
-                   <div className="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-r-xl">
-                      <h4 className="font-bold text-yellow-800 mb-4 flex items-center gap-2">
-                        <Lightbulb size={20} /> Compounding Frequency Rules
-                      </h4>
-                      <div className="space-y-4">
-                         <div className="bg-white/60 p-3 rounded-lg">
-                           <p className="font-bold text-slate-800 mb-1">Half-Yearly Compounding</p>
-                           <p className="text-slate-600 text-sm">
-                             When interest is compounded half-yearly, the Rate is halved <span className="font-mono bg-yellow-100 px-1 rounded">(R/2)</span> and the Time period is doubled <span className="font-mono bg-yellow-100 px-1 rounded">(2T)</span>.
-                           </p>
-                         </div>
-                         <div className="bg-white/60 p-3 rounded-lg">
-                           <p className="font-bold text-slate-800 mb-1">Quarterly Compounding</p>
-                           <p className="text-slate-600 text-sm">
-                             When interest is compounded quarterly, the Rate becomes one-fourth <span className="font-mono bg-yellow-100 px-1 rounded">(R/4)</span> and the Time period becomes four times <span className="font-mono bg-yellow-100 px-1 rounded">(4T)</span>.
-                           </p>
-                         </div>
-                      </div>
-                   </div>
-                </div>
-             )}
-
-             {stdData.type === 'golden-list' && (
-               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                 {(stdData.data as any[]).map((item, i) => (
-                   <div key={i} className="bg-white border-2 border-yellow-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all hover:border-yellow-300">
-                     <div className="flex items-center justify-between mb-4 border-b border-yellow-50 pb-3">
-                        <span className="text-4xl font-extrabold text-yellow-500">{item.num}</span>
-                        <Gem size={24} className="text-yellow-400" />
+               <div className="p-6">
+                 <h3 className="font-bold text-slate-400 uppercase tracking-widest text-xs mb-4">3D Formulas</h3>
+                 <div className="space-y-3">
+                   {(data.data as any[]).filter((x: any) => x.type === '3D').map((item: any, i: number) => (
+                     <div key={i} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+                        <div>
+                          <div className="font-bold text-slate-800">{item.shape}</div>
+                          <div className="text-xs text-slate-500">{item.param}</div>
+                        </div>
+                        <div className="font-mono font-bold text-emerald-600 text-lg">{item.formula}</div>
                      </div>
-                     <div className="space-y-2">
-                       {item.pairs.map((pair: number[], idx: number) => (
-                         <div key={idx} className="flex justify-between items-center bg-yellow-50/50 p-2 rounded-lg">
-                           <span className="font-mono font-bold text-slate-700 text-lg">
-                             {pair.join(' × ')}
-                           </span>
-                           <span className="text-xs text-slate-400 font-medium bg-white px-2 py-0.5 rounded border border-slate-100">
-                             Factor
-                           </span>
-                         </div>
-                       ))}
-                     </div>
-                   </div>
-                 ))}
-               </div>
-             )}
-             
-             {stdData.type === 'mensuration-list' && (
-                <div className="space-y-8">
-                  {['2D', '3D'].map(dim => (
-                    <div key={dim} className="space-y-4">
-                      <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                        {dim === '2D' ? <Box size={20} className="text-indigo-600" /> : <Cuboid size={20} className="text-purple-600" />}
-                        {dim} Formulas
-                      </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                         {(stdData.data as any[]).filter(d => d.type === dim).map((item, i) => (
-                           <div key={i} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-indigo-300 transition-colors">
-                              <div className="flex justify-between items-start mb-2">
-                                <span className="font-bold text-slate-800">{item.shape}</span>
-                                <span className="text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 px-2 py-0.5 rounded">{item.param}</span>
-                              </div>
-                              <div className="text-2xl font-bold text-indigo-600 font-mono">
-                                {item.formula}
-                              </div>
-                           </div>
-                         ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-             )}
-
-             {stdData.type === 'custom-alpha' && (
-               <div className="space-y-6">
-                 <div className="bg-white p-6 rounded-xl border border-slate-200">
-                   <h4 className="font-bold text-slate-700 mb-4">Standard Ranking (A=1)</h4>
-                   <div className="grid grid-cols-6 md:grid-cols-9 gap-2">
-                     {(stdData.data.forward as any[]).map((item: any) => (
-                       <div key={item.char} className="border border-slate-100 p-2 rounded text-center bg-slate-50">
-                         <span className="text-indigo-600 font-bold">{item.char}</span>
-                         <span className="text-slate-400 mx-1">-</span>
-                         <span className="font-mono">{item.val}</span>
-                       </div>
-                     ))}
-                   </div>
+                   ))}
                  </div>
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                   <div className="bg-white p-6 rounded-xl border border-slate-200">
-                     <h4 className="font-bold text-slate-700 mb-4">Mnemonics</h4>
-                     <ul className="space-y-3">
-                       {(stdData.data.mnemonics as any[]).map((m: any, i: number) => (
-                         <li key={i} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                           <span className="font-bold text-indigo-700 text-lg tracking-widest">{m.code}</span>
-                           <span className="font-mono text-slate-600">{m.val}</span>
-                         </li>
-                       ))}
-                     </ul>
-                   </div>
-                   <div className="bg-white p-6 rounded-xl border border-slate-200">
-                     <h4 className="font-bold text-slate-700 mb-4">Opposite Pairs</h4>
-                     <div className="grid grid-cols-2 gap-2">
-                        {(stdData.data.opposites_list as any[]).map((item: any, i: number) => (
-                          <div key={i} className="flex justify-between items-center p-2 bg-orange-50 rounded-lg border border-orange-100">
-                            <span className="font-bold text-orange-800 text-lg">{item.pair}</span>
-                            <span className="text-xs text-orange-600 font-medium">{item.mnemonic}</span>
-                          </div>
+               </div>
+             </div>
+          )}
+          
+          {data.type === 'golden-list' && (
+             <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {(data.data as any[]).map((item: any, i: number) => (
+                   <div key={i} className="bg-amber-50 rounded-xl p-5 border border-amber-100 text-center">
+                      <div className="text-4xl font-extrabold text-amber-600 mb-4">{item.num}</div>
+                      <div className="flex flex-wrap justify-center gap-2">
+                        {item.pairs.map((p: number[], idx: number) => (
+                          <span key={idx} className="bg-white px-3 py-1 rounded-full text-sm font-bold text-slate-700 shadow-sm border border-amber-100">
+                            {p.join(' × ')}
+                          </span>
                         ))}
-                     </div>
+                      </div>
                    </div>
-                 </div>
-               </div>
-             )}
+                ))}
+             </div>
+          )}
 
-             {stdData.type === 'info' && (
-               <div className="bg-white p-8 rounded-xl border border-slate-200 text-center">
-                 <p className="text-slate-600 text-lg">{stdData.data}</p>
-               </div>
-             )}
-
-           </div>
-         ) : (
-           <div className="text-center py-20 text-slate-400">
-             Data not found.
-           </div>
-         )}
+        </div>
       </div>
     );
   };
@@ -1667,6 +1631,8 @@ const SpeedMath: React.FC = () => {
              setMode('viral-menu');
            } else if (['alpha', 'alpha_rank', 'alpha_pair'].includes(category)) {
              setMode('alpha-menu');
+           } else if (category === 'squares' || category === 'cubes') {
+             setMode('mode-selection');
            } else {
              setMode('menu');
            }
@@ -2060,6 +2026,7 @@ const SpeedMath: React.FC = () => {
       {mode === 'menu' && renderMainMenu()}
       {mode === 'viral-menu' && renderViralMenu()}
       {mode === 'alpha-menu' && renderAlphaMenu()}
+      {mode === 'mode-selection' && renderModeSelection()}
       {mode === 'tricks-sheet' && renderTricksSheet()}
       {mode === 'reference' && renderReference()}
       {mode === 'timer-selection' && renderTimerSelection()}
