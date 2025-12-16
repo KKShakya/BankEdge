@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { Clock, GitMerge, Box, Scissors, Hash, AlertTriangle, Feather, Star, CheckCircle2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { Clock, GitMerge, Box, Scissors, Hash, AlertTriangle, Feather, Star, CheckCircle2, ChevronLeft, BookOpen, GraduationCap } from 'lucide-react';
 
 // Data Structure
 const ENGLISH_MODULES = [
@@ -160,18 +160,79 @@ const ENGLISH_MODULES = [
 ];
 
 const EnglishFever: React.FC = () => {
-    return (
-        <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 pb-10">
-            <div className="text-center space-y-4 mb-8">
-                <div className="inline-flex items-center justify-center p-3 bg-pink-50 rounded-2xl mb-2">
-                    <Feather className="text-pink-600" size={32} />
+    const [view, setView] = useState<'menu' | 'rules'>('menu');
+
+    if (view === 'menu') {
+        return (
+            <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4">
+                <div className="text-center space-y-4 mb-12">
+                    <h1 className="text-4xl font-bold text-slate-900 flex items-center justify-center gap-3">
+                        <Feather className="text-pink-600" size={40} />
+                        English Fever
+                    </h1>
+                    <p className="text-slate-500 max-w-2xl mx-auto">
+                        Master the language section with curated rules, vocabulary, and logic traps.
+                    </p>
                 </div>
-                <h1 className="text-4xl font-extrabold text-slate-800">
-                    English Fever
-                </h1>
-                <p className="text-slate-500 max-w-2xl mx-auto text-lg">
-                    The Master Cheat Sheet. Organized by logic for rapid revision.
-                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {/* English Rules Card */}
+                    <div 
+                        onClick={() => setView('rules')}
+                        className="bg-white rounded-2xl p-6 shadow-lg border border-slate-100 hover:shadow-xl hover:border-pink-300 transition-all cursor-pointer group relative overflow-hidden h-full flex flex-col justify-between"
+                    >
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-pink-100 rounded-full -mr-10 -mt-10 blur-2xl group-hover:bg-pink-200 transition-all"></div>
+                        <div className="relative z-10">
+                            <div className="w-14 h-14 bg-pink-50 text-pink-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                                <BookOpen size={28} />
+                            </div>
+                            <h3 className="text-xl font-bold text-slate-800 mb-2 group-hover:text-pink-600 transition-colors">English Rules</h3>
+                            <p className="text-slate-500 text-sm leading-relaxed mb-6">
+                                The "Master Cheat Sheet". Grammar modules, connector logic, and specific exam traps organized for revision.
+                            </p>
+                        </div>
+                        <button className="relative z-10 w-full bg-pink-50 text-pink-600 py-3 rounded-xl font-bold text-sm hover:bg-pink-600 hover:text-white transition-all flex items-center justify-center gap-2">
+                            Open Rules <ChevronLeft className="rotate-180" size={16} />
+                        </button>
+                    </div>
+
+                    {/* Placeholder: Vocab Vault */}
+                    <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200 opacity-60 cursor-not-allowed h-full flex flex-col justify-between">
+                         <div className="relative z-10">
+                            <div className="w-14 h-14 bg-slate-200 text-slate-400 rounded-xl flex items-center justify-center mb-6">
+                                <GraduationCap size={28} />
+                            </div>
+                            <h3 className="text-xl font-bold text-slate-400 mb-2">Vocab Vault</h3>
+                            <p className="text-slate-400 text-sm leading-relaxed mb-6">
+                                Root words, phrasal verbs, and confusion pairs.
+                            </p>
+                         </div>
+                         <button className="w-full bg-slate-200 text-slate-400 py-3 rounded-xl font-bold text-sm cursor-not-allowed flex items-center justify-center gap-2">
+                            Coming Soon
+                         </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-right-4 pb-10">
+            {/* Header with Back Button */}
+            <div className="flex items-center gap-4 mb-4">
+                <button 
+                    onClick={() => setView('menu')} 
+                    className="p-2 bg-white border border-slate-200 hover:bg-slate-100 rounded-full text-slate-500 hover:text-slate-800 transition-colors shadow-sm"
+                >
+                    <ChevronLeft size={24} />
+                </button>
+                <div>
+                    <h1 className="text-2xl font-extrabold text-slate-800 flex items-center gap-2">
+                        <BookOpen className="text-pink-600" size={24} />
+                        English Rules
+                    </h1>
+                    <p className="text-slate-500 text-sm">The Master Cheat Sheet</p>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 gap-8">
