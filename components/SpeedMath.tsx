@@ -451,9 +451,10 @@ const CHEAT_SHEET_DATA = [
       {
         subtitle: "Profit & Loss",
         points: [
-          { label: "The King Rule", desc: "Profit is King. Investment & Time are Servants." },
-          { label: "Ratios", desc: "Given Inv & Time → MULTIPLY for Profit. Given Profit & Time → DIVIDE for Investment." },
-          { label: "Time Trap", desc: "Use 'Time money was in machine', not calendar time." }
+          { label: "Base Value Rules", desc: "Profit/Loss is always on CP: Profit% = P/CP → SP = CP + P. Loss% = L/CP → SP = CP - L.\nDiscount is always on MP: Discount% = D/MP → SP = MP - D.\nMarkup is on CP: Markup% = (MP-CP)/CP → MP = CP + Markup." },
+          { label: "The Golden Bridge", desc: "SP connects CP and MP. CP × (100+P)% = MP × (100-D)%." },
+          { label: "The King Rule (Partnership)", desc: "Profit is King. Investment & Time are Servants. Profit Ratio = Investment × Time." },
+          { label: "Time Trap (Partnership)", desc: "Use 'Time money was in machine', not calendar time." }
         ]
       }
     ]
@@ -1500,7 +1501,7 @@ const SpeedMath: React.FC = () => {
                          return (
                            <div key={pIdx} className={`p-5 rounded-xl border shadow-sm transition-all duration-200 hover:shadow-md flex flex-col h-full ${cardBg} ${cardBorder} ${pt.visual ? 'col-span-1 sm:col-span-2' : ''}`}>
                              <span className={`block font-bold text-md mb-2 ${titleColor}`}>{pt.label}</span>
-                             <span className="block text-slate-600 text-sm leading-relaxed flex-1">{pt.desc}</span>
+                             <span className="block text-slate-600 text-sm leading-relaxed flex-1 whitespace-pre-line">{pt.desc}</span>
                              {pt.visual && <div className="mt-4 pt-4 border-t border-slate-200/50 w-full flex justify-center">{pt.visual}</div>}
                            </div>
                          );
@@ -2120,3 +2121,4 @@ const SpeedMath: React.FC = () => {
 };
 
 export default SpeedMath;
+    

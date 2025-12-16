@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { MonitorPlay, Zap, FileText, Youtube, BarChart2, ArrowRight } from 'lucide-react';
+import { MonitorPlay, Zap, FileText, Youtube, BarChart2, ArrowRight, Feather } from 'lucide-react';
 
 interface DashboardProps {
   onNavigate: (tab: string, props?: any) => void;
@@ -55,6 +56,23 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           <h3 className="text-xl font-bold text-slate-800 mb-2">Speed Maths</h3>
           <p className="text-slate-500 text-sm">
             Access Topper's Cheat Sheet, Viral Maths, and specific drills for tables, squares, and cubes.
+          </p>
+        </div>
+
+        {/* English Fever (NEW) */}
+        <div 
+          onClick={() => onNavigate('english')}
+          className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-pink-400 hover:shadow-md transition-all cursor-pointer group"
+        >
+          <div className="flex items-start justify-between mb-4">
+            <div className="p-3 bg-pink-100 text-pink-600 rounded-xl group-hover:scale-110 transition-transform">
+              <Feather size={28} />
+            </div>
+            <ArrowRight size={20} className="text-slate-300 group-hover:text-pink-500 transition-colors" />
+          </div>
+          <h3 className="text-xl font-bold text-slate-800 mb-2">English Fever</h3>
+          <p className="text-slate-500 text-sm">
+            The Master Cheat Sheet for Grammar, Rules of Logic, and the 'Frequent Traps' module.
           </p>
         </div>
 

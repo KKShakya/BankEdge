@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Menu } from 'lucide-react';
 import Sidebar from './components/Sidebar';
@@ -7,6 +8,7 @@ import MockExam from './components/MockExam';
 import SpeedMath from './components/SpeedMath';
 import SmartNotes from './components/SmartNotes';
 import YouTubeZone from './components/YouTubeZone';
+import EnglishFever from './components/EnglishFever';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -27,6 +29,8 @@ const App: React.FC = () => {
         return <MockExam />;
       case 'speed':
         return <SpeedMath />;
+      case 'english':
+        return <EnglishFever />;
       case 'notes':
         return <SmartNotes />;
       case 'video':
