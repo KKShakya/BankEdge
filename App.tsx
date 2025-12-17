@@ -9,6 +9,7 @@ import SpeedMath from './components/SpeedMath';
 import SmartNotes from './components/SmartNotes';
 import YouTubeZone from './components/YouTubeZone';
 import EnglishFever from './components/EnglishFever';
+import GkMania from './components/GkMania';
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -31,6 +32,8 @@ const App: React.FC = () => {
         return <SpeedMath />;
       case 'english':
         return <EnglishFever />;
+      case 'gk':
+        return <GkMania />;
       case 'notes':
         return <SmartNotes />;
       case 'video':

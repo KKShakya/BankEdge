@@ -1,8 +1,8 @@
 
 import React, { useState } from 'react';
-import { Clock, GitMerge, Box, Scissors, Hash, AlertTriangle, Feather, Star, CheckCircle2, ChevronLeft, BookOpen, GraduationCap } from 'lucide-react';
+import { Clock, GitMerge, Box, Scissors, Hash, AlertTriangle, Feather, ChevronLeft, BookOpen, GraduationCap, Crosshair, Layout, Link, Sparkles, ScanEye, CheckCircle2 } from 'lucide-react';
 
-// Data Structure
+// Data Structure for Rules
 const ENGLISH_MODULES = [
   {
     id: 'm1',
@@ -159,8 +159,68 @@ const ENGLISH_MODULES = [
   }
 ];
 
+// Data for Trap Hunter Protocol
+const SVPM_PROTOCOL = [
+  {
+    layer: "Layer 1",
+    code: "S",
+    title: "SUBJECT-VERB (The Skeleton)",
+    desc: "The most common error (50% of questions).",
+    color: "blue",
+    icon: Layout,
+    action: "Find the Main Verb first. Then find Who is doing it.",
+    check: [
+      "Singular Subject → Singular Verb? (e.g., The list of boys is...)",
+      "Compound Subject? (e.g., Ram as well as his friends is...)",
+    ],
+    mindset: "Ignore the middle words. Do the Head and the Tail match?"
+  },
+  {
+    layer: "Layer 2",
+    code: "V",
+    title: "VERB TENSE (The Timeline)",
+    desc: "The logic error.",
+    color: "amber",
+    icon: Clock,
+    action: "Scan for 'Time Words' (Yesterday, Since, Now, Next year).",
+    check: [
+      "Does the Tense match the Time Word? (Last week + V2)",
+      "Is the sentence consistent? (Starts in Past → Stays in Past)",
+      "Has/Have/Had → Is it followed by V3?"
+    ]
+  },
+  {
+    layer: "Layer 3",
+    code: "P",
+    title: "PREPOSITIONS & PRONOUNS (The Joints)",
+    desc: "The tricky 'invisible' error.",
+    color: "purple",
+    icon: Link,
+    action: "Circle every small word (in, at, on, with, by, who, which).",
+    check: [
+      "Fixed Prepositions: Does the verb allow this? (Discuss about → Wrong)",
+      "Pronouns: Who (Doer) vs Whom (Receiver)?",
+      "Consistency: One... One's?"
+    ]
+  },
+  {
+    layer: "Layer 4",
+    code: "M",
+    title: "MODIFIERS (The Decor)",
+    desc: "The 'Minute' error (Adjectives, Adverbs, Articles).",
+    color: "rose",
+    icon: Sparkles,
+    action: "Look at descriptive words (Good, Bad, Few, Many, Only, Enough).",
+    check: [
+      "Quantifiers: Few (Countable) vs Little (Uncountable)",
+      "Placement: Is 'Enough' in the right spot? (Smart enough)",
+      "Articles: Specific (The) vs General (A/An)"
+    ]
+  }
+];
+
 const EnglishFever: React.FC = () => {
-    const [view, setView] = useState<'menu' | 'rules'>('menu');
+    const [view, setView] = useState<'menu' | 'rules' | 'trap-hunter'>('menu');
 
     if (view === 'menu') {
         return (
@@ -196,6 +256,26 @@ const EnglishFever: React.FC = () => {
                         </button>
                     </div>
 
+                    {/* Trap Hunter Card */}
+                    <div 
+                        onClick={() => setView('trap-hunter')}
+                        className="bg-white rounded-2xl p-6 shadow-lg border border-slate-100 hover:shadow-xl hover:border-emerald-300 transition-all cursor-pointer group relative overflow-hidden h-full flex flex-col justify-between"
+                    >
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-100 rounded-full -mr-10 -mt-10 blur-2xl group-hover:bg-emerald-200 transition-all"></div>
+                        <div className="relative z-10">
+                            <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                                <Crosshair size={28} />
+                            </div>
+                            <h3 className="text-xl font-bold text-slate-800 mb-2 group-hover:text-emerald-600 transition-colors">Trap Hunter</h3>
+                            <p className="text-slate-500 text-sm leading-relaxed mb-6">
+                                The S.V.P.M. Scanning Protocol. A 4-layer strategy to dismantle error detection questions.
+                            </p>
+                        </div>
+                        <button className="relative z-10 w-full bg-emerald-50 text-emerald-600 py-3 rounded-xl font-bold text-sm hover:bg-emerald-600 hover:text-white transition-all flex items-center justify-center gap-2">
+                            Start Scanning <ChevronLeft className="rotate-180" size={16} />
+                        </button>
+                    </div>
+
                     {/* Placeholder: Vocab Vault */}
                     <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200 opacity-60 cursor-not-allowed h-full flex flex-col justify-between">
                          <div className="relative z-10">
@@ -216,6 +296,111 @@ const EnglishFever: React.FC = () => {
         );
     }
 
+    if (view === 'trap-hunter') {
+        return (
+            <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-right-4 pb-10">
+                {/* Header with Back Button */}
+                <div className="flex items-center gap-4 mb-4">
+                    <button 
+                        onClick={() => setView('menu')} 
+                        className="p-2 bg-white border border-slate-200 hover:bg-slate-100 rounded-full text-slate-500 hover:text-slate-800 transition-colors shadow-sm"
+                    >
+                        <ChevronLeft size={24} />
+                    </button>
+                    <div>
+                        <h1 className="text-2xl font-extrabold text-slate-800 flex items-center gap-2">
+                            <Crosshair className="text-emerald-600" size={24} />
+                            Trap Hunter
+                        </h1>
+                        <p className="text-slate-500 text-sm">The S.V.P.M. Scanning Protocol</p>
+                    </div>
+                </div>
+
+                <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-200">
+                    <div className="flex items-center gap-4 mb-6">
+                         <div className="p-3 bg-emerald-100 text-emerald-700 rounded-xl">
+                             <ScanEye size={32} />
+                         </div>
+                         <div>
+                             <h2 className="text-xl font-bold text-slate-800">How to use this protocol?</h2>
+                             <p className="text-slate-500">Scan every error detection question in these 4 layers, in this exact order.</p>
+                         </div>
+                    </div>
+                    
+                    <div className="space-y-6">
+                        {SVPM_PROTOCOL.map((layer, idx) => {
+                            const Icon = layer.icon;
+                            // Helper for colors
+                            const getColors = (c: string) => {
+                                switch(c) {
+                                    case 'blue': return { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-100', dot: 'bg-blue-500' };
+                                    case 'amber': return { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-100', dot: 'bg-amber-500' };
+                                    case 'purple': return { bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-100', dot: 'bg-purple-500' };
+                                    case 'rose': return { bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-100', dot: 'bg-rose-500' };
+                                    default: return { bg: 'bg-slate-50', text: 'text-slate-700', border: 'border-slate-100', dot: 'bg-slate-500' };
+                                }
+                            };
+                            const theme = getColors(layer.color);
+
+                            return (
+                                <div key={idx} className={`border rounded-2xl overflow-hidden ${theme.border} bg-white transition-all hover:shadow-md`}>
+                                    <div className={`p-4 border-b ${theme.border} ${theme.bg} flex justify-between items-center`}>
+                                        <div className="flex items-center gap-3">
+                                            <div className={`w-10 h-10 rounded-full bg-white flex items-center justify-center font-bold text-lg shadow-sm ${theme.text}`}>
+                                                {layer.code}
+                                            </div>
+                                            <div>
+                                                <h3 className={`font-bold text-lg ${theme.text}`}>{layer.title}</h3>
+                                                <span className="text-xs font-medium opacity-80 uppercase tracking-wider">{layer.layer}</span>
+                                            </div>
+                                        </div>
+                                        <div className={`p-2 bg-white rounded-lg ${theme.text} opacity-50`}>
+                                            <Icon size={20} />
+                                        </div>
+                                    </div>
+                                    <div className="p-6 space-y-4">
+                                        <p className="text-slate-600 font-medium border-l-4 border-slate-200 pl-4 py-1 italic">
+                                            "{layer.desc}"
+                                        </p>
+                                        
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div>
+                                                <h4 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-3">Action Plan</h4>
+                                                <p className="text-slate-700 bg-slate-50 p-3 rounded-lg border border-slate-100 text-sm">
+                                                    {layer.action}
+                                                </p>
+                                                {layer.mindset && (
+                                                    <div className="mt-3">
+                                                        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Mindset</h4>
+                                                        <p className="text-indigo-600 font-medium text-sm">
+                                                            "{layer.mindset}"
+                                                        </p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div>
+                                                 <h4 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-3">The Checklist</h4>
+                                                 <ul className="space-y-2">
+                                                     {layer.check.map((item, i) => (
+                                                         <li key={i} className="flex items-start gap-2 text-sm text-slate-600">
+                                                             <CheckCircle2 size={16} className={`mt-0.5 flex-shrink-0 ${theme.text}`} />
+                                                             <span>{item}</span>
+                                                         </li>
+                                                     ))}
+                                                 </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Default: English Rules View
     return (
         <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-right-4 pb-10">
             {/* Header with Back Button */}

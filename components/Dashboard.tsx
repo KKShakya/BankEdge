@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { MonitorPlay, Zap, FileText, Youtube, BarChart2, ArrowRight, Feather } from 'lucide-react';
+import { MonitorPlay, Zap, FileText, Youtube, BarChart2, ArrowRight, Feather, Globe } from 'lucide-react';
 
 interface DashboardProps {
   onNavigate: (tab: string, props?: any) => void;
@@ -59,7 +59,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           </p>
         </div>
 
-        {/* English Fever (NEW) */}
+        {/* English Fever */}
         <div 
           onClick={() => onNavigate('english')}
           className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-pink-400 hover:shadow-md transition-all cursor-pointer group"
@@ -73,6 +73,23 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           <h3 className="text-xl font-bold text-slate-800 mb-2">English Fever</h3>
           <p className="text-slate-500 text-sm">
             The Master Cheat Sheet for Grammar, Rules of Logic, and the 'Frequent Traps' module.
+          </p>
+        </div>
+
+        {/* GK Mania (NEW) */}
+        <div 
+          onClick={() => onNavigate('gk')}
+          className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-blue-400 hover:shadow-md transition-all cursor-pointer group"
+        >
+          <div className="flex items-start justify-between mb-4">
+            <div className="p-3 bg-blue-100 text-blue-600 rounded-xl group-hover:scale-110 transition-transform">
+              <Globe size={28} />
+            </div>
+            <ArrowRight size={20} className="text-slate-300 group-hover:text-blue-500 transition-colors" />
+          </div>
+          <h3 className="text-xl font-bold text-slate-800 mb-2">GK Mania</h3>
+          <p className="text-slate-500 text-sm">
+            Banking Awareness, Static GK, and Monthly Current Affairs timeline.
           </p>
         </div>
 
