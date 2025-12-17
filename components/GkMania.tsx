@@ -1,43 +1,83 @@
 
 import React, { useState } from 'react';
-import { Globe, Building2, MapPin, Newspaper, ChevronLeft, Landmark, Plane, Users, Swords, Briefcase, Award, Zap, CalendarDays, Trophy, Laptop, Gavel, Scale } from 'lucide-react';
+import { Globe, Building2, MapPin, Newspaper, ChevronLeft, Landmark, Plane, Users, Swords, Briefcase, Award, Zap, CalendarDays, Trophy, Laptop, Gavel, Scale, AlertTriangle } from 'lucide-react';
 
 // Data Structures
 
 const BANKING_AWARENESS = [
   {
-    title: "Govt Schemes & Finance",
+    title: "Financial Markets (Concepts)",
     content: [
-      "**PM Kisan (21st Installment):** Released from **Coimbatore, TN** (Nov 19, 2025). Total ₹18,000 Cr.",
-      "**PM Fasal Bima Yojana:** **'Wild Animal Attacks'** added as add-on cover starting Kharif 2026. <span class='text-amber-600 text-xs font-bold ml-1 bg-amber-50 px-1 rounded border border-amber-100'>🔥 Exam Trap</span>",
-      "**Adani in Assam:** **₹63,000 Cr** investment confirmed (₹48k Cr Thermal, ₹15k Cr Hydro).",
-      "**HDFC Bank:** India's Most Valuable Brand ($44.9B). Tagline: 'We Understand Your World'."
+      "**Money Market:** Short-term funds (< 1 Year). Regulated by RBI. <br/><span class='text-xs text-slate-500 ml-4'>Instruments: T-Bills, Certificate of Deposit (CD), Commercial Paper.</span>",
+      "**Capital Market:** Long-term funds (> 1 Year). Regulated by SEBI. <br/><span class='text-xs text-slate-500 ml-4'>Instruments: Shares, Debentures, Bonds.</span>"
     ]
   },
   {
-    title: "Scheduled Banks & Acts",
+    title: "Accounts: NRE vs NRO (Tax Rule)",
     content: [
-      "Scheduled Banks: Defined in **2nd Schedule of RBI Act, 1934** <span class='text-amber-600 text-xs font-bold ml-1 bg-amber-50 px-1 rounded border border-amber-100'>🔥 x2</span>",
-      "NPCI (National Payments Corporation of India): Est. **2008** under **Companies Act 2013 (Section 8)**.",
-      "SARFAESI Act (2002): Enforced for secured loans above **₹1 Lakh** (Exempts agricultural land).",
-      "**SARAL SIMS:** Portal by Ministry of Steel for import registration."
+      "**NRE Account (External):** Money earned *Outside* India. <span class='text-green-600 font-bold bg-green-50 px-1 rounded'>Tax-Free</span> in India.",
+      "**NRO Account (Ordinary):** Money earned *Inside* India (e.g., Rent, Dividends). <span class='text-red-600 font-bold bg-red-50 px-1 rounded'>Taxable</span>."
     ]
   },
   {
-    title: "Payments & Limits",
+    title: "Acts & Limits (Crucial Traps)",
     content: [
-      "Payments Bank Limit: **₹2 Lakh** (Officially updated) <span class='text-amber-600 text-xs font-bold ml-1 bg-amber-50 px-1 rounded border border-amber-100'>🔥 x2</span>",
-      "**UPI TIPS:** New RBI/NPCI initiative for cross-border payments.",
-      "First Payments Bank: **Airtel Payments Bank**."
+      "**Payments Bank:** Max Deposit **₹2 Lakh**. Cannot lend. <span class='text-amber-600 text-xs font-bold ml-1 bg-amber-50 px-1 rounded border border-amber-100'>🔥 Trap: SFB has NO limit</span>",
+      "**SARFAESI Act (2002):** Banks can seize assets for NPA. <span class='text-amber-600 text-xs font-bold ml-1'>Exemption: Agricultural Land</span>.",
+      "**NPCI:** Retail Payments Umbrella (UPI/RuPay). Est 2008.",
+      "**PFRDA:** Pension Regulator. HQ: New Delhi."
     ]
   },
   {
-    title: "Instruments & Regulators",
+    title: "Govt Schemes & Investments",
     content: [
-      "Bearer Cheque: Payable to holder (aka 'Check's Curse') <span class='text-amber-600 text-xs font-bold ml-1 bg-amber-50 px-1 rounded border border-amber-100'>🔥 x2</span>",
-      "PFRDA: Regulator of NPS. HQ: **New Delhi**.",
-      "Financial Inclusion: **2005** (C. Rangarajan Committee).",
-      "EPFO HQ: **New Delhi**."
+      "**PM Kisan (21st):** Released from Coimbatore. ₹18k Cr.",
+      "**PM Fasal Bima:** 'Wild Animal Attacks' added (Kharif 2026).",
+      "**Adani in Assam:** ₹63k Cr Inv confirmed."
+    ]
+  },
+  {
+    title: "Legal Framework (Statutory Acts)",
+    content: [
+      "**Scheduled Banks:** Defined under **Section 2(e)** of RBI Act, 1934 (Second Schedule).",
+      "**CRR:** Mandated under **Section 42(1)** of RBI Act, 1934.",
+      "**SLR:** Mandated under **Section 24** of Banking Regulation Act, 1949.",
+      "**NPCI Status:** Section 8 of Companies Act, 2013 (Not-for-Profit). (Old: Sec 25)."
+    ]
+  },
+  {
+    title: "Evolution of Payment Systems",
+    content: [
+      "**2004:** **RTGS** (Real Time Gross Settlement) launched.",
+      "**2005:** **NEFT** launched by **IDRBT** (Later handed to RBI).",
+      "**2008:** **NPCI** established.",
+      "**2010:** **IMPS** (Immediate Payment) & **CTS** (Cheque Truncation).",
+      "**2016:** **UPI** & **BBPS** launched."
+    ]
+  },
+  {
+    title: "Operational Norms (KYC & Codes)",
+    content: [
+      "**KYC Cycles:** High Risk (2Y), Medium Risk (8Y), Low Risk (10Y).",
+      "**MICR Code:** 9 Digits (3 City, 3 Bank, 3 Branch). Used for Cheques.",
+      "**IFSC Code:** 11 Characters. Used for NEFT/RTGS.",
+      "**Plastic Money:** Refers specifically to Credit & Debit Cards."
+    ]
+  },
+  {
+    title: "Financial Inclusion & History",
+    content: [
+      "**Launch:** Officially in **2005** (C. Rangarajan Committee).",
+      "**First Merger:** PNB + New Bank of India (**1993**).",
+      "**Key Schemes:** BSBDA (2012, ex-No Frills), PMJDY (2014), Mudra (2015)."
+    ]
+  },
+  {
+    title: "Market Mechanics (Deep Dive)",
+    content: [
+      "**LAF (Liquidity Adjustment):** Primary tool. Repo (Injects) & Reverse Repo (Absorbs).",
+      "**Repo Rate:** Rate at which RBI lends to Commercial Banks.",
+      "**SLR Composition:** Cash, Gold, or G-Secs. <span class='text-red-600 font-bold bg-red-50 px-1 rounded text-xs'>Equity NOT allowed</span>."
     ]
   }
 ];
@@ -58,10 +98,10 @@ const STATIC_GK = [
     category: "Geography & Nature",
     icon: MapPin,
     items: [
+      { k: "Vijayanagar (JSW Plant)", v: "Karnataka (Famous for Hampi Ruins)" },
       { k: "Ramsar Sites", v: "94 sites (TN max) 🔥 x2" },
       { k: "Kuno National Park", v: "MP (Cheetahs) 🔥 x2" },
       { k: "Erta Ale Volcano", v: "Ethiopia (Active)" },
-      { k: "Bor & Melghat", v: "Maharashtra" },
       { k: "Kanchanjangha NP", v: "Sikkim (IUCN 'Good')" }
     ]
   },
@@ -80,7 +120,7 @@ const STATIC_GK = [
     category: "Airports & Firsts",
     icon: Plane,
     items: [
-      { k: "Gen Z Post Office", v: "IIT Delhi (First in India) <span class='text-green-600 font-bold text-xs'>[CORRECTED]</span>" },
+      { k: "Gen Z Post Office", v: "IIT Delhi (First in India)" },
       { k: "Anna Int. Airport", v: "Chennai" },
       { k: "Indira Gandhi Int.", v: "Delhi (Water-Positive)" }
     ]
@@ -92,16 +132,27 @@ const CURRENT_AFFAIRS = [
     month: "Nov-Dec 2025 Capsule",
     sections: [
       {
-        type: "Appointments (Updated)",
-        icon: Users,
+        type: "National & Tech (New)",
+        icon: Globe,
         color: "blue",
         points: [
-          "**Indira Gandhi Prize:** Michelle Bachelet (Chile). <span class='text-green-600 font-bold text-xs'>[CORRECTED]</span>",
-          "**Bihar CM (10th):** Nitish Kumar (Nov 20).",
-          "**UNESCO DG:** Khaled El-Enany (Egypt). <span class='text-amber-600 text-xs font-bold ml-1 bg-amber-50 px-1 rounded border border-amber-100'>🔥 x2</span>",
-          "**Brand Amb (Haryana):** Shefali Verma (Women's Comm).",
-          "**CJI (53rd):** Justice Surya Kant.",
-          "**Miss Universe:** Fatima Bosh (Mexico)."
+          "**Maldives:** Tobacco ban for those born after **Jan 1, 2007**.",
+          "**Social Media Ban:** Denmark (<15), Australia (<16).",
+          "**Google Project:** **'Suncatcher'** (Space AI). <span class='text-green-600 font-bold text-xs'>[CORRECTED]</span>",
+          "**Climate Risk Index:** India Ranked **6th** (Worsened). <span class='text-green-600 font-bold text-xs'>[CORRECTED]</span>",
+          "**JSW Energy:** Green Hydrogen at **Vijayanagar, KA**."
+        ]
+      },
+      {
+        type: "Appointments & Awards",
+        icon: Award,
+        color: "amber",
+        points: [
+          "**PFRDA Chair:** Sivasubramanian Ramann.",
+          "**Brand Amb:** Rahul Dravid (Paradeep Phosphates).",
+          "**Nobel:** James Watson (DNA) passed away (1962 Winner).",
+          "**NHPC Jubilee:** ₹50 Commemorative Coin released.",
+          "**CJI (53rd):** Justice Surya Kant."
         ]
       },
       {
@@ -112,43 +163,29 @@ const CURRENT_AFFAIRS = [
           "**Garud 2025:** India & France (Mont-de-Marsan).",
           "**Ajay Warrior:** India & UK (Rajasthan).",
           "**Goa Police:** 100% Cyber Fraud Response Rate.",
-          "**Production:** Record ₹1.54 Lakh Cr. <span class='text-amber-600 text-xs font-bold ml-1 bg-amber-50 px-1 rounded border border-amber-100'>🔥 x2</span>",
-          "**Deals:** HAMMER Missiles (France)."
+          "**Production:** Record ₹1.54 Lakh Cr."
         ]
       },
       {
-        type: "Sports (Winners & Hosts)",
-        icon: Trophy,
-        color: "amber",
-        points: [
-          "**CWG 2030:** Ahmedabad, India.",
-          "**Kabaddi WC:** Chinese Taipei def. India. <span class='text-amber-600 text-xs font-bold ml-1 bg-amber-50 px-1 rounded border border-amber-100'>🔥 x2</span>",
-          "**Badminton:** Lakshya Sen (Aus Open). <span class='text-amber-600 text-xs font-bold ml-1 bg-amber-50 px-1 rounded border border-amber-100'>🔥 x2</span>",
-          "**Tennis:** Federer Hall of Fame (2026).",
-          "**U19 WC 2026:** Zimbabwe & Namibia."
-        ]
-      },
-      {
-        type: "Economy & World",
-        icon: Briefcase,
-        color: "emerald",
-        points: [
-          "**FTA:** India-Israel (Signed Nov 28). <span class='text-amber-600 text-xs font-bold ml-1 bg-amber-50 px-1 rounded border border-amber-100'>🔥 x2</span>",
-          "**Malaysia:** Social Media ban <16 (Jan 2026).",
-          "**Health:** Marburg Virus outbreak (Ethiopia).",
-          "**Sweden:** First fully cashless society."
-        ]
-      },
-      {
-        type: "Important Days (Rapid Fire)",
-        icon: Zap,
+        type: "Key Updates (Prev)",
+        icon: Users,
         color: "purple",
         points: [
-          "**26 Nov:** Constitution Day (76th) <span class='text-amber-600 text-xs font-bold'>x2</span>",
-          "**1 Dec:** World AIDS Day <span class='text-amber-600 text-xs font-bold'>x2</span>",
-          "**2 Dec:** Comp Literacy Day <span class='text-amber-600 text-xs font-bold'>x2</span>",
-          "**3 Dec:** Disabilities Day <span class='text-amber-600 text-xs font-bold'>x2</span>",
-          "**1 Dec:** Nagaland Statehood Day"
+          "**Indira Gandhi Prize:** Michelle Bachelet (Chile).",
+          "**Bihar CM (10th):** Nitish Kumar.",
+          "**UNESCO DG:** Khaled El-Enany (Egypt).",
+          "**Miss Universe:** Fatima Bosh (Mexico)."
+        ]
+      },
+      {
+        type: "Important Days",
+        icon: Zap,
+        color: "emerald",
+        points: [
+          "**26 Nov:** Constitution Day (76th)",
+          "**1 Dec:** World AIDS Day",
+          "**2 Dec:** Comp Literacy Day",
+          "**3 Dec:** Disabilities Day"
         ]
       }
     ]
