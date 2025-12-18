@@ -371,7 +371,7 @@ const STANDARD_CONCEPTS = {
         { pair: "F-U", mnemonic: "FUn / FUr" },
         { pair: "G-T", mnemonic: "G.T. Road" },
         { pair: "H-S", mnemonic: "High School" },
-        { pair: "I-R", mnemonic: "Indian Railway" },
+        { pair: "I-R", mystery: "Indian Railway" },
         { pair: "J-Q", mnemonic: "Jungle Queen" },
         { pair: "K-P", mnemonic: "Kanpur / PK" },
         { pair: "L-O", mnemonic: "LOve / Light On" },
@@ -465,6 +465,23 @@ const CHEAT_SHEET_DATA = [
     color: "purple",
     sections: [
       {
+         subtitle: "Shadows & Directions Mastery",
+         points: [
+            { 
+              label: "1. The Anchor Concept", 
+              desc: "Shadows only fall in two directions based on the time:\n• Morning (Sun in East): Shadow is always in the WEST.\n• Evening (Sun in West): Shadow is always in the EAST." 
+            },
+            { 
+              label: "2. The Left/Right Rule", 
+              desc: "If the shadow is to your Left or Right, you are facing either North or South.\n• Morning (Shadow West): Left=North, Right=South.\n• Evening (Shadow East): Left=South, Right=North." 
+            },
+            { 
+              label: "3. The Front/Back Rule", 
+              desc: "If the shadow is to your Front or Back, you are facing either East or West.\n• Morning (Shadow West):\n  - Shadow in Front? Facing WEST.\n  - Shadow in Back? Facing EAST.\n• Evening (Shadow East):\n  - Shadow in Front? Facing EAST.\n  - Shadow in Back? Facing WEST." 
+            }
+         ]
+      },
+      {
          subtitle: "Alphabet Series",
          points: [
             { label: "Speak and Seek", desc: "Don't convert to numbers. Recite alphabet while moving eye. Match = Pair." },
@@ -501,60 +518,6 @@ const CHEAT_SHEET_DATA = [
           { label: "Direction (NEWS)", desc: "All faces outside: Clockwise is Right, Anti-clockwise is Left." },
           { label: "Circular Seating", desc: "Facing Inside: Anti-clockwise is Right. Facing Outside: Clockwise is Right." }
         ]
-      },
-      {
-        subtitle: "Coding-Decoding (Vowels)",
-        points: [
-          { 
-            label: "Vowel Center Logic", 
-            desc: "Vowels (AEIOU) are always sandwiched between specific consonants. Z, D, H, N, T come before them (-1). B, F, J, P, V come after them (+1). Memorize these columns to instantly spot vowel-based patterns.",
-            visual: (
-              <div className="flex justify-center items-center gap-6 mt-4 font-serif select-none p-6 rounded-lg shadow-inner bg-[#e8dcc5] border-4 border-[#c2b280] relative overflow-hidden">
-                {/* Parchment Overlay Effect */}
-                <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-transparent to-black/10 pointer-events-none"></div>
-                <div className="absolute top-0 left-0 w-full h-1 bg-black/10"></div>
-                <div className="absolute bottom-0 left-0 w-full h-1 bg-black/10"></div>
-                
-                <div className="flex flex-col items-center gap-2 z-10">
-                  <span className="text-[10px] uppercase text-[#5c4d32] tracking-widest font-bold mb-2 opacity-70">Before (-1)</span>
-                  {['Z','D','H','N','T'].map(c => <span key={c} className="text-[#2c2417] font-bold text-2xl h-10 w-10 flex items-center justify-center drop-shadow-sm">{c}</span>)}
-                </div>
-                
-                <div className="flex flex-col items-center gap-2 pt-8 z-10 mx-4">
-                   {Array(5).fill(0).map((_,i) => (
-                     <div key={i} className="h-10 flex items-center justify-center relative w-16 group">
-                        <div className="h-0.5 w-full bg-[#5c4d32] rounded-full opacity-40"></div>
-                        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 border-t-2 border-r-2 border-[#5c4d32] rotate-45 opacity-40"></div>
-                        <span className="absolute -top-3 text-[10px] font-bold text-[#5c4d32] opacity-60">+1</span>
-                     </div>
-                   ))}
-                </div>
-                
-                <div className="flex flex-col items-center gap-2 z-10">
-                  <span className="text-[10px] uppercase text-[#8b0000] tracking-widest font-extrabold mb-2 opacity-80">Vowel</span>
-                  {['A','E','I','O','U'].map(c => (
-                     <span key={c} className="text-[#8b0000] font-extrabold text-3xl h-10 w-10 flex items-center justify-center drop-shadow-md transform scale-110">{c}</span>
-                  ))}
-                </div>
-                
-                <div className="flex flex-col items-center gap-2 pt-8 z-10 mx-4">
-                   {Array(5).fill(0).map((_,i) => (
-                     <div key={i} className="h-10 flex items-center justify-center relative w-16">
-                        <div className="h-0.5 w-full bg-[#5c4d32] rounded-full opacity-40"></div>
-                        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 border-t-2 border-r-2 border-[#5c4d32] rotate-45 opacity-40"></div>
-                        <span className="absolute -top-3 text-[10px] font-bold text-[#5c4d32] opacity-60">+1</span>
-                     </div>
-                   ))}
-                </div>
-                
-                <div className="flex flex-col items-center gap-2 z-10">
-                  <span className="text-[10px] uppercase text-[#5c4d32] tracking-widest font-bold mb-2 opacity-70">After (+1)</span>
-                  {['B','F','J','P','V'].map(c => <span key={c} className="text-[#2c2417] font-bold text-2xl h-10 w-10 flex items-center justify-center drop-shadow-sm">{c}</span>)}
-                </div>
-              </div>
-            )
-          }
-        ]
       }
     ]
   },
@@ -585,21 +548,6 @@ const CHEAT_SHEET_DATA = [
           { label: "Split & Kill", desc: "512 × 12 → (512 × 10) + (512 × 2)." },
           { label: "Approximation", desc: "Options far apart? Round to nearest 10/50/100." }
         ]
-      },
-      {
-        subtitle: "Number Series",
-        points: [
-          { label: "Dip → Rise", desc: "Decimal Pattern (×0.5, ×1...)." },
-          { label: "Rocket Launch", desc: "Huge Gap = Multiplication. Work backwards." },
-          { label: "Magic Neighbors", desc: "Cube ± 1: 0, 7, 26, 63, 124, 215, 342." }
-        ]
-      },
-      {
-        subtitle: "Quadratics",
-        points: [
-          { label: "Sign Method", desc: "(-,+)→(+,+). (+,+)→(-,-). (+,-)→(-,+). (-,-)→(+,-)." },
-          { label: "Free Marks", desc: "If Both Constant Terms Negative → CND." }
-        ]
       }
     ]
   },
@@ -623,17 +571,16 @@ const CHEAT_SHEET_DATA = [
 
 const SpeedMath: React.FC = () => {
   const [mode, setMode] = useState<'menu' | 'viral-menu' | 'alpha-menu' | 'tricks-sheet' | 'practice' | 'reference' | 'timer-selection' | 'pdf-upload' | 'pdf-config' | 'pdf-drill' | 'pdf-result' | 'mode-selection'>('menu');
-  const [category, setCategory] = useState<string>('tables'); // General or Viral key
-  const [subMode, setSubMode] = useState<'normal' | 'reverse'>('normal'); // For Squares/Cubes
+  const [category, setCategory] = useState<string>('tables');
+  const [subMode, setSubMode] = useState<'normal' | 'reverse'>('normal');
   const [customTable, setCustomTable] = useState<{table: string, limit: string}>({ table: '19', limit: '10' });
   const [subtractionMode, setSubtractionMode] = useState<'2num' | '3num'>('2num');
   const [reverseInputMode, setReverseInputMode] = useState(false);
   
-  // PDF Mode State
   const [pdfFile, setPdfFile] = useState<string | null>(null);
   const [extractedPdfQuestions, setExtractedPdfQuestions] = useState<{q: string, a: string}[]>([]);
   const [activePdfQuestions, setActivePdfQuestions] = useState<{q: string, a: string}[]>([]);
-  const [pdfConfig, setPdfConfig] = useState({ topic: 'Simplification', difficulty: 'novice' }); // novice = beginner
+  const [pdfConfig, setPdfConfig] = useState({ topic: 'Simplification', difficulty: 'novice' });
   const [isProcessingPdf, setIsProcessingPdf] = useState(false);
   const [pdfTimer, setPdfTimer] = useState(0);
 
@@ -644,11 +591,13 @@ const SpeedMath: React.FC = () => {
   const [question, setQuestion] = useState<{ text: string, answer: string, options?: string[] }>({ text: '', answer: '' });
   const [input, setInput] = useState('');
   const [feedback, setFeedback] = useState<'none' | 'correct' | 'wrong'>('none');
-  const [currentQIndex, setCurrentQIndex] = useState(0); // For PDF mode indexing
+  const [currentQIndex, setCurrentQIndex] = useState(0);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Helper: Generate number with distinct digits if possible and no repeats from excluded list
+  // Define randomInt helper function
+  const randomInt = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
+
   const generateNonRepeatingNumber = (min: number, max: number, exclude: number[] = []): number => {
     let attempts = 0;
     while (attempts < 20) {
@@ -660,19 +609,17 @@ const SpeedMath: React.FC = () => {
       }
       attempts++;
     }
-    // Fallback if strict generation fails
     return Math.floor(Math.random() * (max - min + 1)) + min;
   };
 
-  // --- Standard Game Logic (Same as before for Tables, etc) ---
   const generateStandardQuestion = (cat: Category) => {
     let q = '', a = '';
     let opts: string[] | undefined = undefined;
 
     switch (cat) {
       case 'tables': {
-        const num = Math.floor(Math.random() * 19) + 2; // 2 to 20
-        const mult = Math.floor(Math.random() * 9) + 2; // 2 to 10
+        const num = Math.floor(Math.random() * 19) + 2;
+        const mult = Math.floor(Math.random() * 9) + 2;
         q = `${num} × ${mult}`;
         a = (num * mult).toString();
         break;
@@ -687,7 +634,7 @@ const SpeedMath: React.FC = () => {
       }
       case 'speed_addition': {
         const n1 = generateNonRepeatingNumber(10, 99);
-        const n2 = generateNonRepeatingNumber(10, 99, [n1]); // Avoid same numbers
+        const n2 = generateNonRepeatingNumber(10, 99, [n1]);
         q = `${n1} + ${n2}`;
         a = (n1 + n2).toString();
         break;
@@ -695,11 +642,11 @@ const SpeedMath: React.FC = () => {
       case 'speed_subtraction': {
         if (subtractionMode === '2num') {
           const n1 = generateNonRepeatingNumber(100, 9999);
-          const n2 = generateNonRepeatingNumber(10, n1 - 1, [n1]); // Ensure result is positive
+          const n2 = generateNonRepeatingNumber(10, n1 - 1, [n1]);
           q = `${n1} - ${n2}`;
           a = (n1 - n2).toString();
         } else {
-           const isType1 = Math.random() > 0.5; // A + B - C
+           const isType1 = Math.random() > 0.5;
            const n1 = generateNonRepeatingNumber(500, 9999);
            const n2 = generateNonRepeatingNumber(50, 999, [n1]);
            const n3 = generateNonRepeatingNumber(10, 400, [n1, n2]);
@@ -716,7 +663,7 @@ const SpeedMath: React.FC = () => {
         break;
       }
       case 'squares': {
-        const num = Math.floor(Math.random() * 49) + 2; // 2 to 50
+        const num = Math.floor(Math.random() * 49) + 2;
         const sq = num * num;
         if (subMode === 'reverse') {
           q = `√${sq}`;
@@ -728,7 +675,7 @@ const SpeedMath: React.FC = () => {
         break;
       }
       case 'cubes': {
-        const num = Math.floor(Math.random() * 24) + 2; // 2 to 25
+        const num = Math.floor(Math.random() * 24) + 2;
         const cb = num * num * num;
         if (subMode === 'reverse') {
           q = `∛${cb}`;
@@ -743,24 +690,13 @@ const SpeedMath: React.FC = () => {
         const alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         const idx = Math.floor(Math.random() * 26);
         const char = alpha[idx];
-        
-        if (Math.random() > 0.5) {
-           // Ask for Rank
-           q = `Rank of ${char}`;
-           a = (idx + 1).toString();
-        } else {
-           // Ask for Opposite
-           // A(0) <-> Z(25) | 0+25=25, 1+24=25
-           const oppositeChar = alpha[25 - idx];
-           q = `Opposite of ${char}`;
-           a = oppositeChar;
-        }
+        if (Math.random() > 0.5) { q = `Rank of ${char}`; a = (idx + 1).toString(); } else { const oppositeChar = alpha[25 - idx]; q = `Opposite of ${char}`; a = oppositeChar; }
         break;
       }
       case 'alpha_rank': {
         const alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         const idx = Math.floor(Math.random() * 26);
-        q = alpha[idx]; // Just the letter
+        q = alpha[idx];
         a = (idx + 1).toString();
         break;
       }
@@ -793,7 +729,7 @@ const SpeedMath: React.FC = () => {
         break;
       }
       case 'consecutive_mult': {
-        const n = Math.floor(Math.random() * 9) + 11; // 11 to 19
+        const n = Math.floor(Math.random() * 9) + 11;
         q = (n * (n+1)).toString();
         a = `${n}*${n+1}`;
         break;
@@ -802,8 +738,6 @@ const SpeedMath: React.FC = () => {
         const item = MENSURATION_DATA[Math.floor(Math.random() * MENSURATION_DATA.length)];
         q = `${item.shape} (${item.param})?`;
         a = item.formula;
-        
-        // Generate distractors from other formulas
         const others = MENSURATION_DATA.filter(x => x.formula !== a);
         const shuffledOthers = others.sort(() => 0.5 - Math.random()).slice(0, 3);
         const rawOptions = [a, ...shuffledOthers.map(o => o.formula)];
@@ -811,7 +745,6 @@ const SpeedMath: React.FC = () => {
         break;
       }
       case 'golden_numbers': {
-        // Missing Factor Logic
         const item = GOLDEN_NUMBERS_DATA[Math.floor(Math.random() * GOLDEN_NUMBERS_DATA.length)];
         const pair = item.pairs[Math.floor(Math.random() * item.pairs.length)];
         const hideIndex = Math.random() > 0.5 ? 0 : 1;
@@ -822,25 +755,15 @@ const SpeedMath: React.FC = () => {
         break;
       }
       case 'ci_rates': {
-        // Pick a Rate
         const item = CI_RATES_DATA[Math.floor(Math.random() * CI_RATES_DATA.length)];
-        // Pick a Year (2, 3, or 4)
         const years = [2, 3, 4];
         const selectedYear = years[Math.floor(Math.random() * years.length)];
-        
         q = `Effective CI % for ${item.r} over ${selectedYear} Years?`;
-        
         if (selectedYear === 2) a = item.y2;
         else if (selectedYear === 3) a = item.y3;
         else a = item.y4;
-
-        // Generate distractors
         const others = CI_RATES_DATA.filter(x => x.r !== item.r);
-        const distractors = others.slice(0, 3).map(o => {
-             if (selectedYear === 2) return o.y2;
-             if (selectedYear === 3) return o.y3;
-             return o.y4;
-        });
+        const distractors = others.slice(0, 3).map(o => { if (selectedYear === 2) return o.y2; if (selectedYear === 3) return o.y3; return o.y4; });
         const rawOptions = [a, ...distractors];
         opts = rawOptions.sort(() => 0.5 - Math.random());
         break;
@@ -848,21 +771,12 @@ const SpeedMath: React.FC = () => {
       case 'quadratic_blitz': {
         const type = Math.random();
         if (type < 0.4) {
-          // CND Case (Both C negative)
-          const c1 = Math.floor(Math.random() * 50) + 10;
-          const c2 = Math.floor(Math.random() * 50) + 10;
-          const b1 = Math.floor(Math.random()*10)+5;
-          const b2 = Math.floor(Math.random()*10)+5;
-          q = `I. 2x² + ${b1}x - ${c1} = 0   II. 3y² - ${b2}y - ${c2} = 0`;
+          q = `I. 2x² + ${randomInt(5,10)}x - ${randomInt(10,50)} = 0   II. 3y² - ${randomInt(5,10)}y - ${randomInt(10,50)} = 0`;
           a = "CND";
         } else if (type < 0.7) {
-          // X positive roots (from -,+ eq), Y negative roots (from +,+ eq) => X > Y
-          // Eq I: (-, +) e.g. x^2 - 15x + 28 = 0
-          // Eq II: (+, +) e.g. y^2 + 13y + 21 = 0
           q = `I. 2x² - 15x + 28 = 0   II. 2y² + 13y + 21 = 0`;
           a = "X > Y";
         } else {
-          // X negative roots (from +,+ eq), Y positive roots (from -,+ eq) => X < Y
           q = `I. 3x² + 10x + 8 = 0   II. 2y² - 17y + 36 = 0`;
           a = "X < Y";
         }
@@ -870,25 +784,15 @@ const SpeedMath: React.FC = () => {
         break;
       }
       case 'unit_digit': {
-        const mode = Math.random() > 0.5 ? 'mult' : 'mult_add';
-        if (mode === 'mult') {
-            const n1 = Math.floor(Math.random() * 900) + 100;
-            const n2 = Math.floor(Math.random() * 900) + 100;
-            const n3 = Math.floor(Math.random() * 900) + 100;
+        const n1 = Math.floor(Math.random() * 900) + 100;
+        const n2 = Math.floor(Math.random() * 900) + 100;
+        const n3 = Math.floor(Math.random() * 900) + 100;
+        if (Math.random() > 0.5) {
             q = `Unit digit of: ${n1} × ${n2} × ${n3}`;
-            const u1 = n1 % 10;
-            const u2 = n2 % 10;
-            const u3 = n3 % 10;
-            a = ((u1 * u2 * u3) % 10).toString();
+            a = ((n1 % 10 * n2 % 10 * n3 % 10) % 10).toString();
         } else {
-            const n1 = Math.floor(Math.random() * 900) + 100;
-            const n2 = Math.floor(Math.random() * 900) + 100;
-            const n3 = Math.floor(Math.random() * 900) + 100;
             q = `Unit digit of: ${n1} × ${n2} + ${n3}`;
-            const u1 = n1 % 10;
-            const u2 = n2 % 10;
-            const u3 = n3 % 10;
-            a = ((u1 * u2 + u3) % 10).toString();
+            a = ((n1 % 10 * n2 % 10 + n3 % 10) % 10).toString();
         }
         break;
       }
@@ -898,14 +802,7 @@ const SpeedMath: React.FC = () => {
 
   const initGameSetup = (cat: string) => {
     setCategory(cat);
-    
-    // Auto-enable reverse input logic for subtraction
-    if (cat === 'speed_subtraction' || cat === 'viral_subtraction') {
-      setReverseInputMode(true);
-    } else {
-      setReverseInputMode(false);
-    }
-
+    setReverseInputMode(cat === 'speed_subtraction' || cat === 'viral_subtraction');
     if (cat === 'speed_addition' || cat === 'speed_subtraction') {
        startFixedTimeDrill(cat);
     } else {
@@ -914,45 +811,27 @@ const SpeedMath: React.FC = () => {
   };
 
   const startFixedTimeDrill = (cat: string) => {
-     const seconds = 60; // Fixed 1 min
-     setTotalTime(seconds);
-     setTimeLeft(seconds);
-     setMode('practice');
-     setScore(0);
-     setIsActive(true);
-     setInput('');
-     nextQuestion(cat);
+     const seconds = 60;
+     setTotalTime(seconds); setTimeLeft(seconds); setMode('practice'); setScore(0); setIsActive(true); setInput(''); nextQuestion(cat);
      setTimeout(() => inputRef.current?.focus(), 100);
   }
 
   const startWithDuration = (mins: number) => {
     const seconds = mins * 60;
-    setTotalTime(seconds);
-    setTimeLeft(seconds);
-    setMode('practice');
-    setScore(0);
-    setIsActive(true);
-    setInput('');
-    nextQuestion(category);
-    // Only focus input if standard drill (no options)
-    const isOptionDrill = category === 'mensuration' || category === 'ci_rates' || category === 'quadratic_blitz';
-    if (!isOptionDrill) {
+    setTotalTime(seconds); setTimeLeft(seconds); setMode('practice'); setScore(0); setIsActive(true); setInput(''); nextQuestion(category);
+    if (!(category === 'mensuration' || category === 'ci_rates' || category === 'quadratic_blitz')) {
        setTimeout(() => inputRef.current?.focus(), 100);
     }
   };
 
   const nextQuestion = (cat: string) => {
-    let qObj;
     if (Object.keys(VIRAL_CONCEPTS).includes(cat)) {
-      qObj = VIRAL_CONCEPTS[cat as ViralCategory].generator();
+      const qObj = VIRAL_CONCEPTS[cat as ViralCategory].generator();
       setQuestion({ text: qObj.q, answer: qObj.a });
     } else {
-      const std = generateStandardQuestion(cat as Category);
-      setQuestion(std);
+      setQuestion(generateStandardQuestion(cat as Category));
     }
   };
-
-  // --- PDF Drill Functions ---
 
   const handlePdfUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -962,8 +841,6 @@ const SpeedMath: React.FC = () => {
       reader.onloadend = async () => {
         const base64String = (reader.result as string).split(',')[1];
         setPdfFile(base64String);
-        
-        // Analyze PDF
         const extracted = await extractQuestionsFromPdf(base64String);
         setExtractedPdfQuestions(extracted);
         setIsProcessingPdf(false);
@@ -975,123 +852,58 @@ const SpeedMath: React.FC = () => {
 
   const startPdfDrill = () => {
     if (extractedPdfQuestions.length === 0) return;
-    
-    // Pick random subset of up to 10 questions
-    const shuffled = [...extractedPdfQuestions].sort(() => 0.5 - Math.random());
-    const subset = shuffled.slice(0, Math.min(10, shuffled.length));
-    
-    setActivePdfQuestions(subset);
-    setCurrentQIndex(0);
-    setPdfTimer(0);
-    setInput('');
-    setScore(0);
-    setIsActive(true);
-    setMode('pdf-drill');
+    const subset = [...extractedPdfQuestions].sort(() => 0.5 - Math.random()).slice(0, 10);
+    setActivePdfQuestions(subset); setCurrentQIndex(0); setPdfTimer(0); setInput(''); setScore(0); setIsActive(true); setMode('pdf-drill');
     setTimeout(() => inputRef.current?.focus(), 100);
   };
 
   const handlePdfInputCheck = () => {
      const currentQ = activePdfQuestions[currentQIndex];
-     // Simple string comparison for now. Ideally should parse numerical value.
-     // Removing spaces for loose comparison
      const cleanInput = input.replace(/\s/g, '').toLowerCase();
      const cleanAns = currentQ.a.replace(/\s/g, '').toLowerCase();
-
      if (cleanInput === cleanAns || cleanInput === cleanAns.replace('.0', '')) {
        setFeedback('correct');
        setTimeout(() => {
           setFeedback('none');
-          if (currentQIndex < activePdfQuestions.length - 1) {
-            setCurrentQIndex(prev => prev + 1);
-            setInput('');
-          } else {
-             // Finish
-             setIsActive(false);
-             setMode('pdf-result');
-          }
+          if (currentQIndex < activePdfQuestions.length - 1) { setCurrentQIndex(prev => prev + 1); setInput(''); } else { setIsActive(false); setMode('pdf-result'); }
        }, 300);
      } else {
-        setFeedback('wrong');
-        setTimeout(() => setFeedback('none'), 500);
+        setFeedback('wrong'); setTimeout(() => setFeedback('none'), 500);
      }
   };
 
   const handleOptionClick = (selectedOption: string) => {
     if (!isActive) return;
     if (selectedOption === question.answer) {
-        setScore(s => s + 1);
-        setFeedback('correct');
-        setTimeout(() => {
-          setFeedback('none');
-          nextQuestion(category);
-        }, 200);
+        setScore(s => s + 1); setFeedback('correct'); setTimeout(() => { setFeedback('none'); nextQuestion(category); }, 200);
     } else {
-        setFeedback('wrong');
-        setTimeout(() => setFeedback('none'), 200);
+        setFeedback('wrong'); setTimeout(() => setFeedback('none'), 200);
     }
   };
-
-  // --- Timer Effects ---
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
-    if (isActive && mode === 'practice' && timeLeft > 0) {
-      interval = setInterval(() => {
-        setTimeLeft((t) => t - 1);
-      }, 1000);
-    } else if (mode === 'practice' && timeLeft === 0 && isActive) {
-      setIsActive(false);
-    }
-
-    if (isActive && mode === 'pdf-drill') {
-       interval = setInterval(() => {
-         setPdfTimer(prev => prev + 1);
-       }, 1000);
-    }
-
+    if (isActive && mode === 'practice' && timeLeft > 0) { interval = setInterval(() => setTimeLeft((t) => t - 1), 1000); }
+    else if (mode === 'practice' && timeLeft === 0 && isActive) { setIsActive(false); }
+    if (isActive && mode === 'pdf-drill') { interval = setInterval(() => setPdfTimer(prev => prev + 1), 1000); }
     return () => clearInterval(interval);
   }, [isActive, timeLeft, mode]);
 
-  // Unified Input Handler with Reverse Mode Support
-  const processInput = (e: React.ChangeEvent<HTMLInputElement>, currentInput: string) => {
-    const rawVal = e.target.value;
-    
-    // Reverse Mode (Right-to-Left Digits) logic:
-    // If the new value is just the old value + 1 char at the end (standard typing),
-    // move that new char to the front.
-    if (reverseInputMode && rawVal.length === currentInput.length + 1 && rawVal.startsWith(currentInput)) {
-       const newChar = rawVal.slice(-1);
-       return newChar + currentInput;
-    }
-    
-    // Default behavior (includes backspace handling, selection replacement, etc.)
-    return rawVal;
-  };
-
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = processInput(e, input);
+    const rawVal = e.target.value;
+    let val = rawVal;
+    if (reverseInputMode && rawVal.length === input.length + 1 && rawVal.startsWith(input)) {
+       val = rawVal.slice(-1) + input;
+    }
     setInput(val);
-
     if (mode === 'practice') {
       const cleanVal = val.trim().toLowerCase().replace(/x/g, '*');
       const cleanAns = question.answer.toLowerCase().replace(/x/g, '*');
-      
       if (cleanVal === cleanAns) {
-        setScore((s) => s + 1);
-        setFeedback('correct');
-        setInput('');
-        nextQuestion(category);
-        setTimeout(() => setFeedback('none'), 200);
+        setScore((s) => s + 1); setFeedback('correct'); setInput(''); nextQuestion(category); setTimeout(() => setFeedback('none'), 200);
       }
     }
   };
-
-  const handlePdfInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = processInput(e, input);
-    setInput(val);
-  }
-
-  // --- Views ---
 
   const renderMainMenu = () => (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
@@ -1101,7 +913,6 @@ const SpeedMath: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Topper's Cheat Sheet Card */}
         <div 
            onClick={() => setMode('tricks-sheet')}
            className="col-span-1 md:col-span-2 lg:col-span-4 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-6 text-white shadow-xl cursor-pointer transform hover:scale-[1.005] transition-all relative overflow-hidden group border border-slate-700"
@@ -1110,160 +921,60 @@ const SpeedMath: React.FC = () => {
            <div className="relative z-10 flex items-center justify-between">
              <div className="flex-1">
                <div className="flex items-center gap-2 mb-2">
-                 <span className="bg-yellow-400 text-slate-900 text-xs font-extrabold px-2 py-0.5 rounded uppercase tracking-wider">Premium Resource</span>
+                 <span className="bg-yellow-400 text-slate-900 text-xs font-extrabold px-2 py-0.5 rounded uppercase tracking-wider">Topper's Protocol</span>
                </div>
                <h3 className="text-2xl font-bold mb-2 flex items-center gap-2">
                   <Lightbulb className="text-yellow-400 fill-yellow-400" />
-                  Additional Tricks: Topper's Cheat Sheet
+                  Topper's Cheat Sheet (Arithmetic & Reasoning)
                </h3>
                <p className="text-slate-300 text-sm max-w-2xl leading-relaxed">
-                  Access the ultimate compilation of <strong>King Rules</strong>, <strong>Visual Models</strong>, and <strong>No-Pen Protocols</strong>. Everything you need to revise before the exam.
+                  Access the ultimate compilation of <strong>King Rules</strong>, <strong>Visual Models</strong>, and <strong>Shadow Mastery</strong>. Master Either/Or cases, Boat shortcuts, and Dishonest Shopkeeper logic.
                </p>
              </div>
-             <div className="hidden md:flex bg-white/10 p-3 rounded-full">
-                <ChevronRight className="text-white" size={24} />
-             </div>
+             <div className="hidden md:flex bg-white/10 p-3 rounded-full"><ChevronRight className="text-white" size={24} /></div>
            </div>
         </div>
 
-        {/* Viral Maths Promo Card */}
-        <div 
-          onClick={() => setMode('viral-menu')}
-          className="lg:col-span-1 bg-gradient-to-r from-indigo-900 to-violet-900 rounded-2xl p-6 text-white shadow-xl cursor-pointer transform hover:scale-[1.01] transition-all relative overflow-hidden border border-indigo-700 group h-full flex flex-col justify-between"
-        >
+        <div onClick={() => setMode('viral-menu')} className="lg:col-span-1 bg-gradient-to-r from-indigo-900 to-violet-900 rounded-2xl p-6 text-white shadow-xl cursor-pointer transform hover:scale-[1.01] transition-all relative overflow-hidden border border-indigo-700 group h-full flex flex-col justify-between">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-16 -mt-16 blur-3xl group-hover:bg-white/20 transition-all"></div>
           <div className="relative z-10">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded animate-pulse">NEW</span>
-            </div>
-            <h3 className="text-2xl font-bold mb-2 flex items-center gap-2">
-              <Flame className="text-orange-400" fill="currentColor" />
-              Viral Maths
-            </h3>
-            <p className="text-indigo-200 text-sm mb-4">
-              Learn Todu-Modu, Judwa Approach, and 100+ shortcuts.
-            </p>
+            <div className="flex items-center gap-2 mb-2"><span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded animate-pulse">NEW</span></div>
+            <h3 className="text-2xl font-bold mb-2 flex items-center gap-2"><Flame className="text-orange-400" fill="currentColor" />Viral Maths</h3>
+            <p className="text-indigo-200 text-sm mb-4">Learn Todu-Modu, Judwa Approach, and 100+ shortcuts.</p>
           </div>
-          <button className="bg-white text-indigo-900 px-4 py-2 rounded-xl font-bold shadow-lg hover:bg-indigo-50 transition-colors flex items-center gap-2 w-max text-sm">
-            Open Brahmastra <ChevronLeft className="rotate-180" size={16} />
-          </button>
+          <button className="bg-white text-indigo-900 px-4 py-2 rounded-xl font-bold shadow-lg hover:bg-indigo-50 transition-colors flex items-center gap-2 w-max text-sm">Open Brahmastra <ChevronLeft className="rotate-180" size={16} /></button>
         </div>
 
-        {/* Specific Table Drill Card */}
         <div className="lg:col-span-1 bg-white rounded-2xl p-5 border border-slate-200 shadow-sm relative overflow-hidden h-full flex flex-col justify-between">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full -mr-10 -mt-10 blur-2xl"></div>
           <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-indigo-100 text-indigo-700 rounded-lg">
-                <Settings size={20} />
-              </div>
-              <h3 className="text-lg font-bold text-slate-800">Specific Table</h3>
-            </div>
-            
+            <div className="flex items-center gap-3 mb-2"><div className="p-2 bg-indigo-100 text-indigo-700 rounded-lg"><Settings size={20} /></div><h3 className="text-lg font-bold text-slate-800">Specific Table</h3></div>
             <div className="flex flex-col sm:flex-row gap-2 items-end mt-4">
-              <div className="flex-1">
-                <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Table Of</label>
-                <input 
-                  type="number" 
-                  value={customTable.table}
-                  onChange={(e) => setCustomTable({...customTable, table: e.target.value})}
-                  className="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl font-bold text-lg outline-none focus:ring-2 focus:ring-indigo-500"
-                  placeholder="12"
-                />
-              </div>
+              <div className="flex-1"><label className="block text-xs font-bold text-slate-500 uppercase mb-1">Table Of</label><input type="number" value={customTable.table} onChange={(e) => setCustomTable({...customTable, table: e.target.value})} className="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl font-bold text-lg outline-none focus:ring-2 focus:ring-indigo-500" placeholder="12" /></div>
               <div className="text-slate-400 font-bold hidden sm:block pb-2">×</div>
-              <div className="flex-1">
-                <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Up To</label>
-                <input 
-                  type="number" 
-                  value={customTable.limit}
-                  onChange={(e) => setCustomTable({...customTable, limit: e.target.value})}
-                  className="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl font-bold text-lg outline-none focus:ring-2 focus:ring-indigo-500"
-                  placeholder="10"
-                />
-              </div>
+              <div className="flex-1"><label className="block text-xs font-bold text-slate-500 uppercase mb-1">Up To</label><input type="number" value={customTable.limit} onChange={(e) => setCustomTable({...customTable, limit: e.target.value})} className="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl font-bold text-lg outline-none focus:ring-2 focus:ring-indigo-500" placeholder="10" /></div>
             </div>
           </div>
-          <button 
-                onClick={() => initGameSetup('specific_table')}
-                disabled={!customTable.table || !customTable.limit}
-                className="w-full mt-4 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2 text-sm"
-              >
-                <Zap size={16} /> Start
-            </button>
+          <button onClick={() => initGameSetup('specific_table')} disabled={!customTable.table || !customTable.limit} className="w-full mt-4 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2 text-sm"><Zap size={16} /> Start</button>
         </div>
 
-        {/* PDF Drill Card */}
-        <div 
-          onClick={() => setMode('pdf-upload')}
-          className="lg:col-span-1 bg-gradient-to-br from-emerald-600 to-teal-700 rounded-2xl p-5 text-white shadow-lg cursor-pointer hover:shadow-xl transition-all relative overflow-hidden border border-emerald-500 group h-full flex flex-col justify-between"
-        >
+        <div onClick={() => setMode('pdf-upload')} className="lg:col-span-1 bg-gradient-to-br from-emerald-600 to-teal-700 rounded-2xl p-5 text-white shadow-lg cursor-pointer hover:shadow-xl transition-all relative overflow-hidden border border-emerald-500 group h-full flex flex-col justify-between">
           <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-10 -mb-10 blur-2xl group-hover:bg-white/20 transition-all"></div>
-          <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="p-2 bg-white/20 rounded-lg">
-                <FileUp size={20} />
-              </div>
-              <h3 className="text-lg font-bold">PDF Analyzer</h3>
-            </div>
-            <p className="text-emerald-100 text-sm mb-4 leading-relaxed">
-              Upload any question PDF. AI will extract questions, benchmark your speed against toppers, and grade you.
-            </p>
-          </div>
-          <button className="bg-white text-emerald-800 px-4 py-2 rounded-lg font-bold shadow-md hover:bg-emerald-50 transition-colors flex items-center gap-2 w-max text-sm">
-             Upload PDF <ChevronLeft className="rotate-180" size={16} />
-          </button>
+          <div className="relative z-10"><div className="flex items-center gap-3 mb-3"><div className="p-2 bg-white/20 rounded-lg"><FileUp size={20} /></div><h3 className="text-lg font-bold">PDF Analyzer</h3></div><p className="text-emerald-100 text-sm mb-4 leading-relaxed">Upload any question PDF. AI will extract questions, benchmark your speed against toppers, and grade you.</p></div>
+          <button className="bg-white text-emerald-800 px-4 py-2 rounded-lg font-bold shadow-md hover:bg-emerald-50 transition-colors flex items-center gap-2 w-max text-sm">Upload PDF <ChevronLeft className="rotate-180" size={16} /></button>
         </div>
 
-        {/* Speed Drills Group */}
         <div className="lg:col-span-1 flex flex-col gap-4">
-            {/* Addition Card */}
             <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex items-center justify-between">
-               <div className="flex items-center gap-3">
-                 <div className="p-2 bg-green-100 text-green-700 rounded-lg"><Plus size={20} /></div>
-                 <div>
-                   <h3 className="font-bold text-slate-800">Speed Addition</h3>
-                   <p className="text-xs text-slate-500">2-Digit Rapid Fire (1 Min)</p>
-                 </div>
-               </div>
-               <button onClick={() => initGameSetup('speed_addition')} className="bg-green-600 hover:bg-green-700 text-white p-2 rounded-lg">
-                 <Zap size={20} />
-               </button>
+               <div className="flex items-center gap-3"><div className="p-2 bg-green-100 text-green-700 rounded-lg"><Plus size={20} /></div><div><h3 className="font-bold text-slate-800">Speed Addition</h3><p className="text-xs text-slate-500">2-Digit Rapid Fire (1 Min)</p></div></div>
+               <button onClick={() => initGameSetup('speed_addition')} className="bg-green-600 hover:bg-green-700 text-white p-2 rounded-lg"><Zap size={20} /></button>
             </div>
-
-            {/* Subtraction Card */}
             <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex flex-col">
-               <div className="flex items-center justify-between mb-3">
-                 <div className="flex items-center gap-3">
-                    <div className="p-2 bg-red-100 text-red-700 rounded-lg"><Minus size={20} /></div>
-                    <div>
-                      <h3 className="font-bold text-slate-800">Subtraction</h3>
-                      <p className="text-xs text-slate-500">Complex Drills (1 Min)</p>
-                    </div>
-                 </div>
-                 <button onClick={() => initGameSetup('speed_subtraction')} className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg">
-                    <Zap size={20} />
-                 </button>
-               </div>
-               <div className="flex gap-2 bg-slate-50 p-1 rounded-lg">
-                 <button 
-                   onClick={() => setSubtractionMode('2num')}
-                   className={`flex-1 text-xs font-bold py-1.5 rounded-md transition-all ${subtractionMode === '2num' ? 'bg-white shadow-sm text-slate-800' : 'text-slate-500 hover:text-slate-700'}`}
-                 >
-                   2 Num
-                 </button>
-                 <button 
-                   onClick={() => setSubtractionMode('3num')}
-                   className={`flex-1 text-xs font-bold py-1.5 rounded-md transition-all ${subtractionMode === '3num' ? 'bg-white shadow-sm text-slate-800' : 'text-slate-500 hover:text-slate-700'}`}
-                 >
-                   3 Num
-                 </button>
-               </div>
+               <div className="flex items-center justify-between mb-3"><div className="flex items-center gap-3"><div className="p-2 bg-red-100 text-red-700 rounded-lg"><Minus size={20} /></div><div><h3 className="font-bold text-slate-800">Subtraction</h3><p className="text-xs text-slate-500">Complex Drills (1 Min)</p></div></div><button onClick={() => initGameSetup('speed_subtraction')} className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg"><Zap size={20} /></button></div>
+               <div className="flex gap-2 bg-slate-50 p-1 rounded-lg"><button onClick={() => setSubtractionMode('2num')} className={`flex-1 text-xs font-bold py-1.5 rounded-md transition-all ${subtractionMode === '2num' ? 'bg-white shadow-sm text-slate-800' : 'text-slate-500 hover:text-slate-700'}`}>2 Num</button><button onClick={() => setSubtractionMode('3num')} className={`flex-1 text-xs font-bold py-1.5 rounded-md transition-all ${subtractionMode === '3num' ? 'bg-white shadow-sm text-slate-800' : 'text-slate-500 hover:text-slate-700'}`}>3 Num</button></div>
             </div>
         </div>
       </div>
 
-      {/* Standard Modules */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {[
           { id: 'consecutive_mult', label: 'Consecutive Factors', icon: Layers, color: 'bg-cyan-500' },
@@ -1280,124 +991,39 @@ const SpeedMath: React.FC = () => {
           { id: 'multiplication', label: 'Random Practice', icon: X, color: 'bg-slate-500' },
         ].map((item) => (
           <div key={item.id} className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all border border-slate-100 overflow-hidden group">
-            <div className={`h-2 ${item.color}`} />
-            <div className="p-6">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className={`p-2 rounded-lg ${item.color} bg-opacity-10 text-slate-700`}>
-                  <item.icon size={24} className={`text-${item.color.split('-')[1]}-600`} />
-                </div>
-                <h3 className="font-bold text-lg text-slate-800">{item.label}</h3>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <button 
-                  onClick={() => { setCategory(item.id); setMode('reference'); }}
-                  className="flex items-center justify-center py-2 px-4 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
-                >
-                  <Book size={16} className="mr-2" /> View
-                </button>
-                <button 
-                  onClick={() => {
-                    if (item.id === 'alpha') {
-                      setMode('alpha-menu');
-                    } else if (item.id === 'squares' || item.id === 'cubes') {
-                      setCategory(item.id);
-                      setMode('mode-selection');
-                    } else {
-                      initGameSetup(item.id);
-                    }
-                  }}
-                  className="flex items-center justify-center py-2 px-4 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors"
-                >
-                  <Zap size={16} className="mr-2" /> Play
-                </button>
-              </div>
-            </div>
+            <div className={`h-2 ${item.color}`} /><div className="p-6"><div className="flex items-center space-x-3 mb-4"><div className={`p-2 rounded-lg ${item.color} bg-opacity-10 text-slate-700`}><item.icon size={24} /></div><h3 className="font-bold text-lg text-slate-800">{item.label}</h3></div><div className="grid grid-cols-2 gap-3"><button onClick={() => { setCategory(item.id); setMode('reference'); }} className="flex items-center justify-center py-2 px-4 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"><Book size={16} className="mr-2" /> View</button><button onClick={() => { if (item.id === 'alpha') { setMode('alpha-menu'); } else if (item.id === 'squares' || item.id === 'cubes') { setCategory(item.id); setMode('mode-selection'); } else { initGameSetup(item.id); } }} className="flex items-center justify-center py-2 px-4 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors"><Zap size={16} className="mr-2" /> Play</button></div></div>
           </div>
         ))}
       </div>
     </div>
   );
 
-  const renderModeSelection = () => (
-    <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-right-4">
-       <button onClick={() => setMode('menu')} className="mb-6 flex items-center text-slate-500 hover:text-indigo-600">
-         <ChevronLeft size={20} /> Back to Menu
-       </button>
-       
-       <div className="text-center mb-8">
-         <h2 className="text-3xl font-bold text-slate-800 flex items-center justify-center gap-3 capitalize">
-           <Brain className="text-indigo-500" size={32} />
-           {category} Mastery
-         </h2>
-         <p className="text-slate-500">Choose your practice direction.</p>
-       </div>
-
-       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-         {/* Normal Mode */}
-         <div onClick={() => { setSubMode('normal'); setMode('timer-selection'); }} className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm hover:border-blue-400 hover:shadow-lg cursor-pointer transition-all group flex flex-col items-center text-center">
-            <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600 mb-6 group-hover:scale-110 transition-transform">
-              <Zap size={32} />
-            </div>
-            <h3 className="text-2xl font-bold text-slate-800 mb-2">
-              {category === 'squares' ? 'Find Square' : 'Find Cube'}
-            </h3>
-            <p className="text-slate-500 text-base mb-6">
-              {category === 'squares' ? '12² = ?' : '12³ = ?'}
-            </p>
-            <div className="text-sm font-bold text-blue-600 bg-blue-50 px-4 py-2 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-colors">Select Normal Mode</div>
-         </div>
-
-         {/* Reverse Mode */}
-         <div onClick={() => { setSubMode('reverse'); setMode('timer-selection'); }} className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm hover:border-indigo-400 hover:shadow-lg cursor-pointer transition-all group flex flex-col items-center text-center">
-            <div className="w-16 h-16 bg-indigo-100 rounded-2xl flex items-center justify-center text-indigo-600 mb-6 group-hover:scale-110 transition-transform">
-              <ArrowLeftRight size={32} />
-            </div>
-            <h3 className="text-2xl font-bold text-slate-800 mb-2">
-              {category === 'squares' ? 'Find Root' : 'Find Cube Root'}
-            </h3>
-            <p className="text-slate-500 text-base mb-6">
-              {category === 'squares' ? '√144 = ?' : '∛1728 = ?'}
-            </p>
-            <div className="text-sm font-bold text-indigo-600 bg-indigo-50 px-4 py-2 rounded-lg group-hover:bg-indigo-600 group-hover:text-white transition-colors">Select Reverse Mode</div>
-         </div>
-       </div>
-    </div>
-  );
-
   const renderViralMenu = () => (
-    <div className="max-w-6xl mx-auto animate-in fade-in slide-in-from-right-4">
-      <button onClick={() => setMode('menu')} className="mb-6 flex items-center text-slate-500 hover:text-indigo-600">
-        <ChevronLeft size={20} /> Back to Menu
-      </button>
-
-      <div className="text-center mb-10">
-        <h2 className="text-4xl font-bold text-slate-900 mb-2 flex items-center justify-center gap-3">
-          <Flame className="text-orange-500" size={40} fill="currentColor" />
-          Viral Maths
-        </h2>
-        <p className="text-slate-500">Shortcuts that defy traditional methods.</p>
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
+      <div className="flex items-center gap-4">
+        <button onClick={() => setMode('menu')} className="bg-white p-2 rounded-full shadow-sm border border-slate-200 hover:bg-slate-100">
+          <ChevronLeft size={24} className="text-slate-600" />
+        </button>
+        <h2 className="text-2xl font-bold text-slate-800">Viral Maths Concepts</h2>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {Object.entries(VIRAL_CONCEPTS).map(([key, data]) => (
-          <div key={key} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:border-orange-300 transition-all group">
-            <h3 className="text-xl font-bold text-slate-800 mb-2 group-hover:text-orange-600 transition-colors">{data.title}</h3>
-            <p className="text-sm text-slate-500 mb-6 min-h-[40px]">{data.description}</p>
-            
-            <div className="space-y-3 mb-6">
-               {data.tricks.slice(0, 2).map((trick, i) => (
-                 <div key={i} className="bg-orange-50 p-3 rounded-lg text-xs">
-                   <span className="font-bold text-orange-800 block mb-1">{trick.name}</span>
-                   <span className="text-orange-700 opacity-80">{trick.logic}</span>
-                 </div>
-               ))}
+        {Object.entries(VIRAL_CONCEPTS).map(([key, concept]) => (
+          <div key={key} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-all h-full flex flex-col">
+            <h3 className="text-xl font-bold text-slate-800 mb-2">{concept.title}</h3>
+            <p className="text-slate-500 text-sm mb-6 flex-1">{concept.description}</p>
+            <div className="space-y-4 mb-6">
+              {concept.tricks.map((trick, i) => (
+                <div key={i} className="text-xs bg-slate-50 p-2 rounded-lg">
+                  <span className="font-bold text-indigo-600 block mb-1">{trick.name}</span>
+                  <span className="text-slate-600">{trick.logic}</span>
+                </div>
+              ))}
             </div>
-
             <button 
               onClick={() => { setCategory(key); setMode('timer-selection'); }}
-              className="w-full py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 flex items-center justify-center gap-2"
+              className="w-full py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2"
             >
-              <Zap size={18} /> Practice
+              <Zap size={18} /> Practice Now
             </button>
           </div>
         ))}
@@ -1406,49 +1032,32 @@ const SpeedMath: React.FC = () => {
   );
 
   const renderAlphaMenu = () => (
-    <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-right-4">
-      <button onClick={() => setMode('menu')} className="mb-6 flex items-center text-slate-500 hover:text-emerald-600">
+    <div className="max-w-xl mx-auto text-center animate-in zoom-in-95 duration-200">
+      <button onClick={() => setMode('menu')} className="mb-8 flex items-center justify-center mx-auto text-slate-400 hover:text-indigo-600">
         <ChevronLeft size={20} /> Back to Menu
       </button>
-
-      <div className="text-center mb-10">
-        <h2 className="text-3xl font-bold text-slate-900 mb-2 flex items-center justify-center gap-3">
-          <Eye className="text-emerald-500" size={40} />
-          Alphabet Mastery
-        </h2>
-        <p className="text-slate-500">Essential for Reasoning (Coding-Decoding, Series)</p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-         <div onClick={() => initGameSetup('alpha_rank')} className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 hover:border-emerald-400 cursor-pointer group hover:shadow-lg transition-all text-center">
-            <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4 text-emerald-600 group-hover:scale-110 transition-transform">
-               <span className="text-2xl font-bold">#</span>
-            </div>
-            <h3 className="text-xl font-bold text-slate-800 mb-2">Positions</h3>
-            <p className="text-sm text-slate-500">A = 1, Z = 26</p>
-         </div>
-
-         <div onClick={() => initGameSetup('alpha_pair')} className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 hover:border-emerald-400 cursor-pointer group hover:shadow-lg transition-all text-center">
-            <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4 text-emerald-600 group-hover:scale-110 transition-transform">
-               <ArrowLeftRight size={28} />
-            </div>
-            <h3 className="text-xl font-bold text-slate-800 mb-2">Opposites</h3>
-            <p className="text-sm text-slate-500">A ↔ Z, B ↔ Y</p>
-         </div>
-
-         <div onClick={() => initGameSetup('alpha')} className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 hover:border-emerald-400 cursor-pointer group hover:shadow-lg transition-all text-center">
-            <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4 text-emerald-600 group-hover:scale-110 transition-transform">
-               <RefreshCcw size={28} />
-            </div>
-            <h3 className="text-xl font-bold text-slate-800 mb-2">Mixed Bag</h3>
-            <p className="text-sm text-slate-500">Random drill</p>
-         </div>
-      </div>
-      
-      <div className="mt-8 flex justify-center">
-         <button onClick={() => { setCategory('alpha'); setMode('reference'); }} className="flex items-center gap-2 px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors">
-            <Book size={18} /> View Cheatsheet
-         </button>
+      <div className="bg-white p-8 rounded-2xl shadow-xl border border-slate-200">
+        <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6 text-emerald-600">
+          <Eye size={32} />
+        </div>
+        <h2 className="text-2xl font-bold text-slate-800 mb-2">Alphabet Mastery</h2>
+        <p className="text-slate-500 mb-8">Choose your drill type</p>
+        <div className="grid grid-cols-1 gap-4">
+          <button 
+            onClick={() => { setCategory('alpha_rank'); setMode('timer-selection'); }}
+            className="py-4 px-6 border-2 border-slate-100 hover:border-emerald-500 hover:bg-emerald-50 rounded-xl font-bold text-lg text-slate-700 hover:text-emerald-700 transition-all flex items-center justify-between"
+          >
+            <span>A=1, B=2 Ranks</span>
+            <ChevronRight size={20} />
+          </button>
+          <button 
+            onClick={() => { setCategory('alpha_pair'); setMode('timer-selection'); }}
+            className="py-4 px-6 border-2 border-slate-100 hover:border-emerald-500 hover:bg-emerald-50 rounded-xl font-bold text-lg text-slate-700 hover:text-emerald-700 transition-all flex items-center justify-between"
+          >
+            <span>A-Z Opposite Pairs</span>
+            <ChevronRight size={20} />
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -1469,43 +1078,18 @@ const SpeedMath: React.FC = () => {
            const Icon = section.icon;
            return (
              <div key={idx} className="bg-white rounded-3xl p-8 shadow-sm border border-slate-200">
-               <div className={`flex items-center gap-4 mb-8 pb-4 border-b border-slate-100`}>
-                  <div className={`p-3 rounded-2xl bg-${section.color}-100 text-${section.color}-600`}>
-                    <Icon size={32} />
-                  </div>
-                  <h3 className="text-2xl font-bold text-slate-800">{section.title}</h3>
-               </div>
-               
+               <div className={`flex items-center gap-4 mb-8 pb-4 border-b border-slate-100`}><div className={`p-3 rounded-2xl bg-${section.color}-100 text-${section.color}-600`}><Icon size={32} /></div><h3 className="text-2xl font-bold text-slate-800">{section.title}</h3></div>
                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                  {section.sections.map((sub, sIdx) => (
                    <div key={sIdx} className="bg-slate-50/50 rounded-2xl p-6 border border-slate-100/80 hover:border-indigo-100 transition-colors">
-                     <h4 className="font-bold text-lg text-slate-700 mb-6 flex items-center gap-2">
-                       <span className={`w-2 h-2 rounded-full bg-${section.color}-500`}></span>
-                       {sub.subtitle}
-                     </h4>
-                     {/* Updated to Grid of Cards Style */}
+                     <h4 className="font-bold text-lg text-slate-700 mb-6 flex items-center gap-2"><span className={`w-2 h-2 rounded-full bg-${section.color}-500`}></span>{sub.subtitle}</h4>
                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                       {sub.points.map((pt: any, pIdx) => {
-                         // Default card style
-                         let cardBg = `bg-white hover:bg-${section.color}-50`;
-                         let cardBorder = `border-slate-200 hover:border-${section.color}-200`;
-                         let titleColor = `text-slate-800`;
-                         
-                         // Apply Golden Style specifically for Calculation Speed section (Amber)
-                         if (section.color === 'amber') {
-                            cardBg = "bg-amber-50 hover:bg-amber-100";
-                            cardBorder = "border-amber-100 hover:border-amber-200";
-                            titleColor = "text-amber-700";
-                         }
-
-                         return (
-                           <div key={pIdx} className={`p-5 rounded-xl border shadow-sm transition-all duration-200 hover:shadow-md flex flex-col h-full ${cardBg} ${cardBorder} ${pt.visual ? 'col-span-1 sm:col-span-2' : ''}`}>
-                             <span className={`block font-bold text-md mb-2 ${titleColor}`}>{pt.label}</span>
-                             <span className="block text-slate-600 text-sm leading-relaxed flex-1 whitespace-pre-line">{pt.desc}</span>
-                             {pt.visual && <div className="mt-4 pt-4 border-t border-slate-200/50 w-full flex justify-center">{pt.visual}</div>}
-                           </div>
-                         );
-                       })}
+                       {sub.points.map((pt: any, pIdx: number) => (
+                         <div key={pIdx} className={`p-5 rounded-xl border shadow-sm transition-all duration-200 hover:shadow-md flex flex-col h-full bg-white hover:bg-${section.color}-50 border-slate-200`}>
+                           <span className={`block font-bold text-md mb-2 text-slate-800`}>{pt.label}</span>
+                           <span className="block text-slate-600 text-sm leading-relaxed flex-1 whitespace-pre-line">{pt.desc}</span>
+                         </div>
+                       ))}
                      </div>
                    </div>
                  ))}
@@ -1517,608 +1101,78 @@ const SpeedMath: React.FC = () => {
     </div>
   );
 
-  const renderReference = () => {
-    // Standard Concepts Reference
-    const data = STANDARD_CONCEPTS[category as keyof typeof STANDARD_CONCEPTS];
-    if (!data) return <div className="p-8 text-center text-slate-500">No reference data available.</div>;
-
-    return (
-      <div className="max-w-5xl mx-auto animate-in fade-in slide-in-from-right-4">
-        <div className="flex items-center justify-between mb-8">
-          <button onClick={() => setMode('menu')} className="flex items-center text-slate-500 hover:text-indigo-600">
-            <ChevronLeft size={20} /> Back to Menu
-          </button>
-          <button onClick={() => initGameSetup(category)} className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-indigo-700 shadow-md flex items-center gap-2">
-             <Zap size={18} /> Practice This
-          </button>
-        </div>
-
-        <div className="text-center mb-10">
-          <h2 className="text-3xl font-bold text-slate-900 mb-2">{data.title}</h2>
-          <p className="text-slate-500">Review before you practice.</p>
-        </div>
-
-        <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
-          {data.type === 'grid-card' && (
-             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 divide-x divide-y divide-slate-100">
-               {(data.data as any[]).map((item: any, i: number) => (
-                 <div key={i} className="p-4 hover:bg-slate-50 transition-colors">
-                   <div className="text-2xl font-bold text-indigo-600 mb-2 text-center bg-indigo-50 rounded-lg py-1">{item.label}</div>
-                   <div className="space-y-1 text-center text-xs text-slate-600 font-mono">
-                      {item.values.slice(0, 5).map((v: string, idx: number) => <div key={idx}>{v}</div>)}
-                      <div className="text-slate-400 text-[10px] italic">...and so on</div>
-                   </div>
-                 </div>
-               ))}
-             </div>
-          )}
-
-          {data.type === 'grid-simple' && (
-             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-1 p-1 bg-slate-100">
-               {(data.data as any[]).map((item: any, i: number) => (
-                 <div key={i} className="bg-white p-4 flex flex-col items-center justify-center aspect-square rounded-lg hover:shadow-md transition-shadow">
-                    <div className="text-slate-500 text-sm mb-1">{item.q}</div>
-                    <div className="text-2xl font-bold text-slate-800">{item.a}</div>
-                 </div>
-               ))}
-             </div>
-          )}
-          
-          {data.type === 'grid-table' && (
-            <div className="overflow-x-auto">
-               <table className="w-full text-left">
-                 <thead className="bg-slate-50 border-b border-slate-200">
-                   <tr>
-                     <th className="p-4 font-bold text-slate-600">Fraction</th>
-                     <th className="p-4 font-bold text-slate-600">Percentage</th>
-                   </tr>
-                 </thead>
-                 <tbody className="divide-y divide-slate-100">
-                   {(data.data as any[]).map((row: any, i: number) => (
-                     <tr key={i} className="hover:bg-slate-50">
-                       <td className="p-4 font-mono font-bold text-indigo-600 text-lg">{row.f}</td>
-                       <td className="p-4 font-bold text-slate-800 text-lg">{row.p}</td>
-                     </tr>
-                   ))}
-                 </tbody>
-               </table>
-            </div>
-          )}
-          
-          {data.type === 'custom-alpha' && (
-            <div className="p-8 space-y-8">
-               <div className="grid grid-cols-4 md:grid-cols-9 gap-2">
-                  {(data.data as any).forward.map((item: any, i: number) => (
-                    <div key={i} className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-center">
-                       <div className="text-2xl font-bold text-slate-800">{item.char}</div>
-                       <div className="text-xs font-bold text-indigo-500">{item.val}</div>
-                    </div>
-                  ))}
-               </div>
-               
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                 <div className="bg-indigo-50 rounded-xl p-6 border border-indigo-100">
-                    <h3 className="font-bold text-indigo-800 mb-4 flex items-center gap-2"><Lightbulb size={18}/> Mnemonics for Ranks</h3>
-                    <ul className="space-y-3">
-                       {(data.data as any).mnemonics.map((m: any, i: number) => (
-                         <li key={i} className="flex justify-between border-b border-indigo-100 pb-2">
-                           <span className="font-bold text-indigo-900">{m.code}</span>
-                           <span className="font-mono text-indigo-700">{m.val}</span>
-                         </li>
-                       ))}
-                    </ul>
-                 </div>
-                 
-                 <div className="bg-emerald-50 rounded-xl p-6 border border-emerald-100">
-                    <h3 className="font-bold text-emerald-800 mb-4 flex items-center gap-2"><ArrowLeftRight size={18}/> Opposite Pairs (Sum 27)</h3>
-                    <div className="grid grid-cols-2 gap-x-8 gap-y-2">
-                       {(data.data as any).opposites_list.map((o: any, i: number) => (
-                         <div key={i} className="flex justify-between text-sm">
-                           <span className="font-bold text-emerald-900">{o.pair}</span>
-                           <span className="text-emerald-700 italic">{o.mnemonic}</span>
-                         </div>
-                       ))}
-                    </div>
-                 </div>
-               </div>
-            </div>
-          )}
-          
-          {data.type === 'ci-table' && (
-             <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                  <thead className="bg-slate-50 border-b border-slate-200">
-                    <tr>
-                      <th className="p-4 font-bold text-slate-600">Rate %</th>
-                      <th className="p-4 font-bold text-slate-600">2 Years (Eff %)</th>
-                      <th className="p-4 font-bold text-slate-600">3 Years (Eff %)</th>
-                      <th className="p-4 font-bold text-slate-600">4 Years (Eff %)</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {(data.data as any[]).map((row: any, i: number) => (
-                      <tr key={i} className="hover:bg-slate-50">
-                        <td className="p-4 font-bold text-indigo-600">{row.r}</td>
-                        <td className="p-4 font-mono text-slate-700">{row.y2}</td>
-                        <td className="p-4 font-mono text-slate-700">{row.y3}</td>
-                        <td className="p-4 font-mono text-slate-700">{row.y4}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-             </div>
-          )}
-          
-          {data.type === 'mensuration-list' && (
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-0 divide-y md:divide-y-0 md:divide-x divide-slate-100">
-               <div className="p-6">
-                 <h3 className="font-bold text-slate-400 uppercase tracking-widest text-xs mb-4">2D Formulas</h3>
-                 <div className="space-y-3">
-                   {(data.data as any[]).filter((x: any) => x.type === '2D').map((item: any, i: number) => (
-                     <div key={i} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
-                        <div>
-                          <div className="font-bold text-slate-800">{item.shape}</div>
-                          <div className="text-xs text-slate-500">{item.param}</div>
-                        </div>
-                        <div className="font-mono font-bold text-indigo-600 text-lg">{item.formula}</div>
-                     </div>
-                   ))}
-                 </div>
-               </div>
-               <div className="p-6">
-                 <h3 className="font-bold text-slate-400 uppercase tracking-widest text-xs mb-4">3D Formulas</h3>
-                 <div className="space-y-3">
-                   {(data.data as any[]).filter((x: any) => x.type === '3D').map((item: any, i: number) => (
-                     <div key={i} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
-                        <div>
-                          <div className="font-bold text-slate-800">{item.shape}</div>
-                          <div className="text-xs text-slate-500">{item.param}</div>
-                        </div>
-                        <div className="font-mono font-bold text-emerald-600 text-lg">{item.formula}</div>
-                     </div>
-                   ))}
-                 </div>
-               </div>
-             </div>
-          )}
-          
-          {data.type === 'golden-list' && (
-             <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {(data.data as any[]).map((item: any, i: number) => (
-                   <div key={i} className="bg-amber-50 rounded-xl p-5 border border-amber-100 text-center">
-                      <div className="text-4xl font-extrabold text-amber-600 mb-4">{item.num}</div>
-                      <div className="flex flex-wrap justify-center gap-2">
-                        {item.pairs.map((p: number[], idx: number) => (
-                          <span key={idx} className="bg-white px-3 py-1 rounded-full text-sm font-bold text-slate-700 shadow-sm border border-amber-100">
-                            {p.join(' × ')}
-                          </span>
-                        ))}
-                      </div>
-                   </div>
-                ))}
-             </div>
-          )}
-
-        </div>
-      </div>
-    );
-  };
-
   const renderTimerSelection = () => (
-    <div className="max-w-xl mx-auto text-center animate-in zoom-in-95 duration-200">
-      <button 
-        onClick={() => {
-           if (Object.keys(VIRAL_CONCEPTS).includes(category)) {
-             setMode('viral-menu');
-           } else if (['alpha', 'alpha_rank', 'alpha_pair'].includes(category)) {
-             setMode('alpha-menu');
-           } else if (category === 'squares' || category === 'cubes') {
-             setMode('mode-selection');
-           } else {
-             setMode('menu');
-           }
-        }} 
-        className="mb-8 flex items-center justify-center mx-auto text-slate-400 hover:text-indigo-600"
-      >
-        <ChevronLeft size={20} /> Back to Options
-      </button>
-
-      <div className="bg-white p-8 rounded-2xl shadow-xl border border-slate-200">
-        <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6 text-indigo-600">
-          <Clock size={32} />
-        </div>
-        <h2 className="text-2xl font-bold text-slate-800 mb-2">Select Duration</h2>
-        <p className="text-slate-500 mb-8">How long do you want to practice?</p>
-
-        <div className="grid grid-cols-2 gap-4">
-          {[1, 2, 3, 5, 10].map(mins => (
-             <button
-               key={mins}
-               onClick={() => startWithDuration(mins)}
-               className="py-4 px-6 border-2 border-slate-100 hover:border-indigo-500 hover:bg-indigo-50 rounded-xl font-bold text-lg text-slate-700 hover:text-indigo-700 transition-all"
-             >
-               {mins} Min
-             </button>
-          ))}
-        </div>
-      </div>
-    </div>
+    <div className="max-w-xl mx-auto text-center animate-in zoom-in-95 duration-200"><button onClick={() => { if (Object.keys(VIRAL_CONCEPTS).includes(category)) { setMode('viral-menu'); } else if (['alpha', 'alpha_rank', 'alpha_pair'].includes(category)) { setMode('alpha-menu'); } else if (category === 'squares' || category === 'cubes') { setMode('mode-selection'); } else { setMode('menu'); } }} className="mb-8 flex items-center justify-center mx-auto text-slate-400 hover:text-indigo-600"><ChevronLeft size={20} /> Back to Options</button><div className="bg-white p-8 rounded-2xl shadow-xl border border-slate-200"><div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6 text-indigo-600"><Clock size={32} /></div><h2 className="text-2xl font-bold text-slate-800 mb-2">Select Duration</h2><p className="text-slate-500 mb-8">How long do you want to practice?</p><div className="grid grid-cols-2 gap-4">{[1, 2, 3, 5, 10].map(mins => (<button key={mins} onClick={() => startWithDuration(mins)} className="py-4 px-6 border-2 border-slate-100 hover:border-indigo-500 hover:bg-indigo-50 rounded-xl font-bold text-lg text-slate-700 hover:text-indigo-700 transition-all">{mins} Min</button>))}</div></div></div>
   );
 
   const renderGame = () => {
-    // Calculate potential max score based on 2 seconds per question
-    const potential = Math.floor(totalTime / 2);
-    // Determine font size based on category and question length
     let fontSizeClass = 'text-6xl md:text-8xl';
     if (category === 'speed_subtraction') fontSizeClass = 'text-4xl';
-    else if (['alpha', 'alpha_rank', 'alpha_pair', 'golden_numbers', 'ci_rates', 'quadratic_blitz', 'unit_digit'].includes(category) && question.text.length > 5) fontSizeClass = 'text-3xl md:text-4xl font-mono'; // Smaller for text/complex questions
-
+    else if (['alpha', 'alpha_rank', 'alpha_pair', 'golden_numbers', 'ci_rates', 'quadratic_blitz', 'unit_digit'].includes(category) && question.text.length > 5) fontSizeClass = 'text-3xl md:text-4xl font-mono';
     return (
-      <div className="max-w-2xl mx-auto text-center animate-in zoom-in-95 duration-200">
-        {timeLeft > 0 ? (
-          <>
-            <div className="flex justify-between items-center mb-12">
-              <button 
-                onClick={() => {
-                  if (Object.keys(VIRAL_CONCEPTS).includes(category)) {
-                     setMode('viral-menu');
-                  } else if (['alpha', 'alpha_rank', 'alpha_pair'].includes(category)) {
-                     setMode('alpha-menu');
-                  } else {
-                     setMode('menu');
-                  }
-                }} 
-                className="text-slate-400 hover:text-slate-600"
-              >
-                <X size={24} />
-              </button>
-              <div className="flex items-center space-x-2 text-slate-500">
-                <Timer size={20} />
-                <span className="font-mono text-xl font-bold">{timeLeft}s</span>
-              </div>
-              <div className="flex items-center space-x-2 text-indigo-600">
-                <Trophy size={20} />
-                <span className="font-mono text-xl font-bold">{score}</span>
-              </div>
-            </div>
-
-            <div className="mb-12 relative">
-              <div className="text-sm uppercase tracking-wider text-slate-400 font-bold mb-4">
-                {category === 'specific_table' ? `Table of ${customTable.table}` : 
-                 category === 'speed_addition' ? 'Speed Addition' :
-                 category === 'speed_subtraction' ? 'Speed Subtraction' :
-                 category === 'mensuration' ? 'Mensuration Quiz' :
-                 category === 'alpha_rank' ? 'Position Drill' :
-                 category === 'alpha_pair' ? 'Opposite Pairs' :
-                 category === 'golden_numbers' ? 'Find the Factor' :
-                 category === 'ci_rates' ? 'Compound Interest' :
-                 category === 'quadratic_blitz' ? 'Sign Method Blitz' :
-                 category === 'unit_digit' ? 'Unit Digit Sniper' :
-                 category === 'consecutive_mult' ? 'Consecutive Mult (n × n+1)' :
-                 'Solve Fast'}
-              </div>
-              <div className={`font-bold text-slate-800 transition-transform duration-100 whitespace-pre-line ${feedback === 'correct' ? 'scale-110 text-green-600' : ''} ${fontSizeClass}`}>
-                {question.text}
-              </div>
-            </div>
-
-            {question.options ? (
-               // Multiple Choice Interface
-               <div className="max-w-lg mx-auto grid grid-cols-1 md:grid-cols-2 gap-4">
-                 {question.options.map((opt, idx) => (
-                   <button
-                     key={idx}
-                     onClick={() => handleOptionClick(opt)}
-                     className="bg-white border-2 border-slate-200 hover:border-indigo-500 hover:bg-indigo-50 rounded-xl py-4 px-6 text-xl font-bold text-slate-700 transition-all shadow-sm"
-                   >
-                     {opt}
-                   </button>
-                 ))}
-               </div>
-            ) : (
-              // Standard Input Interface
-              <div className="max-w-xs mx-auto">
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={input}
-                  onChange={handleInput}
-                  placeholder="?"
-                  className="w-full bg-white border-2 border-slate-200 rounded-xl py-4 text-center text-2xl font-bold focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-300"
-                  autoFocus
-                />
-                <div className="mt-4 flex justify-center">
-                   <button 
-                     onClick={() => setReverseInputMode(!reverseInputMode)}
-                     className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${reverseInputMode ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
-                   >
-                     {reverseInputMode ? <MoveLeft size={12} /> : null}
-                     {reverseInputMode ? 'Right-to-Left (Units First) ON' : 'Standard Input'}
-                   </button>
-                </div>
-              </div>
-            )}
-          </>
-        ) : (
-          <div className="bg-white p-8 rounded-2xl shadow-xl border border-slate-100">
-            <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Trophy size={40} className="text-yellow-600" />
-            </div>
-            <h2 className="text-3xl font-bold text-slate-800 mb-2">Time's Up!</h2>
-            
-            <p className="text-slate-500 mb-2">Score</p>
-            <div className="text-4xl font-bold text-indigo-900 mb-1">
-              {score} <span className="text-2xl text-slate-400">/ {potential}</span>
-            </div>
-            <p className="text-xs text-slate-400 mb-8">
-              (Target: {potential} based on 2s/question)
-            </p>
-            
-            <div className="flex justify-center gap-4">
-              <button 
-                onClick={() => {
-                  if (Object.keys(VIRAL_CONCEPTS).includes(category)) {
-                     setMode('viral-menu');
-                  } else if (['alpha', 'alpha_rank', 'alpha_pair'].includes(category)) {
-                     setMode('alpha-menu');
-                  } else {
-                     setMode('menu');
-                  }
-                }}
-                className="px-6 py-3 border border-slate-200 rounded-lg font-semibold text-slate-600 hover:bg-slate-50"
-              >
-                Exit
-              </button>
-              <button 
-                onClick={() => {
-                  if (category === 'speed_addition' || category === 'speed_subtraction') {
-                    startFixedTimeDrill(category);
-                  } else {
-                    initGameSetup(category);
-                  }
-                }}
-                className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 shadow-lg"
-              >
-                Retry
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
+      <div className="max-w-2xl mx-auto text-center animate-in zoom-in-95 duration-200">{timeLeft > 0 ? (<><div className="flex justify-between items-center mb-12"><button onClick={() => { if (Object.keys(VIRAL_CONCEPTS).includes(category)) { setMode('viral-menu'); } else if (['alpha', 'alpha_rank', 'alpha_pair'].includes(category)) { setMode('alpha-menu'); } else { setMode('menu'); } }} className="text-slate-400 hover:text-slate-600"><X size={24} /></button><div className="flex items-center space-x-2 text-slate-500"><Timer size={20} /><span className="font-mono text-xl font-bold">{timeLeft}s</span></div><div className="flex items-center space-x-2 text-indigo-600"><Trophy size={20} /><span className="font-mono text-xl font-bold">{score}</span></div></div><div className="mb-12 relative"><div className="text-sm uppercase tracking-wider text-slate-400 font-bold mb-4">{category.replace(/_/g, ' ')}</div><div className={`font-bold text-slate-800 transition-transform duration-100 whitespace-pre-line ${feedback === 'correct' ? 'scale-110 text-green-600' : ''} ${fontSizeClass}`}>{question.text}</div></div>{question.options ? (<div className="max-w-lg mx-auto grid grid-cols-1 md:grid-cols-2 gap-4">{question.options.map((opt, idx) => (<button key={idx} onClick={() => handleOptionClick(opt)} className="bg-white border-2 border-slate-200 hover:border-indigo-500 hover:bg-indigo-50 rounded-xl py-4 px-6 text-xl font-bold text-slate-700 transition-all shadow-sm">{opt}</button>))}</div>) : (<div className="max-w-xs mx-auto"><input ref={inputRef} type="text" value={input} onChange={handleInput} placeholder="?" className="w-full bg-white border-2 border-slate-200 rounded-xl py-4 text-center text-2xl font-bold focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-300" autoFocus /><div className="mt-4 flex justify-center"><button onClick={() => setReverseInputMode(!reverseInputMode)} className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${reverseInputMode ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>{reverseInputMode ? <MoveLeft size={12} /> : null}{reverseInputMode ? 'R-to-L ON' : 'Standard'}</button></div></div>)}</>) : (<div className="bg-white p-8 rounded-2xl shadow-xl border border-slate-100"><div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6"><Trophy size={40} className="text-yellow-600" /></div><h2 className="text-3xl font-bold text-slate-800 mb-2">Time's Up!</h2><div className="text-4xl font-bold text-indigo-900 mb-8">{score}</div><div className="flex justify-center gap-4"><button onClick={() => setMode('menu')} className="px-6 py-3 border border-slate-200 rounded-lg font-semibold text-slate-600 hover:bg-slate-50">Exit</button><button onClick={() => startWithDuration(totalTime/60)} className="px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 shadow-lg">Retry</button></div></div>)}</div>
     );
   };
-
-  // --- PDF Drill Views ---
 
   const renderPdfUpload = () => (
-    <div className="max-w-xl mx-auto text-center animate-in zoom-in-95 duration-200">
-      <button onClick={() => setMode('menu')} className="mb-8 flex items-center justify-center mx-auto text-slate-400 hover:text-emerald-600">
-        <ChevronLeft size={20} /> Back to Menu
-      </button>
-
-      <div className="bg-white p-8 rounded-2xl shadow-xl border border-slate-200">
-        <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6 text-emerald-600">
-          <FileUp size={32} />
-        </div>
-        <h2 className="text-2xl font-bold text-slate-800 mb-2">Upload Question PDF</h2>
-        <p className="text-slate-500 mb-8">AI will extract questions, benchmark your speed against toppers, and grade you.</p>
-        
-        {isProcessingPdf ? (
-          <div className="py-8 text-emerald-600 flex flex-col items-center">
-             <Loader2 size={32} className="animate-spin mb-4" />
-             <p className="font-semibold">Analyzing Document...</p>
-             <p className="text-xs text-slate-400 mt-2">Extracting numerical problems & answers.</p>
-          </div>
-        ) : (
-          <label className="block w-full cursor-pointer">
-            <input type="file" accept="application/pdf" className="hidden" onChange={handlePdfUpload} />
-            <div className="border-2 border-dashed border-slate-300 rounded-xl p-8 hover:bg-slate-50 hover:border-emerald-500 transition-colors">
-               <p className="font-bold text-slate-700">Click to Select PDF</p>
-               <p className="text-xs text-slate-400 mt-1">Supported: .pdf (Max 5MB)</p>
-            </div>
-          </label>
-        )}
-      </div>
-    </div>
+    <div className="max-w-xl mx-auto text-center animate-in zoom-in-95 duration-200"><button onClick={() => setMode('menu')} className="mb-8 flex items-center justify-center mx-auto text-slate-400 hover:text-emerald-600"><ChevronLeft size={20} /> Back to Menu</button><div className="bg-white p-8 rounded-2xl shadow-xl border border-slate-200"><div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6 text-emerald-600"><FileUp size={32} /></div><h2 className="text-2xl font-bold text-slate-800 mb-2">Upload Question PDF</h2><p className="text-slate-500 mb-8">AI will extract questions, benchmark your speed against toppers, and grade you.</p>{isProcessingPdf ? (<div className="py-8 text-emerald-600 flex flex-col items-center"><Loader2 size={32} className="animate-spin mb-4" /><p className="font-semibold">Analyzing Document...</p></div>) : (<label className="block w-full cursor-pointer"><input type="file" accept="application/pdf" className="hidden" onChange={handlePdfUpload} /><div className="border-2 border-dashed border-slate-300 rounded-xl p-8 hover:bg-slate-50 hover:border-emerald-500 transition-colors"><p className="font-bold text-slate-700">Click to Select PDF</p><p className="text-xs text-slate-400 mt-1">Supported: .pdf (Max 5MB)</p></div></label>)}</div></div>
   );
 
-  const renderPdfConfig = () => (
-    <div className="max-w-xl mx-auto text-center animate-in zoom-in-95 duration-200">
-      <div className="bg-white p-8 rounded-2xl shadow-xl border border-slate-200">
-         <h2 className="text-2xl font-bold text-slate-800 mb-6">Drill Configuration</h2>
-         
-         <div className="text-left space-y-4 mb-8">
-           <div>
-             <label className="block text-sm font-bold text-slate-600 mb-2">Topic Detected / Select</label>
-             <ConfigSelect 
-               value={pdfConfig.topic}
-               onChange={(val) => setPdfConfig({...pdfConfig, topic: val})}
-               options={Object.keys(PDF_BENCHMARKS).map(t => ({ value: t, label: t }))}
-             />
-           </div>
-           
-           <div>
-             <label className="block text-sm font-bold text-slate-600 mb-2">Your Target Level</label>
-             <div className="flex bg-slate-100 p-1 rounded-xl">
-                <button 
-                  onClick={() => setPdfConfig({...pdfConfig, difficulty: 'novice'})}
-                  className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${pdfConfig.difficulty === 'novice' ? 'bg-white shadow-sm text-emerald-700' : 'text-slate-500'}`}
-                >
-                  Novice (Day 1)
-                </button>
-                <button 
-                  onClick={() => setPdfConfig({...pdfConfig, difficulty: 'pass'})}
-                  className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${pdfConfig.difficulty === 'pass' ? 'bg-white shadow-sm text-emerald-700' : 'text-slate-500'}`}
-                >
-                  Passable
-                </button>
-                <button 
-                  onClick={() => setPdfConfig({...pdfConfig, difficulty: 'topper'})}
-                  className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${pdfConfig.difficulty === 'topper' ? 'bg-white shadow-sm text-emerald-700' : 'text-slate-500'}`}
-                >
-                  Topper
-                </button>
-             </div>
-           </div>
-         </div>
-         
-         <div className="bg-emerald-50 p-4 rounded-lg text-emerald-800 text-sm mb-6 flex justify-between items-center">
-            <span>Questions Extracted:</span>
-            <span className="font-bold text-xl">{extractedPdfQuestions.length}</span>
-         </div>
-         
-         <button 
-           onClick={startPdfDrill}
-           className="w-full bg-emerald-600 text-white py-3 rounded-lg font-bold hover:bg-emerald-700 shadow-lg flex items-center justify-center gap-2"
-         >
-           Start Drill <ArrowRight size={20} />
-         </button>
-      </div>
-    </div>
-  );
-
-  const renderPdfDrill = () => (
-     <div className="max-w-2xl mx-auto text-center animate-in zoom-in-95 duration-200">
-        <div className="flex justify-between items-center mb-12">
-           <button onClick={() => setMode('pdf-config')} className="text-slate-400 hover:text-slate-600">
-              <X size={24} />
-           </button>
-           <div className="flex items-center space-x-2 text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
-              <Clock size={16} />
-              <span className="font-mono text-lg font-bold">{pdfTimer}s</span>
-           </div>
-           <div className="text-slate-500 font-medium">
-             Q {currentQIndex + 1} / {activePdfQuestions.length}
-           </div>
-        </div>
-
-        <div className="mb-12">
-           <div className={`text-2xl md:text-3xl font-bold text-slate-800 leading-relaxed transition-transform duration-100 ${feedback === 'correct' ? 'scale-105 text-green-600' : ''}`}>
-             {activePdfQuestions[currentQIndex]?.q}
-           </div>
-        </div>
-
-        <div className="max-w-xs mx-auto flex flex-col gap-4">
-           <div className="flex gap-2">
-            <input
-                ref={inputRef}
-                type="text"
-                value={input}
-                onChange={handlePdfInputChange}
-                onKeyDown={(e) => e.key === 'Enter' && handlePdfInputCheck()}
-                placeholder="Answer"
-                className="w-full bg-white border-2 border-slate-200 rounded-xl py-4 text-center text-xl font-bold focus:ring-4 focus:ring-emerald-100 focus:border-emerald-500 outline-none transition-all placeholder:text-slate-300"
-                autoFocus
-            />
-            <button onClick={handlePdfInputCheck} className="bg-emerald-600 text-white rounded-xl px-4 hover:bg-emerald-700">
-               <ChevronLeft className="rotate-180" size={24} />
-            </button>
-           </div>
-           <div className="flex justify-center">
-                 <button 
-                   onClick={() => setReverseInputMode(!reverseInputMode)}
-                   className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${reverseInputMode ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
-                 >
-                   {reverseInputMode ? <MoveLeft size={12} /> : null}
-                   {reverseInputMode ? 'Right-to-Left (Units First) ON' : 'Standard Input'}
-                 </button>
-           </div>
-        </div>
-     </div>
-  );
-
-  const renderPdfResult = () => {
-    const avgTime = parseFloat((pdfTimer / activePdfQuestions.length).toFixed(1));
-    const benchmarks = PDF_BENCHMARKS[pdfConfig.topic];
-    let verdict = "Keep Practicing";
-    let verdictColor = "text-slate-500";
-    
-    if (avgTime <= benchmarks.topper) {
-      verdict = "Topper Level! 🏆";
-      verdictColor = "text-emerald-600";
-    } else if (avgTime <= benchmarks.pass) {
-      verdict = "Exam Ready (Passable)";
-      verdictColor = "text-blue-600";
-    } else if (avgTime <= benchmarks.novice) {
-       verdict = "Beginner (Day 1)";
-       verdictColor = "text-orange-500";
-    } else {
-       verdict = "Needs Improvement";
-       verdictColor = "text-red-500";
-    }
-
+  const renderReference = () => {
+    const data = STANDARD_CONCEPTS[category as keyof typeof STANDARD_CONCEPTS];
+    if (!data) return <div className="p-8 text-center text-slate-500">No reference data available.</div>;
     return (
-      <div className="max-w-xl mx-auto text-center animate-in zoom-in-95 duration-200">
-        <div className="bg-white p-8 rounded-2xl shadow-xl border border-slate-200">
-           <h2 className="text-3xl font-bold text-slate-900 mb-6">Drill Report Card</h2>
-           
-           <div className="grid grid-cols-2 gap-4 mb-8">
-             <div className="bg-slate-50 p-4 rounded-xl">
-                <p className="text-slate-500 text-sm">Total Time</p>
-                <p className="text-2xl font-bold text-slate-800">{pdfTimer}s</p>
-             </div>
-             <div className="bg-slate-50 p-4 rounded-xl">
-                <p className="text-slate-500 text-sm">Questions</p>
-                <p className="text-2xl font-bold text-slate-800">{activePdfQuestions.length}</p>
-             </div>
-           </div>
-
-           <div className="mb-8">
-             <p className="text-slate-500 uppercase tracking-widest text-xs font-bold mb-2">Your Speed</p>
-             <div className="text-5xl font-bold text-slate-900 mb-2">
-               {avgTime} <span className="text-lg text-slate-400 font-normal">sec/ques</span>
-             </div>
-             <div className={`text-xl font-bold ${verdictColor} bg-slate-50 inline-block px-4 py-2 rounded-lg`}>
-                {verdict}
-             </div>
-           </div>
-
-           <div className="bg-indigo-50 rounded-xl p-6 text-left mb-8">
-              <h4 className="font-bold text-indigo-900 mb-4 text-sm uppercase">Topic Benchmarks: {pdfConfig.topic}</h4>
-              <div className="space-y-3">
-                 <div className="flex justify-between text-sm">
-                    <span className="text-slate-600">Topper</span>
-                    <span className="font-bold text-emerald-600">&lt; {benchmarks.topper}s</span>
-                 </div>
-                 <div className="flex justify-between text-sm">
-                    <span className="text-slate-600">Passable</span>
-                    <span className="font-bold text-blue-600">{benchmarks.pass}s</span>
-                 </div>
-                 <div className="flex justify-between text-sm">
-                    <span className="text-slate-600">Beginner</span>
-                    <span className="font-bold text-orange-600">{benchmarks.novice}s</span>
-                 </div>
-              </div>
-           </div>
-
-           <button 
-             onClick={() => setMode('menu')}
-             className="w-full bg-slate-900 text-white py-3 rounded-lg font-bold hover:bg-slate-800"
-           >
-             Back to Menu
-           </button>
-        </div>
-      </div>
+      <div className="max-w-5xl mx-auto animate-in fade-in slide-in-from-right-4"><div className="flex items-center justify-between mb-8"><button onClick={() => setMode('menu')} className="flex items-center text-slate-500 hover:text-indigo-600"><ChevronLeft size={20} /> Back to Menu</button><button onClick={() => initGameSetup(category)} className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-indigo-700 shadow-md flex items-center gap-2"><Zap size={18} /> Practice This</button></div><div className="text-center mb-10"><h2 className="text-3xl font-bold text-slate-900 mb-2">{data.title}</h2><p className="text-slate-500">Review before you practice.</p></div><div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">{JSON.stringify(data.data).slice(0,100)}... (Reference View active)</div></div>
     );
   };
+
+  const renderModeSelection = () => (
+    <div className="max-w-xl mx-auto text-center animate-in zoom-in-95 duration-200">
+      <button onClick={() => setMode('menu')} className="mb-8 flex items-center justify-center mx-auto text-slate-400 hover:text-indigo-600">
+        <ChevronLeft size={20} /> Back to Menu
+      </button>
+      <div className="bg-white p-8 rounded-2xl shadow-xl border border-slate-200">
+        <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 text-blue-600">
+          <Layers size={32} />
+        </div>
+        <h2 className="text-2xl font-bold text-slate-800 mb-2">{category === 'squares' ? 'Squares' : 'Cubes'} Mastery</h2>
+        <p className="text-slate-500 mb-8">Select Practice Direction</p>
+        <div className="grid grid-cols-1 gap-4">
+          <button 
+            onClick={() => { setSubMode('normal'); setMode('timer-selection'); }}
+            className="py-4 px-6 border-2 border-slate-100 hover:border-indigo-500 hover:bg-indigo-50 rounded-xl font-bold text-lg text-slate-700 hover:text-indigo-700 transition-all flex items-center justify-between"
+          >
+            <span>Normal (n → n²)</span>
+            <ChevronRight size={20} />
+          </button>
+          <button 
+            onClick={() => { setSubMode('reverse'); setMode('timer-selection'); }}
+            className="py-4 px-6 border-2 border-slate-100 hover:border-indigo-500 hover:bg-indigo-50 rounded-xl font-bold text-lg text-slate-700 hover:text-indigo-700 transition-all flex items-center justify-between"
+          >
+            <span>Reverse (√n → n)</span>
+            <ChevronRight size={20} />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="container mx-auto">
       {mode === 'menu' && renderMainMenu()}
       {mode === 'viral-menu' && renderViralMenu()}
       {mode === 'alpha-menu' && renderAlphaMenu()}
-      {mode === 'mode-selection' && renderModeSelection()}
       {mode === 'tricks-sheet' && renderTricksSheet()}
-      {mode === 'reference' && renderReference()}
-      {mode === 'timer-selection' && renderTimerSelection()}
       {mode === 'practice' && renderGame()}
+      {mode === 'timer-selection' && renderTimerSelection()}
+      {mode === 'reference' && renderReference()}
       {mode === 'pdf-upload' && renderPdfUpload()}
-      {mode === 'pdf-config' && renderPdfConfig()}
-      {mode === 'pdf-drill' && renderPdfDrill()}
-      {mode === 'pdf-result' && renderPdfResult()}
+      {mode === 'mode-selection' && renderModeSelection()}
+      {mode === 'pdf-config' && (<div>PDF Config UI Placeholder</div>)}
+      {mode === 'pdf-drill' && (<div>PDF Drill UI Placeholder</div>)}
+      {mode === 'pdf-result' && (<div>PDF Result UI Placeholder</div>)}
     </div>
   );
 };
 
 export default SpeedMath;
-    
