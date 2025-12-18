@@ -151,12 +151,30 @@ const DATA_UNITS = [
   { unit: "Petabyte (PB)", val: "1024 TB" }
 ];
 
-const MOST_ASKED_CONTENT = [
-  { q: "Ctrl + K", a: "Hyperlink shortcut" },
-  { q: "F7 Key", a: "Spelling and Grammar check" },
+const MAINS_FLASH_POINTS = [
+  { title: "Optical Capacity", text: "CD: 750-850MB | DVD: 4.7-17GB | Blu-ray: 100GB" },
+  { title: "Worm vs Virus", text: "Worm: NO host program needed | Virus: NEEDS a host program." },
+  { title: "History Hub", text: "1st Indian PC: Siddharth | Internet Father: Vint Cerf | WWW: Tim Berners-Lee." },
+  { title: "Hardware Logic", text: "Flip-flop: 1-bit storage | Modem: Digital to Analog converter." },
+  { title: "Network Devices", text: "Hub: Broadcaster (Dumb) | Switch: Intelligent (Direct)." }
+];
+
+const RAPID_TIPS = [
+  { title: "Gutter Margin", text: "Extra binding side margin (Left or Top) added to avoid text loss." },
+  { title: "MS Word Min", text: "Every table must have at least 1 Row and 1 Column (1x1)." },
+  { title: "Booting Rule", text: "A computer CANNOT boot without an Operating System (OS)." },
+  { title: "Excel Freeze", text: "Freeze Panes keep headers visible while scrolling down sheets." },
+  { title: "BSOD Crash", text: "Blue Screen of Death = Critical Operating System / Kernel failure." },
+  { title: "UPI Legitimacy", text: "GPay, PhonePe, BHIM are valid; AOP Photo is a common Exam Trap." }
+];
+
+const MOST_ASKED_QA = [
   { q: "Ctrl + Space", a: "Remove character formatting" },
-  { q: "HTTP Port", a: "Port 80 (Standard Web)" },
-  { q: "HTTPS Port", a: "Port 443 (Secure Web)" }
+  { q: "F12 Key", a: "Save As dialog box" },
+  { q: "Shift + F5", a: "Start PPT from current slide" },
+  { q: "Ctrl + M", a: "Insert a New Slide in PPT" },
+  { q: "Port 443", a: "HTTPS (Secure Web Transfer)" },
+  { q: "IEEE 802.15", a: "Standard for Bluetooth Tech" }
 ];
 
 const ComputerSePyaar: React.FC = () => {
@@ -171,7 +189,7 @@ const ComputerSePyaar: React.FC = () => {
           Computer Se Pyaar
         </h1>
         <p className="text-slate-500 max-w-2xl mx-auto font-medium">
-          Mains Targeted Master Guide. Merged Vivek Pandey Session Sync & 2025 Memory Based Data.
+          Mains Targeted Master Guide. Vivek Pandey Session Sync & RRB PO/Clerk '24 Trends.
         </p>
         <div className="flex justify-center flex-wrap gap-2">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-cyan-100 text-cyan-700 rounded-full text-xs font-bold border border-cyan-200 shadow-sm">
@@ -301,26 +319,12 @@ const ComputerSePyaar: React.FC = () => {
                  <h3 className="font-bold text-slate-800 text-xl">Mains '25 Flashcards</h3>
               </div>
               <ul className="space-y-4 text-sm text-slate-600 flex-1">
-                <li className="flex gap-3">
-                  <div className="w-2 h-2 bg-amber-400 rounded-full mt-1.5 flex-shrink-0"></div>
-                  <span><strong>Worm:</strong> Replicates without a host.</span>
-                </li>
-                <li className="flex gap-3">
-                  <div className="w-2 h-2 bg-amber-400 rounded-full mt-1.5 flex-shrink-0"></div>
-                  <span><strong>BSOD:</strong> Blue Screen of Death (OS crash).</span>
-                </li>
-                <li className="flex gap-3">
-                  <div className="w-2 h-2 bg-amber-400 rounded-full mt-1.5 flex-shrink-0"></div>
-                  <span><strong>FORTRAN:</strong> Formula Translation (Math).</span>
-                </li>
-                <li className="flex gap-3">
-                  <div className="w-2 h-2 bg-amber-400 rounded-full mt-1.5 flex-shrink-0"></div>
-                  <span><strong>IEEE 802.15:</strong> Bluetooth Standard.</span>
-                </li>
-                <li className="flex gap-3">
-                  <div className="w-2 h-2 bg-amber-400 rounded-full mt-1.5 flex-shrink-0"></div>
-                  <span><strong>Spoofing:</strong> Cloning IP/Phone Number.</span>
-                </li>
+                {MAINS_FLASH_POINTS.map((pt, i) => (
+                  <li key={i} className="flex gap-3">
+                    <div className="w-2 h-2 bg-amber-400 rounded-full mt-1.5 flex-shrink-0"></div>
+                    <span><strong>{pt.title}:</strong> {pt.text}</span>
+                  </li>
+                ))}
               </ul>
            </div>
 
@@ -333,27 +337,15 @@ const ComputerSePyaar: React.FC = () => {
                  <h3 className="font-bold text-slate-800 text-xl">Rapid Exam Tips</h3>
               </div>
               <ul className="space-y-5 flex-1">
-                 <li className="flex gap-3">
+                {RAPID_TIPS.map((tip, i) => (
+                  <li key={i} className="flex gap-3">
                     <div className="p-1 bg-green-100 text-green-600 rounded-full h-fit mt-0.5"><ShieldCheck size={16} /></div>
                     <div className="text-sm">
-                       <span className="font-bold block text-slate-900">Freeze Pane</span>
-                       <p className="text-slate-500">Keeps Excel rows/cols visible while scrolling.</p>
+                       <span className="font-bold block text-slate-900">{tip.title}</span>
+                       <p className="text-slate-500">{tip.text}</p>
                     </div>
-                 </li>
-                 <li className="flex gap-3">
-                    <div className="p-1 bg-green-100 text-green-600 rounded-full h-fit mt-0.5"><ShieldCheck size={16} /></div>
-                    <div className="text-sm">
-                       <span className="font-bold block text-slate-900">Storage Unit</span>
-                       <p className="text-slate-500">Sector is the smallest subdivision of a track.</p>
-                    </div>
-                 </li>
-                 <li className="flex gap-3">
-                    <div className="p-1 bg-green-100 text-green-600 rounded-full h-fit mt-0.5"><ShieldCheck size={16} /></div>
-                    <div className="text-sm">
-                       <span className="font-bold block text-slate-900">Utility Software</span>
-                       <p className="text-slate-500">Antivirus & Defragmenter (Performance enhancers).</p>
-                    </div>
-                 </li>
+                  </li>
+                ))}
               </ul>
            </div>
 
@@ -366,7 +358,7 @@ const ComputerSePyaar: React.FC = () => {
                  <h3 className="font-bold text-slate-800 text-xl">Most Asked Q&A</h3>
               </div>
               <div className="space-y-4 flex-1 overflow-y-auto pr-2">
-                 {MOST_ASKED_CONTENT.map((item, idx) => (
+                 {MOST_ASKED_QA.map((item, idx) => (
                     <div key={idx} className="p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-white transition-colors">
                        <div className="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-1">{item.q}</div>
                        <div className="text-sm text-slate-700 font-medium">{item.a}</div>
