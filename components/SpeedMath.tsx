@@ -387,24 +387,35 @@ const CHEAT_SHEET_DATA = [
       {
         subtitle: "1. The Golden Rule (P vs C)",
         points: [
-          { label: "Permutation (Arrangement)", desc: "**YES, Order Matters**. Think: **Passwords, PINs, Seating**. (1-2-3 ≠ 3-2-1). Keywords: Arrange, Rank, Numbers." },
-          { label: "Combination (Selection)", desc: "**NO, Order Doesn't Matter**. Think: **Fruit Salad, Teams, Handshakes**. (Apple+Banana = Banana+Apple). Keywords: Select, Choose, Committee." }
+          { label: "Permutation (Arrangement)", desc: "**YES, Order Matters**. Think: **Passwords, PINs**. (1-2-3 ≠ 3-2-1). Keywords: Arrange, Rank, Words, Numbers." },
+          { label: "Combination (Selection)", desc: "**NO, Order Doesn't Matter**. Think: **Fruit Salad**. (Apple & Banana = Banana & Apple). Keywords: Select, Choose, Pick, Team, Handshakes." }
         ]
       },
       {
-        subtitle: "2. The Countdown Shortcut",
+        subtitle: "2. The Countdown Method",
         points: [
-          { label: "Mental Permutation (P)", desc: "**5P2** → Start at 5, countdown 2 slots. **5 × 4 = 20**. No factorials needed." },
-          { label: "Mental Combination (C)", desc: "**5C2** → (Countdown 2) / (Divide 2!). **(5×4) / (2×1) = 10**. **10C2 = 45**, **8C2 = 28**." }
+          { label: "Permutation (5P2)", desc: "**Countdown 2 numbers from 5** → 5 × 4 = **20**. (Slot Method)." },
+          { label: "Combination (5C2)", desc: "Top: Countdown (5×4). Bottom: Divider (2×1). Result: **10**. Memorize: 10C2 = 45." }
         ]
       },
       {
         subtitle: "3. Common Exam Scenarios",
         points: [
-          { label: "The Word Game", desc: "Arrange **APPLE**? Total (5!) divided by Repeats (P=2!). **120/2 = 60**. If no repeats, just n!." },
-          { label: "Vowels Together (Box)", desc: "Arrange **LEADER** (E,A,E together). Pack vowels in **1 Box**. Total units = L,D,R,Box = 4!. Box internal = 3!/2!. Multiply both." },
-          { label: "Handshake Master", desc: "10 people meet? Order doesn't matter → **10C2**. Formula: **n(n-1)/2**. Ans: **10×9/2 = 45**." },
-          { label: "And / Or Rule", desc: "3 Men **AND** 2 Women → **Multiply (×)**. Man **OR** Woman → **Add (+)**." }
+          { label: "Word APPLE", desc: "Total (5!) / Repeated (P=2!). Result: **60**." },
+          { label: "Vowels Together", desc: "Box Method. **LEADER** (EAE together) = 4 units (L,D,R,Box). Box has 3 letters (2 repeats)." },
+          { label: "Handshakes", desc: "Handshake = Select 2 people (nC2). **n(n-1)/2**. 10 people = **45**." },
+          { label: "And / Or Rule", desc: "AND → **Multiply (×)**. OR → **Add (+)**." }
+        ]
+      },
+      {
+        subtitle: "4. Mental Triggers (Cheat List)",
+        points: [
+          { label: "Passwords / PINs", desc: "Permutation: **Countdown (5×4...)**" },
+          { label: "Teams / Committees", desc: "Combination: **Countdown / Divider**" },
+          { label: "Circular Table", desc: "Arrangement: **(n-1)!** (Fix one first)" },
+          { label: "Necklace / Beads", desc: "Arrangement: **(n-1)! / 2** (Flip over)" },
+          { label: "At least one", desc: "Logic: **Total - (None Case)**" },
+          { label: "Digits (0,1,2)", desc: "Box Method: **First box ≠ 0**" }
         ]
       }
     ]
