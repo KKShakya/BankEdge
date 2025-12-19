@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Globe, Building2, MapPin, Newspaper, ChevronLeft, Landmark, Plane, Users, Swords, Briefcase, Award, Zap, CalendarDays, Trophy, Laptop, Gavel, Scale, AlertTriangle, FileWarning, ClipboardList } from 'lucide-react';
+import { Globe, Building2, MapPin, Newspaper, ChevronLeft, Landmark, Plane, Users, Swords, Briefcase, Award, Zap, CalendarDays, Trophy, Laptop, Gavel, Scale, AlertTriangle, FileWarning, ClipboardList, Sparkles, Flower2, Music } from 'lucide-react';
 
 // Data Structures
 
@@ -84,13 +84,41 @@ const BANKING_AWARENESS = [
 
 const STATIC_GK = [
   {
-    category: "Currency Mnemonics (Tricks)",
-    icon: Globe,
+    category: "Indian Festivals & Heritage",
+    icon: Sparkles,
     items: [
-      { k: "PESO Trick", v: "MACD CPU (Mexico, Arg, Chile, Dom Rep, Col, Phil, Uru)" },
-      { k: "RUPEE Trick", v: "Mama Shree ne Bhai se Pakistan Manga" },
-      { k: "RUPEE Countries", v: "Maldives, Mauritius, SL, Nepal, India, Indo, Sey, Pak" },
-      { k: "WON", v: "North & South Korea" }
+      { k: "UNESCO Heritage", v: "Durga Puja, Diwali (Latest), Garba, Chhau, Kumbh" },
+      { k: "Hornbill Festival", v: "Nagaland (Partners: UK, Denmark, Ireland)" },
+      { k: "Ambubachi Mela", v: "Kamakhya Temple, Assam" },
+      { k: "New Year (Losar)", v: "Ladakh, Sikkim, Himachal (Tibetan Buddhist)" },
+      { k: "New Year (Vishu)", v: "Kerala" },
+      { k: "Floral Festival", v: "Bathukamma (Telangana)" },
+      { k: "Buddhist Festivals", v: "Saga Dawa & Losung (Sikkim)" },
+      { k: "Parsi New Year", v: "Navroz" }
+    ]
+  },
+  {
+    category: "Temple & Regional Fairs",
+    icon: Landmark,
+    items: [
+      { k: "Pushkar Fair", v: "Rajasthan (Lord Brahma & Camel Fair)" },
+      { k: "Karni Mata Fair", v: "Deshnok, Rajasthan (Famous for Rats)" },
+      { k: "Odisha Harvest", v: "Nuakhai, Dhanuyatra, Bali Jatra, Raj Parv" },
+      { k: "Meghalaya", v: "Cherry Blossom Festival (Oct-Nov)" },
+      { k: "Mizoram", v: "Chapchar Kut" },
+      { k: "Tripura", v: "Kharchi Puja" },
+      { k: "Surajkund Mela", v: "Faridabad, Haryana (Sun God linked)" }
+    ]
+  },
+  {
+    category: "GK Tricks & Mnemonics",
+    icon: Zap,
+    items: [
+      { k: "Bihu (Assam)", v: "Mnemonic: 'Assam ki Bahu' (Harvest)" },
+      { k: "O-P Pair", v: "O = Onam (Kerala) | P = Pongal (Tamil Nadu)" },
+      { k: "PESO Countries", v: "MACD CPU (Mex, Arg, Chile, Dom, Col, Phil, Uru)" },
+      { k: "RUPEE Countries", v: "Maldives, Maur, SL, Nepal, Ind, Indo, Sey, Pak" },
+      { k: "Dinar (Click-Sabt)", v: "Kuwait, Libya, Iraq, Jordan, Serb, Alg, Bah, Tun" }
     ]
   },
   {
@@ -101,29 +129,19 @@ const STATIC_GK = [
       { k: "Montreal", v: "WADA (Anti-Doping)" },
       { k: "Lausanne", v: "FIDE (Chess)" },
       { k: "Jakarta", v: "ASEAN" },
-      { k: "Kuala Lumpur", v: "Asian Hockey Federation" }
+      { k: "Kuala Lumpur", v: "Asian Hockey Federation" },
+      { k: "New York", v: "UNFPA (Note: UNEP is Nairobi)" }
     ]
   },
   {
-    category: "Power Plants & Defense",
-    icon: Zap,
+    category: "Power Plants & Nature",
+    icon: Globe,
     items: [
       { k: "Kaiga Atomic", v: "Karnataka (Record 962 Days)" },
-      { k: "Narora Atomic", v: "Uttar Pradesh" },
-      { k: "Mundra", v: "Gujarat (Thermal/Coal) 🔥 Not Atomic" },
-      { k: "Ex Maitri", v: "India-Thailand" },
-      { k: "Ex Garuda Shakti", v: "India-Indonesia" }
-    ]
-  },
-  {
-    category: "Culture, Festivals & States",
-    icon: Award,
-    items: [
-      { k: "Monkey Buffet", v: "Thailand (Lopburi, Nov)" },
-      { k: "Huttari Dance", v: "Karnataka (Kodagu)" },
-      { k: "Kalinga Award", v: "Odisha (Science)" },
-      { k: "Bhagalpur", v: "Bihar (Silk City)" },
-      { k: "TN Initiative", v: "SHG Women Identity Cards" }
+      { k: "Mundra Thermal", v: "Gujarat (Adani) 🔥 Not Atomic" },
+      { k: "Ramsar Sites", v: "Chilika (1st), Bhitarkanika (OD). Total: 96" },
+      { k: "Tiger State", v: "Madhya Pradesh (Nauradehi TR)" },
+      { k: "Floating Solar", v: "Omkareshwar, MP" }
     ]
   }
 ];
