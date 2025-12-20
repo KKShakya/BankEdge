@@ -151,7 +151,7 @@ const FLASHCARD_DATA = [
       { q: "Telnet", a: "Non-secure remote login" },
       { q: "IPSec", a: "Encryption at Network Layer" }
     ]
-  }
+  },
   {
     category: "OSI Layer Mastery",
     icon: Layers,
