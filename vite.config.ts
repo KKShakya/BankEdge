@@ -15,6 +15,13 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       host: true, // Exposes the app to your local network (LAN) for mobile testing
+      proxy: {
+        '/api': {
+          target: 'https://generativelanguage.googleapis.com',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api/, ''),
+        },
+      },
     }
   }
 })

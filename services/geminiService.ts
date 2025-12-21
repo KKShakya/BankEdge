@@ -1,4 +1,16 @@
 
+// Monkey-patch fetch to proxy requests to the local Vite server
+const originalFetch = window.fetch;
+window.fetch = (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+  const url = input.toString();
+  if (url.startsWith('https://generativelanguage.googleapis.com')) {
+    // Replace the original domain with the proxy path
+    const newUrl = url.replace('https://generativelanguage.googleapis.com', '/api');
+    return originalFetch(newUrl, init);
+  }
+  return originalFetch(input, init);
+};
+
 import { GoogleGenAI, Type } from "@google/genai";
 import { Question, Subject, Difficulty, PatternAnalysis, MockQuestion } from "../types";
 import { getStaticMockExam } from "./mockDataService";
