@@ -316,7 +316,7 @@ const ComputerSePyaar: React.FC = () => {
             Computer Se Pyaar
           </h1>
           <p className="text-slate-500 max-w-2xl mx-auto text-lg font-medium">
-            Zero to Hero master guide for IBPS RRB PO/Clerk. Select your learning mode.
+            Zero to Hero master guide for Bank PO/Clerk Exams. Select your learning mode.
           </p>
         </div>
 
@@ -592,7 +592,7 @@ const ComputerSePyaar: React.FC = () => {
               </h4>
               <p className="text-slate-400 text-sm max-w-lg leading-relaxed">
                 Use these cards once every morning. Don't read—try to <strong>predict the answer</strong> before your eyes land on it. 
-                Active recall is the fastest way to build computer knowledge for RRB PO & Clerk.
+                Active recall is the fastest way to build computer knowledge for Bank Exams.
               </p>
            </div>
            <div className="flex items-center gap-4 relative z-10">

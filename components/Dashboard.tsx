@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { MonitorPlay, Zap, FileText, Youtube, BarChart2, ArrowRight, Feather, Globe, Monitor } from 'lucide-react';
+import { MonitorPlay, Zap, FileText, Youtube, BarChart2, ArrowRight, Feather, Globe, Monitor, Bot, Mic, PenTool } from 'lucide-react';
 
 interface DashboardProps {
   onNavigate: (tab: string, props?: any) => void;
@@ -11,7 +11,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
       <header className="space-y-2">
         <h1 className="text-3xl font-bold text-slate-800">Welcome Aspirant</h1>
-        <p className="text-slate-500">Your simplified command center for IBPS RRB preparation.</p>
+        <p className="text-slate-500">Your simplified command center for Banking Exam preparation (SBI, IBPS, RRB).</p>
       </header>
 
       {/* Hero Section: Drill Engine */}
@@ -42,6 +42,57 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       {/* Navigation Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         
+        {/* AI Tutor (New) */}
+        <div 
+          onClick={() => onNavigate('chat')}
+          className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-violet-400 hover:shadow-md transition-all cursor-pointer group"
+        >
+          <div className="flex items-start justify-between mb-4">
+            <div className="p-3 bg-violet-100 text-violet-600 rounded-xl group-hover:scale-110 transition-transform">
+              <Bot size={28} />
+            </div>
+            <ArrowRight size={20} className="text-slate-300 group-hover:text-violet-500 transition-colors" />
+          </div>
+          <h3 className="text-xl font-bold text-slate-800 mb-2">AI Tutor Agent</h3>
+          <p className="text-slate-500 text-sm">
+            Your personal Banking Agent. Ask doubts for SBI, IBPS, or RRB exams, generate puzzles, and get deep conceptual clarity.
+          </p>
+        </div>
+
+        {/* Interview Simulator */}
+        <div 
+          onClick={() => onNavigate('interview')}
+          className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-emerald-400 hover:shadow-md transition-all cursor-pointer group"
+        >
+          <div className="flex items-start justify-between mb-4">
+            <div className="p-3 bg-emerald-100 text-emerald-600 rounded-xl group-hover:scale-110 transition-transform">
+              <Mic size={28} />
+            </div>
+            <ArrowRight size={20} className="text-slate-300 group-hover:text-emerald-500 transition-colors" />
+          </div>
+          <h3 className="text-xl font-bold text-slate-800 mb-2">Interview Simulator</h3>
+          <p className="text-slate-500 text-sm">
+            Real-time voice mock interviews for SBI/IBPS PO & Clerk. Practice intros and HR questions live.
+          </p>
+        </div>
+
+        {/* Descriptive Writing (UPDATED) */}
+        <div 
+          onClick={() => onNavigate('descriptive')}
+          className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-fuchsia-400 hover:shadow-md transition-all cursor-pointer group"
+        >
+          <div className="flex items-start justify-between mb-4">
+            <div className="p-3 bg-fuchsia-100 text-fuchsia-600 rounded-xl group-hover:scale-110 transition-transform">
+              <PenTool size={28} />
+            </div>
+            <ArrowRight size={20} className="text-slate-300 group-hover:text-fuchsia-500 transition-colors" />
+          </div>
+          <h3 className="text-xl font-bold text-slate-800 mb-2">Descriptive Writing</h3>
+          <p className="text-slate-500 text-sm">
+            Evaluator for Essays, Letters, Precis, and Reports. Check grammar, format, and vocabulary instantly.
+          </p>
+        </div>
+
         {/* Speed Math */}
         <div 
           onClick={() => onNavigate('speed')}
@@ -93,7 +144,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           </p>
         </div>
 
-        {/* Computer Se Pyaar (NEW) */}
+        {/* Computer Se Pyaar */}
         <div 
           onClick={() => onNavigate('computer')}
           className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-cyan-400 hover:shadow-md transition-all cursor-pointer group"
@@ -157,7 +208,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           </div>
           <h3 className="text-xl font-bold text-slate-800 mb-2">Pattern Analysis</h3>
           <p className="text-slate-500 text-sm">
-            Decode exam trends, weightage shifts, and AI predictions for RRB PO & Clerk.
+            Decode exam trends, weightage shifts, and AI predictions for SBI, IBPS & RRB.
           </p>
         </div>
 

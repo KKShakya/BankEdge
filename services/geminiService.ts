@@ -1,36 +1,68 @@
 
 // Monkey-patch fetch to proxy requests to the local Vite server
+// Wrapped in try-catch to handle environments where window.fetch is read-only
 const originalFetch = window.fetch;
-window.fetch = (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
-  const url = input.toString();
-  if (url.startsWith('https://generativelanguage.googleapis.com')) {
-    // Replace the original domain with the proxy path
-    const newUrl = url.replace('https://generativelanguage.googleapis.com', '/api');
-    return originalFetch(newUrl, init);
-  }
-  return originalFetch(input, init);
-};
+try {
+  window.fetch = (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+    const url = input.toString();
+    if (url.startsWith('https://generativelanguage.googleapis.com')) {
+      // Replace the original domain with the proxy path
+      const newUrl = url.replace('https://generativelanguage.googleapis.com', '/api');
+      return originalFetch(newUrl, init);
+    }
+    return originalFetch(input, init);
+  };
+} catch (e) {
+  console.warn("Could not patch window.fetch. API requests will be sent directly.", e);
+}
 
 import { GoogleGenAI, Type } from "@google/genai";
-import { Question, Subject, Difficulty, PatternAnalysis, MockQuestion } from "../types";
+import { Question, Subject, Difficulty, PatternAnalysis, MockQuestion, EssayAnalysis } from "../types";
 import { getStaticMockExam } from "./mockDataService";
 
-// Use Vite's standard method for accessing environment variables
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY as string;
-
-// Provide a clear error if the API key is missing
-if (!GEMINI_API_KEY) {
-  throw new Error("CRITICAL: VITE_GEMINI_API_KEY is not defined. Please add it to your .env.local file.");
-}
+// In this environment, the API key is injected automatically via process.env.API_KEY
+const GEMINI_API_KEY = process.env.API_KEY as string;
 
 const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
 // Updated System Instruction for a more natural "Gemini-like" experience
 const TUTOR_SYSTEM_INSTRUCTION = `
-You are a helpful, intelligent, and versatile AI assistant powered by Google's Gemini model. 
-While you are integrated into "BankEdge" (an IBPS RRB exam preparation app), you should interact naturally, effectively, and friendly, just like the standard Gemini experience.
-You can assist with math, logic, writing, planning, and general knowledge.
-However, if the user asks about exam specifics, prioritize methods suitable for banking exams (speed math, short tricks).
+You are 'BankEdge Pro', an elite exam preparation coach specially designed for Indian Banking Exams (SBI PO/Clerk, IBPS PO/Clerk, and RRB PO/Clerk).
+Your goal is to help the user clear these exams by providing detailed, structured, and exam-oriented guidance.
+
+**CORE PERSONA:**
+- **Tone:** Professional, encouraging, and highly analytical.
+- **Focus:** Accuracy first, then speed.
+- **Specialty:** Differentiating between "Prelims Speed" (RRB/Clerk) and "Mains Depth" (SBI/IBPS PO).
+
+**INTERACTION MODES:**
+
+1. **DEEP DIVE EXPLANATION (Default):**
+   - When asked about a concept (e.g., "Explain Syllogism"), use this structure:
+     - **Concept:** Brief definition.
+     - **The Shortcut:** A Vedic Math trick or Logic Rule (e.g., "Only A Few" rule).
+     - **The Trap:** Common mistakes students make in SBI/IBPS exams.
+     - **Example:** A mini illustrative example.
+
+2. **GENERATOR MODE (Triggered by 'Quiz me', 'Drill', 'Generate Question'):**
+   - When asked to generate a question, DO NOT provide the solution immediately.
+   - **Format:**
+     - **Topic:** [Topic Name]
+     - **Difficulty:** [Level]
+     - **Question:** [The Scenario/Problem]
+     - **Options:** 
+        A) ...
+        B) ...
+        C) ...
+        D) ...
+        E) ...
+     - **[SPOILER] Answer:** (Place this at the very bottom, separated by a line).
+   - If generating a **Puzzle**, provide the full setup first, then ask 1 specific question about it.
+
+3. **STRATEGY COACH:**
+   - If the user seems stressed or asks for tips, provide specific time-management advice (e.g., "In SBI PO, attempt 35 Reasoning Qs in 20 mins").
+
+Always prioritize Vedic Maths, Ratio Methods, and option elimination techniques.
 `;
 
 // Helper to strip markdown code blocks if present
@@ -59,7 +91,7 @@ export const sendChatMessage = async (history: { role: string; parts: { text: st
     return result.text || "I couldn't generate a response. Please try again.";
   } catch (error) {
     console.error("Chat Error:", error);
-    return "Sorry, I encountered an error connecting to the AI service.";
+    return "Sorry, I encountered an error connecting to the AI service. Please check your connection.";
   }
 };
 
@@ -100,7 +132,7 @@ export const generatePracticeQuestions = async (subject: Subject, difficulty: Di
     },
   };
 
-  const prompt = `Generate ${count} ${difficulty} level multiple-choice questions for IBPS RRB ${subject} specifically focusing on the topic: "${topic}".
+  const prompt = `Generate ${count} ${difficulty} level multiple-choice questions for Major Indian Banking Exams (SBI/IBPS/RRB) ${subject} specifically focusing on the topic: "${topic}".
   
   CRITICAL INSTRUCTION FOR DATA INTERPRETATION (DI):
   If the topic is related to DI, Graphs, Pie Charts, or Caslets:
@@ -109,7 +141,7 @@ export const generatePracticeQuestions = async (subject: Subject, difficulty: Di
   3. Ensure the data in 'chartData' perfectly matches the solution logic.
   
   For other topics, leave 'chartData' null.
-  Provide detailed explanations.`;
+  Provide detailed explanations suitable for a banking aspirant.`;
 
   try {
     const response = await ai.models.generateContent({
@@ -154,9 +186,9 @@ export const analyzeExamPattern = async (examType: 'PO' | 'Clerk', year: string)
     required: ["examYear", "examType", "summary", "subjectData"]
   };
 
-  const prompt = `Analyze the IBPS RRB ${examType} exam pattern for the year ${year} (or the most recent trend if exact year data is unavailable, but infer based on your knowledge base up to 2024/2025).
+  const prompt = `Analyze the pattern for Indian Banking Exams (${examType} level - covering SBI, IBPS, and RRB trends) for the year ${year} (or the most recent trend if exact year data is unavailable, but infer based on your knowledge base up to 2024/2025).
   Provide a breakdown of key topics, their weightage, and how the pattern shifted compared to previous years.
-  Focus heavily on Quant and Reasoning as they are key for Prelims.`;
+  Focus heavily on Quant and Reasoning as they are key for Prelims, but acknowledge English/GA if relevant for Mains.`;
 
   try {
     const response = await ai.models.generateContent({
@@ -178,15 +210,74 @@ export const analyzeExamPattern = async (examType: 'PO' | 'Clerk', year: string)
   }
 };
 
+export const evaluateDescriptiveWriting = async (type: string, topic: string, content: string): Promise<EssayAnalysis | null> => {
+  const schema = {
+    type: Type.OBJECT,
+    properties: {
+      grammarScore: { type: Type.INTEGER, description: "Score out of 10 for grammatical accuracy" },
+      relevanceScore: { type: Type.INTEGER, description: "Score out of 10 for adhering to topic and format" },
+      vocabScore: { type: Type.INTEGER, description: "Score out of 10 for vocabulary and professional tone" },
+      feedback: { type: Type.STRING, description: "Detailed qualitative feedback covering format, structure, and content." },
+      improvements: { type: Type.ARRAY, items: { type: Type.STRING }, description: "Specific grammatical or structural fixes" },
+      missingKeywords: { type: Type.ARRAY, items: { type: Type.STRING }, description: "Key terms or format elements relevant to the type/topic that were missing" },
+      sampleParagraph: { type: Type.STRING, description: "A refined version of a part of the user's text." }
+    },
+    required: ["grammarScore", "relevanceScore", "vocabScore", "feedback", "improvements", "missingKeywords", "sampleParagraph"]
+  };
+
+  const prompt = `
+  Act as a strict Examiner for Bank PO Mains (Descriptive Writing Section).
+  Evaluate the following submission.
+  
+  **Type:** ${type} (e.g., Essay, Letter, Application, Precis, Report, Comprehension Answer)
+  **Topic:** '${topic}'
+  
+  **Submission Content:**
+  "${content.substring(0, 10000)}"
+
+  **Grading Criteria:**
+  1. **Grammar (0-10):** Syntax, tense, punctuation.
+  2. **Content Relevance (0-10):** 
+     - Does it address the topic specifically?
+     - **For Letters/Applications:** Check strictly for Format (Sender Address, Date, Receiver Address, Subject, Salutation, Body, Closing).
+     - **For Precis:** Check for conciseness (approx 1/3rd length) and title.
+     - **For Reports:** Check for Headline, Date/Place, and objective reporting.
+  3. **Vocabulary (0-10):** Use of formal, professional terminology appropriate for Banking exams.
+  
+  **Output Requirements:**
+  - Provide scores.
+  - In 'missingKeywords', include missing format elements (e.g., "Missing Date", "Missing Subject") OR missing content keywords (e.g., for Inflation: "CPI", "RBI").
+  - In 'sampleParagraph', rewrite a weak section to show the "Pro" version.
+  `;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: schema,
+      },
+    });
+
+    const text = cleanJson(response.text || "");
+    if (!text) return null;
+    return JSON.parse(text) as EssayAnalysis;
+  } catch (error) {
+    console.error("Descriptive Eval Error:", error);
+    return null;
+  }
+};
+
 // --- Smart Notes Analysis ---
 
 export const analyzeUserNote = async (noteContent: string, action: 'summarize' | 'formulas' | 'quiz'): Promise<string> => {
   const prompt = `
-  Act as an expert study companion. 
+  Act as an expert study companion for Banking Exams (SBI/IBPS). 
   I will provide you with a study note. Please perform the following action: ${action}.
   
   Action Definitions:
-  - summarize: Create a bulleted summary of key points.
+  - summarize: Create a bulleted summary of key points suitable for quick revision.
   - formulas: Extract any mathematical formulas or short tricks mentioned or implied.
   - quiz: Generate 3 short practice questions based on this note (with answers hidden at the bottom).
 
@@ -240,7 +331,7 @@ export const parseMockFromText = async (questionText: string, answerText: string
   let prompt = '';
   if (answerText.trim()) {
      prompt = `
-      You are an exam parser. 
+      You are an exam parser for Banking Exams. 
       Input 1 contains Questions. Input 2 contains the Answer Key/Solutions.
       
       Task:
@@ -257,7 +348,7 @@ export const parseMockFromText = async (questionText: string, answerText: string
      `;
   } else {
      prompt = `
-      You are an intelligent exam parser and solver.
+      You are an intelligent exam parser and solver for Banking Exams (SBI/IBPS).
       I have pasted a raw text containing questions (and possibly options) from an exam paper.
       
       CRITICAL INSTRUCTIONS:
@@ -338,7 +429,7 @@ export const extractQuestionsFromPdf = async (pdfBase64: string): Promise<{ q: s
           }
         },
         {
-          text: `You are an expert math tutor for IBPS RRB exams. 
+          text: `You are an expert math tutor for Indian Banking exams (SBI/IBPS). 
           Analyze the provided PDF file. 
           Identify multiple-choice or numerical aptitude questions and their answers. 
           You must map the answers to the questions correctly. 

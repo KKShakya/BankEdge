@@ -87,7 +87,7 @@ const PatternAnalyzer: React.FC = () => {
          <div className="relative z-10">
             <h2 className="text-3xl font-bold mb-2 text-slate-800">Exam Pattern Decode</h2>
             <p className="text-slate-500 mb-8 max-w-2xl">
-              Leverage AI to analyze historical trends and predict expected weightage for specific topics.
+              Leverage AI to analyze historical trends and predict expected weightage for SBI, IBPS & RRB Exams.
             </p>
             
             <div className="flex flex-col md:flex-row gap-4">
@@ -95,8 +95,8 @@ const PatternAnalyzer: React.FC = () => {
                 value={examType}
                 onChange={(val) => setExamType(val as 'PO' | 'Clerk')}
                 options={[
-                  { value: 'PO', label: 'IBPS RRB PO (Officer Scale-I)' },
-                  { value: 'Clerk', label: 'IBPS RRB Clerk (Office Assistant)' }
+                  { value: 'PO', label: 'Bank PO (SBI / IBPS / RRB)' },
+                  { value: 'Clerk', label: 'Bank Clerk (SBI / IBPS / RRB)' }
                 ]}
               />
               

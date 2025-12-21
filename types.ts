@@ -76,3 +76,13 @@ export interface Note {
   date: number;
   tags: string[];
 }
+
+export interface EssayAnalysis {
+  grammarScore: number;
+  relevanceScore: number;
+  vocabScore: number;
+  feedback: string;
+  improvements: string[];
+  missingKeywords: string[];
+  sampleParagraph: string;
+}

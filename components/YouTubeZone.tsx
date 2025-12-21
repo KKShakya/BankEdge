@@ -262,7 +262,7 @@ const YouTubeZone: React.FC = () => {
                   <PlayCircle size={24} className="text-indigo-600" />
                   {activePlaylist.title}
                 </h2>
-                <p className="text-slate-500 text-sm mt-1">{activePlaylist.videoCount} • Curated for IBPS RRB</p>
+                <p className="text-slate-500 text-sm mt-1">{activePlaylist.videoCount} • Curated for Banking Exams</p>
               </div>
               <button className="hidden md:flex items-center gap-2 text-xs font-bold text-red-600 bg-red-50 px-3 py-2 rounded-lg hover:bg-red-100 transition-colors">
                 <Youtube size={16} />
