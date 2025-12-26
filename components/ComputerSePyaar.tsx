@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Monitor, Cpu, Wifi, Database, Shield, HardDrive, ChevronDown, Binary, History, FileText, Keyboard, Layers, MousePointer2, Info, Clock, Terminal, Hash, Activity, Zap, ShieldCheck, Star, Box, ZapOff, Globe, Lock, ListChecks, FileSearch, Sparkles, ArrowLeft, Lightbulb, Link } from 'lucide-react';
+import { Monitor, Cpu, Wifi, Database, Shield, HardDrive, ChevronDown, Binary, History, FileText, Keyboard, Layers, MousePointer2, Info, Clock, Terminal, Hash, Activity, Zap, ShieldCheck, Star, Box, ZapOff, Globe, Lock, ListChecks, FileSearch, Sparkles, ArrowLeft, Lightbulb, Link, ExternalLink, MonitorPlay } from 'lucide-react';
 
 const FLASHCARD_DATA = [
   {
@@ -142,7 +142,6 @@ const FLASHCARD_DATA = [
   },
     {
     category: "IoT & Protocols",
-    // Fix: Added missing 'Link' import to the destructuring list above.
     icon: Link,
     color: "purple",
     items: [
@@ -165,7 +164,6 @@ const FLASHCARD_DATA = [
   },
    {
     category: "IoT & Protocols",
-    // Fix: Added missing 'Link' import to the destructuring list above.
     icon: Link,
     color: "purple",
     items: [
@@ -310,14 +308,27 @@ const ComputerSePyaar: React.FC = () => {
   if (activeSubView === 'menu') {
     return (
       <div className="max-w-7xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-4 pb-12 px-4">
-        <div className="text-center space-y-4 mb-10">
-          <h1 className="text-5xl font-extrabold text-slate-900 flex items-center justify-center gap-3">
-            <Monitor className="text-indigo-600" size={48} />
-            Computer Se Pyaar
-          </h1>
-          <p className="text-slate-500 max-w-2xl mx-auto text-lg font-medium">
-            Zero to Hero master guide for Bank PO/Clerk Exams. Select your learning mode.
-          </p>
+        {/* Header with Centered Button */}
+        <div className="mb-10 text-center space-y-6 pt-8 md:pt-2">
+            <h1 className="text-5xl font-extrabold text-slate-900 flex items-center justify-center gap-3">
+              <Monitor className="text-indigo-600" size={48} />
+              Computer Se Pyaar
+            </h1>
+            <p className="text-slate-500 max-w-2xl mx-auto text-lg font-medium">
+              Zero to Hero master guide for Bank PO/Clerk Exams. Select your learning mode.
+            </p>
+
+            {/* Centered External Link Button */}
+            <div className="flex justify-center">
+                <a 
+                  href="https://comp-aware.vercel.app/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-indigo-700 transition-all shadow-lg hover:shadow-indigo-200 hover:-translate-y-0.5"
+                >
+                  <MonitorPlay size={18} /> Learn with Practice <ExternalLink size={14} className="opacity-80" />
+                </a>
+            </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
